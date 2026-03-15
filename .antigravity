@@ -1,0 +1,28 @@
+# Testing Maps: Standards & Rules
+
+These rules define the engineering culture and quality standards for the Testing Maps project.
+
+## 1. Architectural Integrity
+- **Pattern Matching**: Always look for existing patterns before implementing new ones.
+- **Serverless First**: Maintain compatibility with Vercel and Supabase. Avoid any persistent local state that doesn't sync via Liveblocks or the database.
+- **Strict Typing**: Use TypeScript for everything. No `any`. Use discriminated unions for complex states.
+
+## 2. Coding Standards
+- **Component Driven**: Build UI components in isolation (`/components/ui/`).
+- **Functional Cleanliness**: Prefer immutable patterns. Use React hooks for side effects.
+- **Testing Surface Area**: Every new feature must include a corresponding "Testing Map" update (manual or automated).
+
+## 3. Design Standards ("SF Startup Minimalist")
+- **Visual Excellence**: Every component must use the design tokens defined in `global.css`. Ad-hoc hex codes are strictly forbidden.
+- **Responsiveness**: All web views must be fully responsive (though mobile is not priority, the layouts should not break).
+- **Glassmorphism**: Use `backdrop-filter: blur()` sparingly for depth.
+- **Animations**: Use Framer Motion for micro-interactions. Keep durations under 0.2s for "snappy" feel.
+
+## 4. AI-Specific Instructions
+- **Context Preservation**: When generating code, always cross-reference the `product_requirements.md` and `implementation_plan.md`.
+- **Import Format**: Stick to the defined `.tm.json` schema for all AI-generated imports.
+- **Self-Documentation**: AI-generated code must be self-documenting. Use clear variable names over excessive comments.
+
+## 5. Collaboration Standards
+- **Liveblocks usage**: Always ensure that local mutations are optimistic and properly synced to the collaboration layer.
+- **Presence**: User presence (cursors/selection) should be a first-class citizen of the workspace UI.
