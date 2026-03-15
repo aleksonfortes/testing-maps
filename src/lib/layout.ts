@@ -1,22 +1,27 @@
 import dagre from "dagre";
-import { Node, Edge } from "@xyflow/react";
+import { Node, Edge, Position } from "@xyflow/react";
+
+import { NODE_WIDTH } from "./constants";
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 320;
+const nodeWidth = NODE_WIDTH;
 const nodeHeight = 200; 
 
 export const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "TB") => {
   const isHorizontal = direction === "LR";
   dagreGraph.setGraph({ 
     rankdir: direction,
-    nodesep: 80,
-    ranksep: 120,
+    nodesep: 300,
+    ranksep: 400,
   });
 
   nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    // Force integer widths and heights to prevent sub-pixel drift
+    const width = nodeWidth;
+    const height = node.measured?.height ? Math.round(node.measured.height) : nodeHeight;
+    dagreGraph.setNode(node.id, { width, height });
   });
 
   edges.forEach((edge) => {
@@ -27,13 +32,17 @@ export const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "T
 
   const newNodes = nodes.map((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
+    const width = nodeWidth;
+    const height = node.measured?.height ? Math.round(node.measured.height) : nodeHeight;
+    
     return {
       ...node,
-      targetPosition: isHorizontal ? "left" : "top",
-      sourcePosition: isHorizontal ? "right" : "bottom",
+      targetPosition: isHorizontal ? Position.Left : Position.Top,
+      sourcePosition: isHorizontal ? Position.Right : Position.Bottom,
       position: {
-        x: nodeWithPosition.x - nodeWidth / 2,
-        y: nodeWithPosition.y - nodeHeight / 2,
+        // Use Math.round on results to ensure absolute pixel alignment
+        x: Math.round(nodeWithPosition.x - width / 2),
+        y: Math.round(nodeWithPosition.y - height / 2),
       },
     };
   });

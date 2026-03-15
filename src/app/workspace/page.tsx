@@ -23,7 +23,13 @@ export default function WorkspacePage() {
                 </Link>
                 <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                 <h1 className="text-sm font-semibold tracking-tight">Testing Maps MVP</h1>
-                <span className="text-[10px] bg-secondary/50 px-2 py-0.5 rounded-full text-muted-foreground uppercase font-bold tracking-widest border border-border/50">Draft</span>
+                <div className="flex items-center gap-2 px-2 py-0.5 rounded-full bg-secondary/50 border border-border/50">
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Draft</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-600">
+                  <div className="w-1 h-1 rounded-full bg-green-600 animate-pulse" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Private Team</span>
+                </div>
               </div>
 
               <div className="flex items-center gap-4">

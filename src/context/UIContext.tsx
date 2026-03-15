@@ -9,6 +9,8 @@ interface UIContextType {
   toggleFilter: (filter: DisplayFilter) => void;
   viewMode: "diagram" | "mindmap";
   setViewMode: (mode: "diagram" | "mindmap") => void;
+  editingNodeId: string | null;
+  setEditingNodeId: (id: string | null) => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -16,6 +18,7 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 export function UIProvider({ children }: { children: ReactNode }) {
   const [activeFilters, setActiveFilters] = useState<Set<DisplayFilter>>(new Set(["testType"]));
   const [viewMode, setViewMode] = useState<"diagram" | "mindmap">("diagram");
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
 
   const toggleFilter = (filter: DisplayFilter) => {
     setActiveFilters((prev) => {
@@ -30,7 +33,14 @@ export function UIProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <UIContext.Provider value={{ activeFilters, toggleFilter, viewMode, setViewMode }}>
+    <UIContext.Provider value={{ 
+      activeFilters, 
+      toggleFilter, 
+      viewMode, 
+      setViewMode,
+      editingNodeId,
+      setEditingNodeId
+    }}>
       {children}
     </UIContext.Provider>
   );
