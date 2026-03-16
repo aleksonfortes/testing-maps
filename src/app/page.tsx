@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Map, Zap, Users, Code2 } from "lucide-react";
+import { ArrowRight, Map, Zap, Cloud, Code2 } from "lucide-react";
 
 export default function Home() {
   return (
@@ -15,8 +15,13 @@ export default function Home() {
           <span>Testing Maps</span>
         </div>
         <div className="flex gap-4">
-          <Link href="/auth" className="text-sm font-medium hover:text-primary transition-colors">Sign In</Link>
-          <Link href="/workspace" className="text-sm font-medium bg-primary text-primary-foreground px-4 py-1.5 rounded-full hover:opacity-90 transition-opacity">
+          <Link href="/auth" className="text-sm font-medium hover:text-primary transition-colors">
+            Sign In
+          </Link>
+          <Link
+            href="/workspace"
+            className="text-sm font-medium bg-primary text-primary-foreground px-4 py-1.5 rounded-full hover:opacity-90 transition-opacity"
+          >
             Try Demo
           </Link>
         </div>
@@ -28,32 +33,39 @@ export default function Home() {
           <span className="text-muted-foreground">age of AI.</span>
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          The definitive tool for mapping testing scenarios. Bridge the gap between high-level requirements and low-level code with real-time collaborative mind maps.
+          The definitive tool for mapping testing scenarios. Bridge the gap between high-level
+          requirements and low-level code with visual mind maps.
         </p>
-        
+
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-          <Link href="/workspace" className="flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition-all group">
+          <Link
+            href="/workspace"
+            className="flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition-all group"
+          >
             Launch Workspace
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
-          <Link href="#features" className="flex items-center gap-2 bg-secondary text-secondary-foreground px-8 py-4 rounded-full text-lg font-semibold hover:bg-secondary/80 transition-all">
+          <Link
+            href="#features"
+            className="flex items-center gap-2 bg-secondary text-secondary-foreground px-8 py-4 rounded-full text-lg font-semibold hover:bg-secondary/80 transition-all"
+          >
             Explore Features
           </Link>
         </div>
       </section>
 
       <section id="features" className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full mt-32">
-        <FeatureCard 
-          icon={<Users className="w-6 h-6" />}
-          title="Collaborative"
-          description="Real-time multi-user editing with live cursors and instant conflict resolution."
+        <FeatureCard
+          icon={<Cloud className="w-6 h-6" />}
+          title="Cloud Synced"
+          description="Your testing maps are automatically saved to the cloud. Access them from any device, anytime."
         />
-        <FeatureCard 
+        <FeatureCard
           icon={<Zap className="w-6 h-6" />}
           title="AI-Native"
           description="Import AI-generated testing schemas automatically to visualize your testing map instantly."
         />
-        <FeatureCard 
+        <FeatureCard
           icon={<Code2 className="w-6 h-6" />}
           title="IDE Integrated"
           description="Link scenarios directly to code files. Verify quality where it matters most."
@@ -63,7 +75,15 @@ export default function Home() {
   );
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
   return (
     <div className="p-8 rounded-3xl bg-secondary/50 border border-border hover:border-primary/20 transition-all group">
       <div className="mb-4 text-primary">{icon}</div>

@@ -1,3 +1,12 @@
 export const NODE_WIDTH = 320;
 export const NODE_MIN_HEIGHT = 140;
-export const LAYOUT_DELAY = 50; 
+export const LAYOUT_DELAY = 50;
+export const SAVE_DEBOUNCE_MS = 2000;
+export const LOAD_SETTLE_MS = 300;
+export const FIT_VIEW_DELAY_MS = 50;
+export const FIT_VIEW_DURATION_MS = 800;
+export const DEFAULT_NODE_HEIGHT = 200;
+export const LAYOUT_NODE_SEP = 300;
+export const LAYOUT_RANK_SEP = 400;
+export const MAX_UNDO_HISTORY = 50;
+export const REPARENT_DISTANCE_THRESHOLD = 150;

@@ -1,11 +1,11 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
 
 export type DisplayFilter = "expectedResults" | "instructions" | "testType" | "codeReference";
 
 interface UIContextType {
-  activeFilters: Set<DisplayFilter>;
+  activeFilters: DisplayFilter[];
   toggleFilter: (filter: DisplayFilter) => void;
   viewMode: "diagram" | "mindmap";
   setViewMode: (mode: "diagram" | "mindmap") => void;
@@ -16,31 +16,27 @@ interface UIContextType {
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export function UIProvider({ children }: { children: ReactNode }) {
-  const [activeFilters, setActiveFilters] = useState<Set<DisplayFilter>>(new Set(["testType"]));
+  const [activeFilters, setActiveFilters] = useState<DisplayFilter[]>(["testType"]);
   const [viewMode, setViewMode] = useState<"diagram" | "mindmap">("diagram");
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
 
-  const toggleFilter = (filter: DisplayFilter) => {
-    setActiveFilters((prev) => {
-      const next = new Set(prev);
-      if (next.has(filter)) {
-        next.delete(filter);
-      } else {
-        next.add(filter);
-      }
-      return next;
-    });
-  };
+  const toggleFilter = useCallback((filter: DisplayFilter) => {
+    setActiveFilters((prev) =>
+      prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
+    );
+  }, []);
 
   return (
-    <UIContext.Provider value={{ 
-      activeFilters, 
-      toggleFilter, 
-      viewMode, 
-      setViewMode,
-      editingNodeId,
-      setEditingNodeId
-    }}>
+    <UIContext.Provider
+      value={{
+        activeFilters,
+        toggleFilter,
+        viewMode,
+        setViewMode,
+        editingNodeId,
+        setEditingNodeId,
+      }}
+    >
       {children}
     </UIContext.Provider>
   );
