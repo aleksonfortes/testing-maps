@@ -14,9 +14,22 @@ import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 
 export default function WorkspacePage() {
+  return (
+    <UIProvider>
+      <WorkspaceContentWrapper />
+    </UIProvider>
+  );
+}
+
+function WorkspaceContentWrapper() {
   const [user, setUser] = useState<User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [activeMapId, setActiveMapId] = useState<string | null>(null);
+
+  const isQueryTestMode = typeof window !== 'undefined' && 
+    new URLSearchParams(window.location.search).get("testMode") === "true";
+  const isEnvTestMode = process.env.NEXT_PUBLIC_TEST_MODE === "true";
+  const isTestMode = isQueryTestMode || isEnvTestMode;
 
   useEffect(() => {
     supabase.auth
@@ -52,29 +65,28 @@ export default function WorkspacePage() {
   }, []);
 
   if (!authChecked || !user) {
-    // If in test mode, we can bypass this or show a mock. 
-    const isTestMode = typeof window !== 'undefined' && (window as any).__NEXT_DATA__?.props?.pageProps?.testMode || process.env.NEXT_PUBLIC_TEST_MODE === "true";
     if (!isTestMode) {
       return (
         <main className="flex h-screen items-center justify-center bg-background">
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-        </main>
-      );
-    }
+  const testUser = { id: "test-user-id", email: "test@example.com" } as User;
+  if (!isTestMode && (!authChecked || !user)) {
+    return (
+      <main className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </main>
+    );
   }
 
-  const testUser = { id: "test-user-id", email: "test@example.com" } as User;
   const currentUser = user || testUser;
 
   return (
-    <UIProvider>
-      <WorkspaceContent 
-        currentUser={currentUser} 
-        activeMapId={activeMapId} 
-        handleSelectMap={handleSelectMap}
-        handleSignOut={handleSignOut}
-      />
-    </UIProvider>
+    <WorkspaceContent 
+      currentUser={currentUser} 
+      activeMapId={activeMapId} 
+      handleSelectMap={handleSelectMap}
+      handleSignOut={handleSignOut}
+    />
   );
 }
 
@@ -97,12 +109,24 @@ function WorkspaceContent({
   return (
     <main className="flex h-screen flex-col bg-background overflow-hidden text-foreground" data-hero-hidden={isHeroHidden}>
       {/* Workspace Header */}
-      <header className="flex h-14 items-center justify-between border-b border-border px-6 glass z-50">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="hover:opacity-80 transition-opacity" aria-label="Home">
-            <Map className="w-5 h-5" />
+      <header className="flex h-12 items-center justify-between border-b border-border px-4 bg-background/50 backdrop-blur-xl z-50">
+        <div className="flex items-center gap-1.5 text-sm font-medium">
+          <Link href="/" className="p-1.5 hover:bg-secondary rounded-lg transition-colors flex items-center justify-center" aria-label="Home">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+          
+          <span className="text-muted-foreground/40 font-light mx-0.5">/</span>
+          
+          <div className="flex items-center gap-2 px-2 py-1 hover:bg-secondary rounded-lg transition-colors cursor-default group">
+            <Layers className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+            <span className="text-muted-foreground group-hover:text-foreground transition-colors">Projects</span>
+          </div>
+
+          <span className="text-muted-foreground/40 font-light mx-0.5">/</span>
           
           {/* Map Selection Dropdown */}
           <MapDropdown 
@@ -110,29 +134,21 @@ function WorkspaceContent({
             activeMapId={activeMapId} 
             onSelectMap={handleSelectMap} 
           />
-
-          <div className="flex items-center gap-2 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 ml-2">
-            <span className="text-[10px] text-primary uppercase font-bold tracking-widest">
-              Cloud
-            </span>
-          </div>
         </div>
         
         <div className="flex items-center gap-4">
-          {/* Future: User profile / settings / logout could go here */}
+          <button 
+            onClick={handleSignOut}
+            className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Sign Out
+          </button>
         </div>
       </header>
 
       {/* Canvas Layout */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Tool Sidebar (Fixed, slim) */}
-        <aside className="w-14 border-r border-border flex flex-col items-center py-6 gap-6 glass shrink-0">
-          <SidebarItem
-            icon={<Layers className="w-5 h-5" />}
-            tooltip="Scenarios"
-            active
-          />
-        </aside>
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Sidebar removed for minimalism - everything is now controlled via the header or node actions */}
 
         {/* Main Workspace Area */}
         <div className="flex-1 relative">
@@ -142,29 +158,20 @@ function WorkspaceContent({
               userId={currentUser.id}
               onSignOut={handleSignOut}
             />
-          ) : (
-            <AnimatePresence mode="wait">
-              {showEmptyState && (
-                <motion.div 
-                  key="empty-state"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex flex-col h-full items-center justify-center text-muted-foreground"
-                  data-testid="workspace-hero"
-                >
-                  <div className="p-8 rounded-[2.5rem] bg-secondary/30 mb-6 border border-border/50 shadow-2xl">
-                    <Map className="w-12 h-12 opacity-20" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-foreground tracking-tight">No Map Selected</h3>
-                  <p className="text-sm max-w-[320px] text-center mt-3 opacity-60 leading-relaxed">
-                    Select an existing map from the dropdown above or create a new one to start mapping your scenarios.
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          )}
+          ) : showEmptyState ? (
+            <div 
+              className="flex flex-col h-full items-center justify-center text-muted-foreground"
+              data-testid="workspace-hero"
+            >
+              <div className="p-8 rounded-[2.5rem] bg-secondary/30 mb-6 border border-border/50 shadow-2xl">
+                <Map className="w-12 h-12 opacity-20" />
+              </div>
+              <h3 className="text-2xl font-bold text-foreground tracking-tight">No Map Selected</h3>
+              <p className="text-sm max-w-[320px] text-center mt-3 opacity-60 leading-relaxed">
+                Select an existing map from the dropdown above or create a new one to start mapping your scenarios.
+              </p>
+            </div>
+          ) : null}
           <FilterHUD />
         </div>
       </div>
@@ -172,29 +179,3 @@ function WorkspaceContent({
   );
 }
 
-function SidebarItem({
-  icon,
-  tooltip,
-  active = false,
-}: {
-  icon: React.ReactNode;
-  tooltip: string;
-  active?: boolean;
-}) {
-  return (
-    <button
-      className={cn(
-        "p-2.5 rounded-2xl transition-all cursor-pointer relative group",
-        active
-          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-          : "hover:bg-secondary text-muted-foreground hover:text-foreground"
-      )}
-      aria-label={tooltip}
-    >
-      {icon}
-      <div className="absolute left-full ml-4 px-2 py-1 bg-popover text-popover-foreground text-[10px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap border border-border shadow-xl z-[100]">
-        {tooltip}
-      </div>
-    </button>
-  );
-}

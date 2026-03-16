@@ -9,9 +9,10 @@ test.describe("Workspace UI Spec", () => {
     await workspace.goto();
   });
 
-  test("should show empty state initially", async () => {
+  test("should show empty state initially", async ({ page }) => {
     await workspace.expectHeroVisible();
     await expect(workspace.mapDropdown).toContainText(/select a map/i);
+    await expect(page.getByTestId("breadcrumb-projects")).toBeVisible();
   });
 
   test("should open dropdown and show actions", async () => {

@@ -76,18 +76,16 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
+        data-testid="map-selection-toggle"
         className={cn(
-          "flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all hover:bg-secondary/80 group",
-          isOpen ? "bg-secondary" : "bg-transparent"
+          "flex items-center gap-2 px-2 py-1 rounded-lg transition-all group/breadcrumb",
+          isOpen ? "bg-secondary" : "hover:bg-secondary"
         )}
       >
-        <div className="p-1 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-          <Map className="w-4 h-4 text-primary" />
-        </div>
-        <span className="text-sm font-semibold tracking-tight truncate max-w-[200px]">
+        <span className="text-sm text-foreground group-hover/breadcrumb:text-foreground transition-colors truncate max-w-[200px]">
           {activeMap ? activeMap.name : "Select a Map"}
         </span>
-        <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform duration-200", isOpen && "rotate-180")} />
+        <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground/50 transition-transform duration-200", isOpen && "rotate-180")} />
       </button>
 
       <AnimatePresence>
@@ -97,7 +95,7 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute left-0 top-full mt-2 w-72 bg-popover border border-border rounded-2xl shadow-2xl z-[100] overflow-hidden glass"
+            className="absolute left-0 top-full mt-1 w-72 bg-popover border border-border shadow-2xl z-[100] overflow-hidden rounded-xl"
           >
             {/* Search */}
             <div className="p-3 border-b border-border/50">

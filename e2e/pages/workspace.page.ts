@@ -16,7 +16,7 @@ export class WorkspacePage {
 
   constructor(page: Page) {
     this.page = page;
-    this.mapDropdown = page.getByRole("button", { name: /select a map|untitled map|imported map/i });
+    this.mapDropdown = page.getByTestId("map-selection-toggle");
     this.newMapButton = page.getByTestId("new-map-button");
     this.importButton = page.getByTestId("import-button");
     this.heroSection = page.getByTestId("workspace-hero");
@@ -29,7 +29,7 @@ export class WorkspacePage {
   }
 
   async goto() {
-    await this.page.goto("/workspace");
+    await this.page.goto("/workspace?testMode=true");
     // Wait for the page to be ready
     await expect(this.page).toHaveTitle(/testing maps/i);
   }
@@ -60,6 +60,7 @@ export class WorkspacePage {
 
   async expectHeroVisible(visible: boolean = true) {
     if (visible) {
+      await this.heroSection.waitFor({ state: "visible" });
       await expect(this.heroSection).toBeVisible();
     } else {
       await expect(this.heroSection).not.toBeVisible();
