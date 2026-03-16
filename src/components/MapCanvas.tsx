@@ -17,15 +17,16 @@ import {
   useEdgesState,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { LiveObject } from "@liveblocks/client";
-import { useMyPresence, useOthers, useStorage, useMutation } from "@/liveblocks.config";
 import { useUI } from "@/context/UIContext";
 import { getLayoutedElements } from "@/lib/layout";
 import { ScenarioNode } from "./nodes/ScenarioNode";
 import { ScenarioModal } from "./modals/ScenarioModal";
 import { MarkdownExport } from "./modals/MarkdownExport";
-import { Type, FileText, MoreHorizontal } from "lucide-react";
+import { Type, FileText, LogOut } from "lucide-react";
 import { LAYOUT_DELAY } from "@/lib/constants";
+import { supabase } from "@/lib/supabase";
+import { testingMapRepository } from "@/lib/repository";
+import { useRouter } from "next/navigation";
 
 const nodeTypes = {
   scenario: ScenarioNode,
@@ -68,98 +69,85 @@ export function MapCanvas() {
 function MapCanvasInner() {
   const { viewMode, editingNodeId, setEditingNodeId } = useUI();
   const { fitView, getNodes, getEdges } = useReactFlow();
+  const router = useRouter();
   
-  const [nodes, setNodes, onNodesChangeLocal] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChangeLocal] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
   const [showMarkdown, setShowMarkdown] = useState(false);
-  const [isRestricted, setIsRestricted] = useState(false);
-  
-  const storageNodes = useStorage((root) => root.nodes);
-  const storageEdges = useStorage((root) => root.edges);
-  const [myPresence, updatePresence] = useMyPresence();
-  const others = useOthers();
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const lastLayoutMode = useRef<string>("");
 
-  // Mutations
-  const mutNodesChange = useMutation(({ storage }, jsonChanges: any[]) => {
-    const liveNodes = storage.get("nodes");
-    jsonChanges.forEach((change) => {
-      if (change.type === "position" && change.dragging) {
-        const index = liveNodes.findIndex(n => n.get("id") === change.id);
-        if (index !== -1) liveNodes.get(index)?.set("position", change.position);
-      }
+  // Fix hydration and check auth
+  useEffect(() => {
+    setIsMounted(true);
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: any } }) => {
+      setUser(user);
     });
   }, []);
 
-  const mutEdgesChange = useMutation(({ storage }, jsonChanges: any[]) => {
-    const liveEdges = storage.get("edges");
-    jsonChanges.forEach(change => {
-      if (change.type === "remove") {
-        const index = liveEdges.findIndex(e => e.get("id") === change.id);
-        if (index !== -1) liveEdges.delete(index);
+  // Initial Load from Supabase
+  useEffect(() => {
+    if (!isMounted || !user) return;
+
+    const loadData = async () => {
+      try {
+        const data = await testingMapRepository.loadMap(user.id);
+
+        if (data) {
+          if (data.nodes && data.nodes.length > 0) setNodes(data.nodes);
+          if (data.edges && data.edges.length > 0) setEdges(data.edges);
+        }
+
+        setTimeout(() => {
+          setIsLoaded(true);
+        }, 300);
+      } catch (err) {
+        console.error("Cloud Load Error:", err);
+        setIsLoaded(true);
       }
-    });
-  }, []);
+    };
 
-  const mutAddNode = useMutation(({ storage }, newNode: any, newEdge?: any) => {
-    const liveNodes = storage.get("nodes");
-    const liveEdges = storage.get("edges");
-    liveNodes.push(new LiveObject(newNode as any));
-    if (newEdge) liveEdges.push(new LiveObject(newEdge as any));
-  }, []);
+    loadData();
+  }, [isMounted, user, setNodes, setEdges]);
 
-  const mutDeleteNode = useMutation(({ storage }, id: string) => {
-    const liveNodes = storage.get("nodes");
-    const liveEdges = storage.get("edges");
-    const index = liveNodes.findIndex(n => n.get("id") === id);
-    if (index !== -1) liveNodes.delete(index);
-    let i = liveEdges.length;
-    while (i--) {
-      const edge = liveEdges.get(i);
-      if (edge?.get("source") === id || edge?.get("target") === id) liveEdges.delete(i);
-    }
-  }, []);
+  // Persist to Supabase
+  useEffect(() => {
+    if (!isLoaded || !user) return;
+    
+    // Defensive check
+    if (nodes.length === 0 && initialNodes.length > 0) return;
+    
+    const saveData = async () => {
+      try {
+        await testingMapRepository.saveMap(user.id, nodes, edges);
+      } catch (err) {
+        console.error("Cloud Save Error:", err);
+      }
+    };
 
-  const mutConnect = useMutation(({ storage }, params: any) => {
-    storage.get("edges").push(new LiveObject({ 
+    // Debounce saves
+    const timer = setTimeout(saveData, 2000);
+    return () => clearTimeout(timer);
+  }, [nodes, edges, isLoaded, user]);
+
+  const onConnect = useCallback((params: any) => {
+    const edge = { 
       ...params, 
       id: `e${params.source}-${params.target}`, 
+      animated: true,
       sourceHandle: "source",
       targetHandle: "target",
       type: "smoothstep"
-    }));
-  }, []);
-
-  // Handlers
-  const onNodesChange = useCallback((changes: any[]) => {
-    onNodesChangeLocal(changes);
-    if (storageNodes && !isRestricted) {
-      try { mutNodesChange(changes); } catch (e) { setIsRestricted(true); }
-    }
-  }, [onNodesChangeLocal, storageNodes, isRestricted, mutNodesChange]);
-
-  const onEdgesChange = useCallback((changes: any[]) => {
-    onEdgesChangeLocal(changes);
-    if (storageEdges && !isRestricted) {
-      try { mutEdgesChange(changes); } catch (e) { setIsRestricted(true); }
-    }
-  }, [onEdgesChangeLocal, storageEdges, isRestricted, mutEdgesChange]);
-
-  const onConnect = useCallback((params: any) => {
-    const edge = { ...params, id: `e${params.source}-${params.target}`, animated: true };
+    };
     setEdges((eds) => addEdge(edge, eds));
-    if (storageEdges && !isRestricted) {
-      try { mutConnect(params); } catch (e) { setIsRestricted(true); }
-    }
-  }, [setEdges, storageEdges, isRestricted, mutConnect]);
+  }, [setEdges]);
 
   const onDeleteNode = useCallback((id: string) => {
     setNodes((nds) => nds.filter((n) => n.id !== id));
     setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
-    if (storageNodes && !isRestricted) {
-      try { mutDeleteNode(id); } catch (e) { setIsRestricted(true); }
-    }
-  }, [setNodes, setEdges, storageNodes, isRestricted, mutDeleteNode]);
+  }, [setNodes, setEdges]);
 
   const onUpdateNode = useCallback((id: string, newData: any) => {
     setNodes((nds) => nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, ...newData } } : n)));
@@ -216,12 +204,8 @@ function MapCanvasInner() {
     setNodes(lNodes);
     setEdges(styledEdges);
     
-    if (storageNodes && !isRestricted) {
-      try { mutAddNode(newNode, newEdge); } catch (e) { setIsRestricted(true); }
-    }
-    
     setTimeout(() => fitView({ duration: 800 }), 50);
-  }, [nodes, edges, setNodes, setEdges, storageNodes, isRestricted, mutAddNode, viewMode, fitView]);
+  }, [nodes, edges, setNodes, setEdges, viewMode, fitView]);
 
   const onLayout = useCallback((direction: string) => {
     const currentNodes = getNodes();
@@ -243,17 +227,6 @@ function MapCanvasInner() {
     });
   }, [getNodes, getEdges, setNodes, setEdges, fitView]);
 
-  // Sync with Storage
-  useEffect(() => {
-    if (!storageNodes || isRestricted || storageNodes.length === 0) return;
-    const sNodes = storageNodes.map(n => ({ ...n }));
-    setNodes(sNodes);
-    if (storageEdges && storageEdges.length > 0) {
-      const sEdges = storageEdges.map(e => ({ ...e }));
-      setEdges(sEdges);
-    }
-  }, [storageNodes, storageEdges, isRestricted, setNodes, setEdges]);
-
   // View Mode Layout
   useEffect(() => {
     if (viewMode === "mindmap" && lastLayoutMode.current !== "mindmap") {
@@ -270,6 +243,7 @@ function MapCanvasInner() {
   const lastFiltersRef = useRef<string>("");
   
   useEffect(() => {
+    if (!isLoaded) return;
     const filtersKey = Array.from(activeFilters || []).sort().join(",");
     if (filtersKey !== lastFiltersRef.current) {
       lastFiltersRef.current = filtersKey;
@@ -281,7 +255,7 @@ function MapCanvasInner() {
         onLayout(direction);
       }, LAYOUT_DELAY);
     }
-  }, [activeFilters, onLayout, viewMode]);
+  }, [activeFilters, onLayout, viewMode, isLoaded]);
 
   // Keyboard
   useEffect(() => {
@@ -303,17 +277,6 @@ function MapCanvasInner() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [nodes, addNode, onDeleteNode, editingNodeId]);
 
-  const onPointerMove = useCallback((e: React.PointerEvent) => {
-    if (isRestricted || !updatePresence) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    updatePresence({ cursor: { x: e.clientX - rect.left, y: e.clientY - rect.top } });
-  }, [updatePresence, isRestricted]);
-
-  const onPointerLeave = useCallback(() => {
-    if (isRestricted || !updatePresence) return;
-    updatePresence({ cursor: null });
-  }, [updatePresence, isRestricted]);
-
   // Augment nodes with onDelete
   const nodesWithData = useMemo(() => 
     nodes.map(n => ({ ...n, data: { ...n.data, onDelete: onDeleteNode } })), 
@@ -322,8 +285,20 @@ function MapCanvasInner() {
 
   const editingNode = nodesWithData.find(n => n.id === editingNodeId);
 
+  if (!isMounted) return null;
+
+  if (!user && isLoaded) {
+    router.push("/auth");
+    return null;
+  }
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push("/auth");
+  };
+
   return (
-    <div className="h-full w-full relative group" onPointerMove={onPointerMove} onPointerLeave={onPointerLeave}>
+    <div className="h-full w-full relative group">
       <ReactFlow
         nodes={nodesWithData}
         edges={edges}
@@ -349,6 +324,10 @@ function MapCanvasInner() {
             <div className="p-1 bg-primary/10 rounded-lg"><FileText className="w-4 h-4 text-primary" /></div>
             View Markdown
           </button>
+          <button onClick={handleSignOut} className="flex items-center gap-2 bg-card text-destructive border border-border px-6 py-3 rounded-2xl text-sm font-bold shadow-xl hover:bg-destructive/10 transition-colors">
+            <div className="p-1 bg-destructive/10 rounded-lg"><LogOut className="w-4 h-4 text-destructive" /></div>
+            Sign Out
+          </button>
         </Panel>
       </ReactFlow>
 
@@ -359,28 +338,6 @@ function MapCanvasInner() {
       {showMarkdown && (
         <MarkdownExport nodes={nodes} edges={edges} onClose={() => setShowMarkdown(false)} />
       )}
-
-      {!isRestricted && others && (
-        <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden">
-          {others.map(({ connectionId, presence }) => {
-            if (!presence || !presence.cursor) return null;
-            return <Cursor key={connectionId} x={presence.cursor.x} y={presence.cursor.y} color={connectionId % 2 === 0 ? "var(--primary)" : "#06b6d4"} />;
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Cursor({ x, y, color }: { x: number; y: number; color: string }) {
-  return (
-    <div
-      className="absolute flex items-center gap-2 transition-all duration-75"
-      style={{ transform: `translate(${x}px, ${y}px)` }}
-    >
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="drop-shadow-sm">
-        <path d="M5.65376 12.3785L11.6059 13.3857L12.6131 19.3379C12.8273 20.6033 14.5951 20.7262 14.9925 19.5034L19.8242 4.63661C20.1873 3.52 19.123 2.45571 18.0064 2.81878L3.13961 7.65048C1.9168 8.04787 2.03977 9.81561 3.30514 10.0298L9.25732 11.037L5.65376 12.3785Z" fill={color} />
-      </svg>
     </div>
   );
 }
