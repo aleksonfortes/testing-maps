@@ -11,6 +11,10 @@ interface UIContextType {
   setViewMode: (mode: "diagram" | "mindmap") => void;
   editingNodeId: string | null;
   setEditingNodeId: (id: string | null) => void;
+  activeTab: "canvas" | "details";
+  setActiveTab: (tab: "canvas" | "details") => void;
+  isHeroHidden: boolean;
+  setIsHeroHidden: (hidden: boolean) => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -19,6 +23,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [activeFilters, setActiveFilters] = useState<DisplayFilter[]>(["testType"]);
   const [viewMode, setViewMode] = useState<"diagram" | "mindmap">("diagram");
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"canvas" | "details">("canvas");
+  const [isHeroHidden, setIsHeroHidden] = useState(false);
 
   const toggleFilter = useCallback((filter: DisplayFilter) => {
     setActiveFilters((prev) =>
@@ -35,6 +41,10 @@ export function UIProvider({ children }: { children: ReactNode }) {
         setViewMode,
         editingNodeId,
         setEditingNodeId,
+        activeTab,
+        setActiveTab,
+        isHeroHidden,
+        setIsHeroHidden,
       }}
     >
       {children}

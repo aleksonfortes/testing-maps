@@ -4,11 +4,12 @@
 CREATE TABLE IF NOT EXISTS public.testing_maps (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL DEFAULT 'Untitled Map',
     nodes JSONB NOT NULL DEFAULT '[]'::jsonb,
     edges JSONB NOT NULL DEFAULT '[]'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    CONSTRAINT unique_user_map UNIQUE (user_id)
+    CONSTRAINT unique_user_map_name UNIQUE (user_id, name)
 );
 
 -- Auto-update updated_at on row changes

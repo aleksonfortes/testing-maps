@@ -87,6 +87,7 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
   return (
     <div
       className="group relative"
+      data-testid="scenario-node"
       style={{ width: NODE_WIDTH, minHeight: NODE_MIN_HEIGHT, boxSizing: "border-box" }}
       onMouseLeave={() => { setShowMenu(false); setConfirmDelete(false); }}
     >

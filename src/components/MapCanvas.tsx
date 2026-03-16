@@ -518,7 +518,7 @@ function MapCanvasInner({ mapId, userId, onSignOut }: MapCanvasProps) {
   // Markdown import handler
   // -----------------------------------------------------------------------
   const handleImport = useCallback(
-    (importedNodes: Node<ScenarioData>[], importedEdges: Edge[], mode: "replace" | "merge") => {
+    (importedNodes: Node<ScenarioData>[], importedEdges: Edge[], mode: "replace" | "create") => {
       const direction = viewMode === "mindmap" ? "LR" : "TB";
 
       if (mode === "replace") {
@@ -709,15 +709,6 @@ function MapCanvasInner({ mapId, userId, onSignOut }: MapCanvasProps) {
                 <FileText className="w-4 h-4 text-primary" />
               </div>
               Export Markdown
-            </button>
-            <button
-              onClick={() => setShowImport(true)}
-              className="flex items-center gap-2 bg-card text-foreground border border-border px-6 py-3 rounded-2xl text-sm font-bold shadow-xl hover:bg-secondary transition-colors"
-            >
-              <div className="p-1 bg-primary/10 rounded-lg">
-                <Upload className="w-4 h-4 text-primary" />
-              </div>
-              Import Markdown
             </button>
             <button
               onClick={onSignOut}

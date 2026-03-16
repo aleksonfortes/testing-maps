@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Upload, X, FileUp, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { parseMarkdown } from "@/lib/markdown-parser";
 import type { Node, Edge } from "@xyflow/react";
 import type { ScenarioData } from "@/lib/types";
 
-type ImportMode = "replace" | "merge";
+type ImportMode = "replace" | "create";
 
 interface MarkdownImportProps {
   onImport: (nodes: Node<ScenarioData>[], edges: Edge[], mode: ImportMode) => void;
@@ -22,6 +23,7 @@ export function MarkdownImport({ onImport, onClose }: MarkdownImportProps) {
   const [mode, setMode] = useState<ImportMode>("replace");
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const preview = markdown.trim()
     ? (() => {
@@ -91,8 +93,9 @@ export function MarkdownImport({ onImport, onClose }: MarkdownImportProps) {
 
   // Focus trap + Escape key
   useEffect(() => {
+    setMounted(true);
     const modal = modalRef.current;
-    if (!modal) return;
+    if (!modal) return () => setMounted(false);
 
     const focusable = modal.querySelectorAll<HTMLElement>(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -122,12 +125,15 @@ export function MarkdownImport({ onImport, onClose }: MarkdownImportProps) {
     };
 
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      setMounted(false);
+    };
   }, [onClose]);
 
-  return (
+  const modalContent = (
     <div
-      className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-background/80 backdrop-blur-xl"
+      className="fixed inset-0 z-[500] flex items-center justify-center p-4 md:p-8 lg:p-12 bg-background/80 backdrop-blur-xl"
       role="dialog"
       aria-modal="true"
       aria-label="Markdown Import"
@@ -137,30 +143,30 @@ export function MarkdownImport({ onImport, onClose }: MarkdownImportProps) {
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-card border border-border rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[85vh]"
+        className="bg-card border border-border rounded-[2.5rem] shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] glass shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)]"
       >
-        <header className="p-6 border-b border-border flex justify-between items-center bg-secondary/20">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-xl">
-              <Upload className="w-5 h-5 text-primary" />
+        <header className="p-8 border-b border-border flex justify-between items-center bg-secondary/20">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-2xl">
+              <Upload className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-bold">Import from Markdown</h3>
-              <p className="text-xs text-muted-foreground">
+              <h3 className="text-xl font-bold tracking-tight">Import from Markdown</h3>
+              <p className="text-sm text-muted-foreground">
                 Paste markdown or drop a .md file
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-secondary rounded-full transition-colors"
+            className="p-3 hover:bg-secondary rounded-full transition-all hover:rotate-90"
             aria-label="Close import"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </button>
         </header>
 
-        <div className="flex-1 overflow-auto p-6 space-y-4">
+        <div className="flex-1 overflow-auto p-8 space-y-6 custom-scrollbar">
           {/* Drop zone / textarea */}
           <div
             className={`relative rounded-2xl border-2 border-dashed transition-colors ${
@@ -216,14 +222,14 @@ export function MarkdownImport({ onImport, onClose }: MarkdownImportProps) {
               Replace current map
             </button>
             <button
-              onClick={() => setMode("merge")}
+              onClick={() => setMode("create")}
               className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${
-                mode === "merge"
+                mode === "create"
                   ? "bg-primary/10 border-primary/30 text-primary"
                   : "bg-secondary/50 border-border text-muted-foreground hover:text-foreground"
               }`}
             >
-              Merge with current
+              Create new map
             </button>
           </div>
 
@@ -255,7 +261,7 @@ export function MarkdownImport({ onImport, onClose }: MarkdownImportProps) {
           )}
         </div>
 
-        <footer className="p-6 border-t border-border flex justify-end gap-3 bg-secondary/10">
+        <footer className="p-8 border-t border-border flex justify-end gap-4 bg-secondary/10">
           <button
             onClick={onClose}
             className="px-6 py-2.5 bg-secondary text-secondary-foreground rounded-xl font-bold hover:bg-secondary/80 transition-all"
@@ -268,10 +274,14 @@ export function MarkdownImport({ onImport, onClose }: MarkdownImportProps) {
             className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Upload className="w-4 h-4" />
-            Import {mode === "replace" ? "(Replace)" : "(Merge)"}
+            Import {mode === "replace" ? "(Replace)" : "(Create New)"}
           </button>
         </footer>
       </motion.div>
     </div>
   );
+
+  if (!mounted) return null;
+
+  return createPortal(modalContent, document.body);
 }
