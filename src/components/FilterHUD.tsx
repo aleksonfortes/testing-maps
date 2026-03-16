@@ -16,15 +16,15 @@ export function FilterHUD() {
   ];
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 glass rounded-2xl p-2 border border-border/50 shadow-2xl z-[100] flex items-center gap-2 max-w-[95vw] overflow-x-auto">
-      <div className="flex bg-secondary/50 rounded-xl p-1 gap-1 border border-border/20 shrink-0">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-background/95 glass rounded-[2rem] p-2 border border-white/5 island-shadow z-[100] flex items-center gap-2 max-w-[95vw] overflow-x-auto">
+      <div className="flex bg-white/5 rounded-[1.25rem] p-1 gap-1 border border-white/5 shrink-0">
         <button
           onClick={() => setViewMode("diagram")}
           className={cn(
-            "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all",
+            "flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all",
             viewMode === "diagram"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-white text-black shadow-lg"
+              : "text-foreground/50 hover:text-foreground"
           )}
         >
           <LayoutGrid className="w-3.5 h-3.5" />
@@ -33,10 +33,10 @@ export function FilterHUD() {
         <button
           onClick={() => setViewMode("mindmap")}
           className={cn(
-            "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all",
+            "flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all",
             viewMode === "mindmap"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-white text-black shadow-lg"
+              : "text-foreground/50 hover:text-foreground"
           )}
         >
           <Network className="w-3.5 h-3.5" />
@@ -44,7 +44,7 @@ export function FilterHUD() {
         </button>
       </div>
 
-      <div className="h-6 w-px bg-border mx-1 shrink-0" />
+      <div className="h-6 w-px bg-white/10 mx-1 shrink-0" />
 
       <div className="flex gap-1">
         {filters.map((f) => (
@@ -52,10 +52,10 @@ export function FilterHUD() {
             key={f.id}
             onClick={() => toggleFilter(f.id)}
             className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium transition-all border whitespace-nowrap",
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all border whitespace-nowrap",
               activeFilters.includes(f.id)
-                ? "bg-primary/10 border-primary/20 text-primary"
-                : "bg-transparent border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"
+                ? "bg-white border-white text-black shadow-lg"
+                : "bg-transparent border-transparent text-foreground/50 hover:bg-white/5 hover:text-foreground"
             )}
           >
             {f.icon}

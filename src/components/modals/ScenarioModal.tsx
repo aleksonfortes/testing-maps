@@ -96,19 +96,19 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="relative w-full max-w-2xl bg-card border border-border shadow-2xl rounded-3xl flex flex-col overflow-hidden max-h-[90vh]"
+        className="relative w-full max-w-2xl bg-background/95 glass border border-white/10 shadow-2xl rounded-[2.5rem] island-shadow flex flex-col overflow-hidden max-h-[90vh]"
       >
         {/* Header */}
-        <header className="flex items-center justify-between p-8 border-b border-border bg-secondary/10">
+        <header className="flex items-center justify-between p-8 border-b border-white/5 bg-white/5">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Manage Scenario</h2>
-            <p className="text-sm text-muted-foreground mt-1 font-medium">
+            <p className="text-sm text-foreground/50 mt-1 font-medium italic">
               Configure testing details for this node
             </p>
           </div>
           <button
             onClick={handleClose}
-            className="p-2.5 hover:bg-secondary rounded-full transition-all border border-border/50 hover:scale-110 active:scale-95"
+            className="p-2.5 hover:bg-white/10 rounded-full transition-all border border-white/10 hover:scale-110 active:scale-95 text-foreground/50 hover:text-foreground"
             aria-label="Close modal"
           >
             <X className="w-6 h-6" />
@@ -116,10 +116,10 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
         </header>
 
         {/* Form */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-8">
+        <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide">
           <div className="space-y-3">
-            <label htmlFor="scenario-name" className="text-sm font-bold flex items-center gap-2">
-              <Type className="w-4 h-4 text-primary" />
+            <label htmlFor="scenario-name" className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 flex items-center gap-2">
+              <Type className="w-3.5 h-3.5" />
               Scenario Name
             </label>
             <input
@@ -127,22 +127,22 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
               type="text"
               value={formData.label}
               onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-              className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-2.5 text-sm focus:ring-2 ring-primary/20 transition-all outline-none"
+              className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-sm focus:ring-2 ring-white/10 transition-all outline-none font-medium"
               placeholder="Enter scenario name..."
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             <div className="space-y-3">
-              <label htmlFor="scenario-status" className="text-sm font-bold flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
+              <label htmlFor="scenario-status" className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 flex items-center gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5" />
                 Status
               </label>
               <select
                 id="scenario-status"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as ScenarioData["status"] })}
-                className="w-full bg-secondary/50 border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 ring-primary/20"
+                className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 text-sm outline-none focus:ring-2 ring-white/10 font-medium appearance-none"
               >
                 <option value="untested">Untested</option>
                 <option value="verified">Verified</option>
@@ -150,15 +150,15 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
               </select>
             </div>
             <div className="space-y-3">
-              <label htmlFor="scenario-test-type" className="text-sm font-bold flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-blue-500" />
+              <label htmlFor="scenario-test-type" className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 flex items-center gap-2">
+                <HelpCircle className="w-3.5 h-3.5" />
                 Test Type
               </label>
               <select
                 id="scenario-test-type"
                 value={formData.testType}
                 onChange={(e) => setFormData({ ...formData, testType: e.target.value as ScenarioData["testType"] })}
-                className="w-full bg-secondary/50 border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 ring-primary/20"
+                className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 text-sm outline-none focus:ring-2 ring-white/10 font-medium appearance-none"
               >
                 <option value="manual">Manual</option>
                 <option value="unit">Unit</option>
@@ -169,8 +169,8 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
           </div>
 
           <div className="space-y-3">
-            <label htmlFor="scenario-instructions" className="text-sm font-bold flex items-center gap-2">
-              <FileText className="w-4 h-4 text-muted-foreground" />
+            <label htmlFor="scenario-instructions" className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 flex items-center gap-2">
+              <FileText className="w-3.5 h-3.5" />
               Instructions
             </label>
             <textarea
@@ -178,14 +178,14 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
               value={formData.instructions ?? ""}
               onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
               rows={3}
-              className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-2.5 text-sm focus:ring-2 ring-primary/20 transition-all outline-none resize-none"
+              className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-sm focus:ring-2 ring-white/10 transition-all outline-none resize-none font-medium leading-relaxed"
               placeholder="What needs to be tested?"
             />
           </div>
 
           <div className="space-y-3">
-            <label htmlFor="scenario-expected" className="text-sm font-bold flex items-center gap-2 text-blue-500">
-              <CheckCircle2 className="w-4 h-4" />
+            <label htmlFor="scenario-expected" className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 flex items-center gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5" />
               Expected Results
             </label>
             <textarea
@@ -193,14 +193,14 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
               value={formData.expectedResults ?? ""}
               onChange={(e) => setFormData({ ...formData, expectedResults: e.target.value })}
               rows={3}
-              className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-2.5 text-sm focus:ring-2 ring-blue-500/20 transition-all outline-none resize-none"
+              className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-sm focus:ring-2 ring-white/10 transition-all outline-none resize-none font-medium leading-relaxed"
               placeholder="What is the successful outcome?"
             />
           </div>
 
           <div className="space-y-3">
-            <label htmlFor="scenario-code-ref" className="text-sm font-bold flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-primary font-mono" />
+            <label htmlFor="scenario-code-ref" className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 flex items-center gap-2">
+              <AlertCircle className="w-3.5 h-3.5" />
               Code Reference
             </label>
             <input
@@ -208,28 +208,28 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
               type="text"
               value={formData.codeRef ?? ""}
               onChange={(e) => setFormData({ ...formData, codeRef: e.target.value })}
-              className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-2.5 text-sm font-mono focus:ring-2 ring-primary/20 transition-all outline-none"
+              className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-sm font-mono focus:ring-2 ring-white/10 transition-all outline-none opacity-80"
               placeholder="e.g. tests/auth.spec.ts"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <footer className="p-6 border-t border-border flex items-center justify-between gap-4 bg-secondary/10">
+        <footer className="p-8 border-t border-white/5 flex items-center justify-between gap-6 bg-white/5">
           <button
             onClick={handleDelete}
             className={
               confirmDelete
-                ? "flex items-center gap-2 bg-destructive text-destructive-foreground px-4 py-2 rounded-xl text-sm font-bold transition-colors"
-                : "flex items-center gap-2 text-destructive hover:bg-destructive/10 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
+                ? "flex items-center gap-2 bg-destructive text-destructive-foreground px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg scale-105"
+                : "flex items-center gap-2 text-foreground/30 hover:text-destructive hover:bg-destructive/10 px-5 py-2.5 rounded-xl text-xs font-bold transition-all"
             }
           >
             <Trash2 className="w-4 h-4" />
-            {confirmDelete ? "Click again to confirm" : "Delete"}
+            {confirmDelete ? "Click to Confirm" : "Delete Node"}
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-bold shadow-lg hover:opacity-90 transition-opacity"
+            className="flex-1 flex items-center justify-center gap-2 bg-white text-black px-8 py-4 rounded-2xl font-bold shadow-xl hover:scale-[1.02] transition-all active:scale-[0.98] text-sm uppercase tracking-widest"
           >
             <Save className="w-4 h-4" />
             Save Changes

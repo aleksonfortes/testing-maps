@@ -140,15 +140,15 @@ export function MarkdownImport({ onImport, onClose }: MarkdownImportProps) {
       ref={modalRef}
     >
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-card border border-border rounded-[2.5rem] shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] glass shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)]"
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 20 }}
+        className="bg-background/95 glass border border-white/10 rounded-[2.5rem] island-shadow w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl"
       >
         <header className="p-8 border-b border-border flex justify-between items-center bg-secondary/20">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-2xl">
-              <Upload className="w-6 h-6 text-primary" />
+            <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
+              <Upload className="w-6 h-6 text-foreground/70" />
             </div>
             <div>
               <h3 className="text-xl font-bold tracking-tight">Import from Markdown</h3>
@@ -169,8 +169,8 @@ export function MarkdownImport({ onImport, onClose }: MarkdownImportProps) {
         <div className="flex-1 overflow-auto p-8 space-y-6 custom-scrollbar">
           {/* Drop zone / textarea */}
           <div
-            className={`relative rounded-2xl border-2 border-dashed transition-colors ${
-              dragOver ? "border-primary bg-primary/5" : "border-border"
+            className={`relative rounded-3xl border-2 border-dashed transition-all duration-300 overflow-hidden ${
+              dragOver ? "border-foreground bg-white/5" : "border-white/5 bg-black/5"
             }`}
             onDragOver={(e) => {
               e.preventDefault();
@@ -213,20 +213,20 @@ export function MarkdownImport({ onImport, onClose }: MarkdownImportProps) {
           <div className="flex gap-3">
             <button
               onClick={() => setMode("replace")}
-              className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${
+              className={`flex-1 px-4 py-3 rounded-2xl text-[13px] font-bold uppercase tracking-wider transition-all border ${
                 mode === "replace"
-                  ? "bg-primary/10 border-primary/30 text-primary"
-                  : "bg-secondary/50 border-border text-muted-foreground hover:text-foreground"
+                  ? "bg-white text-black border-white"
+                  : "bg-white/5 border-white/5 text-foreground/50 hover:text-foreground hover:bg-white/10"
               }`}
             >
               Replace current map
             </button>
             <button
               onClick={() => setMode("create")}
-              className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${
+              className={`flex-1 px-4 py-3 rounded-2xl text-[13px] font-bold uppercase tracking-wider transition-all border ${
                 mode === "create"
-                  ? "bg-primary/10 border-primary/30 text-primary"
-                  : "bg-secondary/50 border-border text-muted-foreground hover:text-foreground"
+                  ? "bg-white text-black border-white"
+                  : "bg-white/5 border-white/5 text-foreground/50 hover:text-foreground hover:bg-white/10"
               }`}
             >
               Create new map
@@ -264,17 +264,17 @@ export function MarkdownImport({ onImport, onClose }: MarkdownImportProps) {
         <footer className="p-8 border-t border-border flex justify-end gap-4 bg-secondary/10">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 bg-secondary text-secondary-foreground rounded-xl font-bold hover:bg-secondary/80 transition-all"
+            className="px-8 py-3 bg-white/5 text-foreground/70 border border-white/5 rounded-2xl font-bold text-[13px] uppercase tracking-wider hover:bg-white/10 hover:text-foreground transition-all"
           >
             Cancel
           </button>
           <button
             onClick={handleImport}
             disabled={!markdown.trim()}
-            className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-8 py-3 bg-white text-black rounded-2xl font-bold text-[13px] uppercase tracking-wider hover:bg-white/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <Upload className="w-4 h-4" />
-            Import {mode === "replace" ? "(Replace)" : "(Create New)"}
+            Import {mode === "replace" ? "Replace" : "Create"}
           </button>
         </footer>
       </motion.div>

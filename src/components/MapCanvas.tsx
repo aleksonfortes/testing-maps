@@ -11,8 +11,6 @@ import React, {
 import {
   ReactFlow,
   Background,
-  Controls,
-  MiniMap,
   addEdge,
   Node,
   Edge,
@@ -31,7 +29,7 @@ import { ScenarioNode } from "./nodes/ScenarioNode";
 import { ScenarioModal } from "./modals/ScenarioModal";
 import { MarkdownExport } from "./modals/MarkdownExport";
 import { MarkdownImport } from "./modals/MarkdownImport";
-import { Type, FileText, Upload, LogOut, Cloud, CloudOff, Loader2, Undo2, Redo2 } from "lucide-react";
+import { Type, FileText, Upload, Cloud, CloudOff, Loader2, Undo2, Redo2 } from "lucide-react";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import {
   LAYOUT_DELAY,
@@ -658,86 +656,77 @@ function MapCanvasInner({ mapId, userId, onSignOut }: MapCanvasProps) {
             className="text-muted-foreground/10"
             variant={BackgroundVariant.Dots}
           />
-          <Controls className="!bg-card !border-border !rounded-xl !shadow-sm overflow-hidden" />
-          <MiniMap
-            className="!bg-card !border-border !rounded-2xl !shadow-lg"
-            maskColor="var(--color-muted-foreground, rgba(0,0,0,0.05))"
-            position="bottom-right"
-          />
 
           <Panel
-            position="top-right"
-            className="flex flex-col gap-2 mt-16 mr-4 pointer-events-auto"
+            position="bottom-right"
+            className="flex flex-col gap-3 mb-20 mr-6 pointer-events-auto bg-background/95 glass border border-white/10 p-4 rounded-[2.5rem] island-shadow min-w-[260px]"
           >
-            <button
-              onClick={() => addNode()}
-              className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-2xl text-sm font-bold shadow-2xl hover:scale-105 transition-all active:scale-95"
-            >
-              <div className="bg-primary-foreground/20 rounded-lg p-1">
-                <Type className="w-4 h-4" />
-              </div>
-              Add Scenario
-              <span className="opacity-50 text-[10px] bg-primary-foreground/10 px-1.5 py-0.5 rounded ml-1">
-                TAB
-              </span>
-            </button>
-            <div className="flex gap-1.5">
+            <div className="flex flex-col gap-3">
               <button
-                onClick={handleUndo}
-                disabled={!canUndo}
-                className="flex items-center gap-1.5 bg-card text-foreground border border-border px-4 py-2.5 rounded-2xl text-sm font-bold shadow-xl hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex-1"
-                aria-label="Undo"
+                onClick={() => addNode()}
+                className="flex items-center gap-3 bg-white text-black px-6 py-4 rounded-2xl text-sm font-bold shadow-xl hover:scale-[1.02] transition-all active:scale-[0.98]"
               >
-                <Undo2 className="w-4 h-4" />
-                <span className="opacity-50 text-[10px]">Z</span>
+                <div className="bg-black/5 rounded-lg p-1.5 shink-0">
+                  <Type className="w-4 h-4" />
+                </div>
+                <span>Add Scenario</span>
+                <span className="opacity-30 text-[9px] bg-black/10 px-1.5 py-0.5 rounded ml-auto font-black tracking-tighter">
+                  TAB
+                </span>
               </button>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handleUndo}
+                  disabled={!canUndo}
+                  className="flex items-center justify-center gap-1.5 bg-white/5 text-foreground/70 border border-white/5 px-4 py-3 rounded-2xl text-sm font-bold shadow-sm hover:bg-white/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed flex-1"
+                  aria-label="Undo"
+                >
+                  <Undo2 className="w-4 h-4" />
+                  <span className="opacity-40 text-[10px]">Z</span>
+                </button>
+                <button
+                  onClick={handleRedo}
+                  disabled={!canRedo}
+                  className="flex items-center justify-center gap-1.5 bg-white/5 text-foreground/70 border border-white/5 px-4 py-3 rounded-2xl text-sm font-bold shadow-sm hover:bg-white/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed flex-1"
+                  aria-label="Redo"
+                >
+                  <Redo2 className="w-4 h-4" />
+                  <span className="opacity-40 text-[10px]">Y</span>
+                </button>
+              </div>
+
+              <div className="h-px bg-white/5 my-1" />
+
               <button
-                onClick={handleRedo}
-                disabled={!canRedo}
-                className="flex items-center gap-1.5 bg-card text-foreground border border-border px-4 py-2.5 rounded-2xl text-sm font-bold shadow-xl hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex-1"
-                aria-label="Redo"
+                onClick={() => setShowMarkdown(true)}
+                className="flex items-center gap-2 bg-white/5 text-foreground/70 border border-white/5 px-6 py-3.5 rounded-2xl text-sm font-bold shadow-sm hover:bg-white/10 transition-all"
               >
-                <Redo2 className="w-4 h-4" />
-                <span className="opacity-50 text-[10px]">Y</span>
+                <div className="p-1 bg-white/5 rounded-lg">
+                  <FileText className="w-4 h-4" />
+                </div>
+                Export Markdown
               </button>
             </div>
-            <button
-              onClick={() => setShowMarkdown(true)}
-              className="flex items-center gap-2 bg-card text-foreground border border-border px-6 py-3 rounded-2xl text-sm font-bold shadow-xl hover:bg-secondary transition-colors"
-            >
-              <div className="p-1 bg-primary/10 rounded-lg">
-                <FileText className="w-4 h-4 text-primary" />
-              </div>
-              Export Markdown
-            </button>
-            <button
-              onClick={onSignOut}
-              className="flex items-center gap-2 bg-card text-destructive border border-border px-6 py-3 rounded-2xl text-sm font-bold shadow-xl hover:bg-destructive/10 transition-colors"
-            >
-              <div className="p-1 bg-destructive/10 rounded-lg">
-                <LogOut className="w-4 h-4 text-destructive" />
-              </div>
-              Sign Out
-            </button>
 
             {/* Save status indicator */}
-            <div className="flex items-center gap-2 px-4 py-2 text-xs text-muted-foreground">
+            <div className="flex items-center justify-center gap-2 px-4 py-2 text-[11px] text-foreground/40 font-medium border-t border-white/5 -mx-4 -mb-1 mt-1">
               {saveStatus === "saving" && (
                 <>
                   <Loader2 className="w-3 h-3 animate-spin" />
-                  <span>Saving...</span>
+                  <span>Syncing...</span>
                 </>
               )}
               {saveStatus === "saved" && (
                 <>
-                  <Cloud className="w-3 h-3 text-green-500" />
-                  <span className="text-green-600">Saved</span>
+                  <Cloud className="w-3.5 h-3.5 text-green-500/80" />
+                  <span>Saved to Cloud</span>
                 </>
               )}
               {saveStatus === "error" && (
                 <>
-                  <CloudOff className="w-3 h-3 text-destructive" />
-                  <span className="text-destructive">Save failed</span>
+                  <CloudOff className="w-3 h-3 text-destructive/60" />
+                  <span className="text-destructive/60">Sync offline</span>
                 </>
               )}
             </div>

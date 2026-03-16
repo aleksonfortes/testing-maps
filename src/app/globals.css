@@ -25,25 +25,25 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #09090b;
-    --foreground: #fafafa;
-    --card: #09090b;
-    --card-foreground: #fafafa;
-    --popover: #09090b;
-    --popover-foreground: #fafafa;
-    --primary: #fafafa;
-    --primary-foreground: #18181b;
-    --secondary: #27272a;
-    --secondary-foreground: #fafafa;
-    --muted: #27272a;
-    --muted-foreground: #a1a1aa;
-    --accent: #27272a;
-    --accent-foreground: #fafafa;
-    --destructive: #7f1d1d;
-    --destructive-foreground: #fafafa;
-    --border: #27272a;
-    --input: #27272a;
-    --ring: #d4d4d8;
+    --background: #000000;
+    --foreground: #ffffff;
+    --card: #111111;
+    --card-foreground: #ffffff;
+    --popover: #111111;
+    --popover-foreground: #ffffff;
+    --primary: #ffffff;
+    --primary-foreground: #000000;
+    --secondary: #1a1a1a;
+    --secondary-foreground: #ffffff;
+    --muted: #1a1a1a;
+    --muted-foreground: #888888;
+    --accent: #222222;
+    --accent-foreground: #ffffff;
+    --destructive: #ff3333;
+    --destructive-foreground: #ffffff;
+    --border: #1a1a1a;
+    --input: #1a1a1a;
+    --ring: #ffffff;
   }
 }
 
@@ -79,6 +79,7 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   html {
@@ -88,13 +89,28 @@
 
 /* Glassmorphism Utilities */
 .glass {
-  @apply backdrop-blur-md bg-background/70 border border-white/10;
+  @apply backdrop-blur-xl bg-background/80 border border-white/10;
+}
+
+.island-shadow {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 
+              0 8px 16px -4px rgba(0, 0, 0, 0.4), 
+              0 4px 8px -2px rgba(0, 0, 0, 0.2);
 }
 
 @media (prefers-color-scheme: dark) {
   .glass {
-    @apply bg-black/40 border border-white/5;
+    @apply bg-black/40 border border-white/5 shadow-2xl;
   }
+}
+
+/* Premium Gradients */
+.gradient-primary {
+  background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+}
+
+.gradient-dark {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
 }
 
 /* Hide ReactFlow handle dots — edges connect at the invisible anchor points.

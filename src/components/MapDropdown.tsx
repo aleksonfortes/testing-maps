@@ -102,7 +102,7 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
   return (
     <div className="relative" ref={dropdownRef}>
       {isEditing ? (
-        <div className="flex items-center h-9 ml-2 bg-white/5 rounded-xl border border-primary/30 px-2 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center h-8 bg-white/5 rounded-lg border border-white/10 px-2 animate-in fade-in zoom-in-95 duration-200">
           <input
             ref={inputRef}
             type="text"
@@ -122,29 +122,27 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
           onClick={() => setIsOpen(!isOpen)}
           data-testid="map-selection-toggle"
           className={cn(
-            "flex items-center gap-2.5 pl-3 pr-2 h-9 rounded-xl transition-all group/identity relative",
+            "flex items-center gap-2 px-1.5 h-8 rounded-lg transition-all group/identity relative",
             isOpen ? "bg-white/5" : "hover:bg-white/5"
           )}
         >
-          <span className="text-sm font-semibold text-foreground/90 group-hover/identity:text-foreground transition-colors tracking-tight truncate max-w-[240px]">
+          <span className="text-[13px] font-semibold text-foreground/90 transition-colors tracking-tight truncate max-w-[200px] select-none">
             {activeMap ? activeMap.name : "Select a Map"}
           </span>
           
-          <div className="flex items-center gap-1 opacity-40 group-hover/identity:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 opacity-0 group-hover/identity:opacity-100 transition-opacity">
             <div 
               onClick={startEditing}
               className="p-1.5 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
               title="Rename map"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-muted-foreground group-hover/identity:text-primary">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-muted-foreground hover:text-primary transition-colors">
                 <path d="M12 20H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M16.5 3.5C16.8978 3.10217 17.4374 2.87868 18 2.87868C18.2786 2.87868 18.5544 2.93355 18.8118 3.04015C19.0692 3.14676 19.303 3.30301 19.5 3.5C19.697 3.69699 19.8532 3.93083 19.9598 4.18821C20.0665 4.44559 20.1213 4.72143 20.1213 5C20.1213 5.27857 20.0665 5.55441 19.9598 5.81179C19.8532 6.06917 19.697 6.30301 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M16.5 3.5C16.8978 3.10217 17.4374 2.87868 18 2.87868C18.2786 2.87868 18.5544 2.93335 18.8118 3.03995C19.0692 3.14656 19.303 3.30281 19.5 3.5C19.697 3.69699 19.8532 3.93083 19.9598 4.18821C20.0665 4.44559 20.1213 4.72143 20.1213 5C20.1213 5.27857 20.0665 5.55441 19.9598 5.81179C19.8532 6.06917 19.697 6.30301 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <div className="w-5 h-5 flex items-center justify-center rounded-lg bg-white/5 group-hover/identity:bg-white/10 transition-colors">
-              <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground/40 transition-transform duration-300", isOpen && "rotate-180")} />
-            </div>
           </div>
+          <ChevronDown className={cn("w-3 h-3 text-muted-foreground/30 transition-transform duration-300", isOpen && "rotate-180")} />
         </button>
       )}
 
@@ -155,19 +153,19 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute left-0 top-[calc(100%+8px)] w-80 bg-[#121212]/90 backdrop-blur-3xl border border-white/10 shadow-[0_24px_48px_rgba(0,0,0,0.4)] z-[100] overflow-hidden rounded-2xl"
+            className="absolute left-0 top-[calc(100%+8px)] w-80 bg-background/95 glass z-[100] overflow-hidden rounded-2xl island-shadow border border-white/5 shadow-2xl"
           >
             {/* Search */}
-            <div className="p-4 border-b border-white/5">
+            <div className="p-4 border-b border-white/5 bg-white/[0.02]">
               <div className="relative group/search">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40 group-focus-within/search:text-primary transition-colors" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30 group-focus-within/search:text-primary transition-all duration-300" />
                 <input
                   autoFocus
                   type="text"
                   placeholder="Find your map..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full bg-white/5 border border-white/5 rounded-xl py-2.5 pl-10 pr-4 text-[13px] text-foreground/90 placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all"
+                  className="w-full bg-black/20 border border-white/5 rounded-xl py-2.5 pl-10 pr-4 text-[13px] text-foreground/90 placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all font-medium"
                 />
               </div>
             </div>
@@ -194,14 +192,14 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                     className={cn(
                       "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all mb-0.5 group/item",
                       activeMapId === map.id 
-                        ? "bg-primary/10 text-primary" 
-                        : "hover:bg-secondary text-foreground/80 hover:text-foreground"
+                        ? "bg-white text-black font-bold" 
+                        : "hover:bg-white/5 text-foreground/70 hover:text-foreground"
                     )}
                   >
                     <div className="flex items-center gap-3 truncate">
                       <div className={cn(
-                        "w-2 h-2 rounded-full",
-                        activeMapId === map.id ? "bg-primary" : "bg-muted-foreground/30"
+                        "w-1.5 h-1.5 rounded-full transition-all",
+                        activeMapId === map.id ? "bg-black" : "bg-white/20"
                       )} />
                       <span className="text-sm font-medium truncate">{map.name}</span>
                     </div>
@@ -214,11 +212,11 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
             </div>
 
             {/* Actions */}
-            <div className="p-2 bg-white/5 border-t border-white/5 grid grid-cols-2 gap-2">
+            <div className="p-3 bg-white/[0.02] border-t border-white/5 grid grid-cols-2 gap-3">
               <button
                 onClick={handleCreate}
                 disabled={isCreating}
-                className="flex items-center justify-center gap-2 px-3 py-2.5 bg-primary/90 text-primary-foreground rounded-xl text-xs font-bold hover:bg-primary transition-all disabled:opacity-50 group/btn"
+                className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white text-black rounded-xl text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 transition-all active:scale-[0.98] disabled:opacity-50 group/btn"
                 data-testid="new-map-button"
               >
                 {isCreating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-4 h-4 transition-transform group-hover/btn:rotate-90" />}
@@ -230,7 +228,7 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                   setIsOpen(false);
                 }}
                 disabled={isImporting}
-                className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white/5 text-foreground/80 border border-white/5 rounded-xl text-xs font-bold hover:bg-white/10 hover:text-foreground transition-all disabled:opacity-50"
+                className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white/5 text-foreground/70 border border-white/10 rounded-xl text-[11px] font-bold uppercase tracking-wider hover:bg-white/10 hover:text-foreground transition-all active:scale-[0.98] disabled:opacity-50"
                 data-testid="import-button"
               >
                 {isImporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-4 h-4" />}
