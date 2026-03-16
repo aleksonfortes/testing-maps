@@ -64,11 +64,6 @@ function WorkspaceContentWrapper() {
     setActiveMapId(mapId);
   }, []);
 
-  if (!authChecked || !user) {
-    if (!isTestMode) {
-      return (
-        <main className="flex h-screen items-center justify-center bg-background">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
   const testUser = { id: "test-user-id", email: "test@example.com" } as User;
   if (!isTestMode && (!authChecked || !user)) {
     return (
@@ -108,43 +103,41 @@ function WorkspaceContent({
 
   return (
     <main className="flex h-screen flex-col bg-background overflow-hidden text-foreground" data-hero-hidden={isHeroHidden}>
-      {/* Workspace Header */}
-      <header className="flex h-12 items-center justify-between border-b border-border px-4 bg-background/50 backdrop-blur-xl z-50">
-        <div className="flex items-center gap-1.5 text-sm font-medium">
-          <Link href="/" className="p-1.5 hover:bg-secondary rounded-lg transition-colors flex items-center justify-center" aria-label="Home">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </Link>
-          
-          <span className="text-muted-foreground/40 font-light mx-0.5">/</span>
-          
-          <div className="flex items-center gap-2 px-2 py-1 hover:bg-secondary rounded-lg transition-colors cursor-default group">
-            <Layers className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-            <span className="text-muted-foreground group-hover:text-foreground transition-colors">Projects</span>
+      {/* Bespoke Workspace Header - "The Island" */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 px-4 w-full max-w-4xl pointer-events-none">
+        <header className="flex h-12 items-center justify-between px-1.5 bg-background/60 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-2xl pointer-events-auto transition-all duration-300 hover:shadow-[0_12px_48px_rgba(0,0,0,0.18)] hover:border-white/20">
+          <div className="flex items-center gap-1 h-full">
+            <Link href="/" className="px-3 h-9 flex items-center justify-center hover:bg-white/5 rounded-xl transition-colors group" aria-label="Home">
+              <div className="relative">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary transition-transform group-hover:scale-110">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <div className="absolute inset-0 bg-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </Link>
+            
+            <div className="w-px h-4 bg-white/10 mx-1" />
+            
+            <MapDropdown 
+              userId={currentUser.id} 
+              activeMapId={activeMapId} 
+              onSelectMap={handleSelectMap} 
+            />
           </div>
-
-          <span className="text-muted-foreground/40 font-light mx-0.5">/</span>
           
-          {/* Map Selection Dropdown */}
-          <MapDropdown 
-            userId={currentUser.id} 
-            activeMapId={activeMapId} 
-            onSelectMap={handleSelectMap} 
-          />
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={handleSignOut}
-            className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Sign Out
-          </button>
-        </div>
-      </header>
+          <div className="flex items-center gap-2 pr-1.5">
+            <div className="w-px h-4 bg-white/10 mx-2" />
+            <button 
+              onClick={handleSignOut}
+              className="px-4 h-9 flex items-center justify-center text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+            >
+              Sign Out
+            </button>
+          </div>
+        </header>
+      </div>
 
       {/* Canvas Layout */}
       <div className="flex flex-1 overflow-hidden relative">
