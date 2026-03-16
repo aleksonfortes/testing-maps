@@ -15,7 +15,7 @@ interface State {
 export class WorkspaceErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
-    error: null
+    error: null,
   };
 
   public static getDerivedStateFromError(error: Error): State {
@@ -23,12 +23,17 @@ export class WorkspaceErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Uncaught error:", error, errorInfo);
+    }
   }
 
   public render() {
     if (this.state.hasError) {
-      const isLiveblocksError = this.state.error?.message?.includes("Liveblocks") || this.state.error?.message?.includes("room");
+      const isConnectionError =
+        this.state.error?.message?.includes("Supabase") ||
+        this.state.error?.message?.includes("network") ||
+        this.state.error?.message?.includes("fetch");
 
       return (
         <div className="flex flex-col items-center justify-center p-8 min-h-[400px] text-center space-y-4">
@@ -37,8 +42,8 @@ export class WorkspaceErrorBoundary extends Component<Props, State> {
           </div>
           <h2 className="text-2xl font-bold tracking-tight">Something went wrong</h2>
           <p className="text-muted-foreground max-w-md mx-auto">
-            {isLiveblocksError 
-              ? "We couldn't connect to the collaborative workspace. Please check your network or API keys." 
+            {isConnectionError
+              ? "We couldn't connect to the cloud service. Please check your network connection."
               : "An unexpected error occurred in the canvas."}
           </p>
           <div className="flex gap-4">
@@ -49,7 +54,7 @@ export class WorkspaceErrorBoundary extends Component<Props, State> {
               <RefreshCcw className="w-4 h-4" />
               Reload Page
             </button>
-            {isLiveblocksError && (
+            {isConnectionError && (
               <button
                 onClick={() => this.setState({ hasError: false })}
                 className="px-6 py-2 rounded-full border border-border font-semibold hover:bg-secondary transition-colors"

@@ -4,7 +4,7 @@ These rules define the engineering culture and quality standards for the Testing
 
 ## 1. Architectural Integrity
 - **Pattern Matching**: Always look for existing patterns before implementing new ones.
-- **Serverless First**: Maintain compatibility with Vercel and Supabase. Avoid any persistent local state that doesn't sync via Liveblocks or the database.
+- **Serverless First**: Maintain compatibility with Vercel and Supabase. Avoid any persistent local state that doesn't sync via the Supabase database.
 - **Strict Typing**: Use TypeScript for everything. No `any`. Use discriminated unions for complex states.
 
 ## 2. Coding Standards
@@ -23,6 +23,7 @@ These rules define the engineering culture and quality standards for the Testing
 - **Import Format**: Stick to the defined `.tm.json` schema for all AI-generated imports.
 - **Self-Documentation**: AI-generated code must be self-documenting. Use clear variable names over excessive comments.
 
-## 5. Collaboration Standards
-- **Liveblocks usage**: Always ensure that local mutations are optimistic and properly synced to the collaboration layer.
-- **Presence**: User presence (cursors/selection) should be a first-class citizen of the workspace UI.
+## 5. Cloud Persistence Standards
+- **Supabase**: All user data must be saved to Supabase with proper RLS policies.
+- **Auto-save**: Changes should be debounced and saved automatically with user-visible status indicators.
+- **Offline resilience**: The app should handle network failures gracefully without data loss.
