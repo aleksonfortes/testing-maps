@@ -9,6 +9,7 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
   const [isCreating, setIsCreating] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDuplicating, setIsDuplicating] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,6 +76,28 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
     }
   }, [loadMaps]);
 
+  const duplicateMap = useCallback(async (mapId: string) => {
+    if (!userId) return null;
+    setIsDuplicating(true);
+    try {
+      const source = await testingMapRepository.loadMap(mapId);
+      if (!source) throw new Error("Source map not found");
+      const newId = await testingMapRepository.createMapWithData(
+        userId,
+        source.name + " (Copy)",
+        source.nodes,
+        source.edges
+      );
+      await loadMaps();
+      return newId;
+    } catch (err) {
+      console.error("Failed to duplicate map:", err);
+      return null;
+    } finally {
+      setIsDuplicating(false);
+    }
+  }, [userId, loadMaps]);
+
   const renameMap = useCallback(async (mapId: string, newName: string) => {
     setIsRenaming(true);
     try {
@@ -109,12 +132,14 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
     isCreating,
     isImporting,
     isDeleting,
+    isDuplicating,
     isRenaming,
     error,
     refresh: loadMaps,
     createMap,
     importMap,
     deleteMap,
+    duplicateMap,
     renameMap,
     saveMapData,
   };

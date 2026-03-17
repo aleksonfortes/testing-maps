@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -27,11 +28,14 @@ import { getLayoutedElements } from "@/lib/layout";
 import { ScenarioNode } from "./nodes/ScenarioNode";
 import { ScenarioModal } from "./modals/ScenarioModal";
 import { MarkdownExport } from "./modals/MarkdownExport";
+import { CoverageSummary } from "./CoverageSummary";
+import { BulkActionBar } from "./BulkActionBar";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { usePersistence } from "@/hooks/usePersistence";
 import { useDragReparent } from "@/hooks/useDragReparent";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { CanvasToolbar } from "./CanvasToolbar";
+import { getHiddenNodeIds } from "@/lib/tree-utils";
 import {
   LAYOUT_DELAY,
   FIT_VIEW_DELAY_MS,
@@ -45,6 +49,10 @@ import type { ScenarioData } from "@/lib/types";
 // ---------------------------------------------------------------------------
 interface MapActions {
   deleteNode: (id: string) => void;
+  toggleCollapse: (id: string) => void;
+  isCollapsed: (id: string) => boolean;
+  getChildCount: (id: string) => number;
+  getHiddenChildCount: (id: string) => number;
 }
 
 const MapActionsContext = createContext<React.RefObject<MapActions> | null>(null);
@@ -88,8 +96,17 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [showMarkdown, setShowMarkdown] = useState(false);
 
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const lastLayoutMode = useRef<string>("");
-  const actionsRef = useRef<MapActions>({ deleteNode: () => {} });
+  const nodesRef = useRef(nodes);
+  nodesRef.current = nodes;
+  const actionsRef = useRef<MapActions>({
+    deleteNode: () => {},
+    toggleCollapse: () => {},
+    isCollapsed: () => false,
+    getChildCount: () => 0,
+    getHiddenChildCount: () => 0,
+  });
 
   // Undo/Redo
   const { pushSnapshot, undo, redo, finishRestore, canUndo, canRedo } = useUndoRedo();
@@ -135,9 +152,54 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     [setNodes, setEdges, pushSnapshot]
   );
 
+  // -----------------------------------------------------------------------
+  // Collapse / expand
+  // -----------------------------------------------------------------------
+  const toggleCollapse = useCallback((id: string) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const hiddenIds = useMemo(
+    () => getHiddenNodeIds(collapsed, edges),
+    [collapsed, edges]
+  );
+
+  // Use ReactFlow's built-in `hidden` property instead of filtering.
+  // This keeps all nodes/edges in the store so getNodes()/getEdges() return
+  // the full set — preventing data loss in layout, addNode, and snapshots.
+  const displayNodes = useMemo(
+    () => nodes.map((n) => ({ ...n, hidden: hiddenIds.has(n.id) })),
+    [nodes, hiddenIds]
+  );
+
+  const displayEdges = useMemo(
+    () => edges.map((e) => ({ ...e, hidden: hiddenIds.has(e.source) || hiddenIds.has(e.target) })),
+    [edges, hiddenIds]
+  );
+
+  const childCountMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const edge of edges) {
+      map.set(edge.source, (map.get(edge.source) || 0) + 1);
+    }
+    return map;
+  }, [edges]);
+
   useEffect(() => {
     actionsRef.current.deleteNode = onDeleteNode;
-  }, [onDeleteNode]);
+    actionsRef.current.toggleCollapse = toggleCollapse;
+    actionsRef.current.isCollapsed = (id: string) => collapsed.has(id);
+    actionsRef.current.getChildCount = (id: string) => childCountMap.get(id) || 0;
+    actionsRef.current.getHiddenChildCount = (id: string) => {
+      const descendants = getHiddenNodeIds(new Set([id]), edges);
+      return descendants.size;
+    };
+  }, [onDeleteNode, toggleCollapse, collapsed, childCountMap, edges]);
 
   const onUpdateNode = useCallback(
     (id: string, newData: Partial<ScenarioData>) => {
@@ -170,17 +232,39 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   );
 
   // -----------------------------------------------------------------------
+  // Bulk status change
+  // -----------------------------------------------------------------------
+  const onBulkStatusChange = useCallback(
+    (status: ScenarioData["status"]) => {
+      setNodes((nds) => {
+        const updated = nds.map((n) =>
+          n.selected ? { ...n, data: { ...n.data, status } } : n
+        );
+        pushSnapshot(updated, getEdges());
+        return updated;
+      });
+    },
+    [setNodes, pushSnapshot, getEdges]
+  );
+
+  // -----------------------------------------------------------------------
   // Layout
   // -----------------------------------------------------------------------
   const onLayout = useCallback(
     (direction: string) => {
-      const currentNodes = getNodes();
-      const currentEdges = getEdges();
-      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(currentNodes, currentEdges, direction);
+      const allNodes = getNodes();
+      const allEdges = getEdges();
+      // Only layout visible nodes; hidden nodes keep their positions
+      const visible = allNodes.filter((n) => !n.hidden);
+      const visibleEdges = allEdges.filter((e) => !e.hidden);
+      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(visible, visibleEdges, direction);
       const styledEdges = lEdges.map((e) => ({ ...e, type: "smoothstep", animated: true }));
 
-      setNodes(lNodes);
-      setEdges(styledEdges);
+      // Merge: laid-out visible nodes + unchanged hidden nodes
+      const laidMap = new Map(lNodes.map((n) => [n.id, n]));
+      const styledMap = new Map(styledEdges.map((e) => [e.id, e]));
+      setNodes(allNodes.map((n) => laidMap.get(n.id) ?? n));
+      setEdges(allEdges.map((e) => styledMap.get(e.id) ?? e));
 
       requestAnimationFrame(() => {
         setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS }), FIT_VIEW_DELAY_MS);
@@ -197,7 +281,16 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
 
       const selectedNode = parentId
         ? currentNodes.find((n) => n.id === parentId)
-        : currentNodes.find((n) => n.selected) || currentNodes[currentNodes.length - 1];
+        : currentNodes.find((n) => n.selected);
+
+      // Auto-expand if parent is collapsed
+      if (selectedNode && collapsed.has(selectedNode.id)) {
+        setCollapsed((prev) => {
+          const next = new Set(prev);
+          next.delete(selectedNode.id);
+          return next;
+        });
+      }
 
       const childrenCount = currentEdges.filter((e) => e.source === selectedNode?.id).length;
 
@@ -230,20 +323,28 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
           }
         : null;
 
-      const updatedNodes: Node[] = [...currentNodes.map((n) => ({ ...n, selected: false })), newNode];
-      const updatedEdges: Edge[] = newEdge ? [...currentEdges, newEdge] : currentEdges;
+      // Separate visible and hidden nodes for layout
+      const visibleUpdated: Node[] = [...currentNodes.filter((n) => !n.hidden).map((n) => ({ ...n, selected: false })), newNode];
+      const hiddenNodes = currentNodes.filter((n) => n.hidden);
+      const visibleEdgesForLayout = currentEdges.filter((e) => !e.hidden);
+      const updatedEdges: Edge[] = newEdge ? [...visibleEdgesForLayout, newEdge] : visibleEdgesForLayout;
+      const hiddenEdges = currentEdges.filter((e) => e.hidden);
 
       const direction = viewMode === "mindmap" ? "LR" : "TB";
-      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(updatedNodes, updatedEdges, direction);
+      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(visibleUpdated, updatedEdges, direction);
       const styledEdges = lEdges.map((e) => ({ ...e, type: "smoothstep", animated: true }));
 
-      setNodes(lNodes);
-      setEdges(styledEdges);
-      pushSnapshot(lNodes, styledEdges);
+      // Merge back: laid-out visible + unchanged hidden
+      const mergedNodes = [...lNodes, ...hiddenNodes.map((n) => ({ ...n, selected: false }))];
+      const mergedEdges = [...styledEdges, ...hiddenEdges];
+
+      setNodes(mergedNodes);
+      setEdges(mergedEdges);
+      pushSnapshot(mergedNodes, mergedEdges);
 
       setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS }), FIT_VIEW_DELAY_MS);
     },
-    [getNodes, getEdges, setNodes, setEdges, viewMode, fitView, pushSnapshot]
+    [getNodes, getEdges, setNodes, setEdges, viewMode, fitView, pushSnapshot, collapsed]
   );
 
   // -----------------------------------------------------------------------
@@ -296,6 +397,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   useKeyboardShortcuts({
     editingNodeId,
     addNode,
+    nodesRef,
     getNodes,
     setNodes,
     setEdges,
@@ -316,8 +418,8 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     <MapActionsContext.Provider value={actionsRef}>
       <div className="h-full w-full relative group">
         <ReactFlow
-          nodes={nodes}
-          edges={edges}
+          nodes={displayNodes}
+          edges={displayEdges}
           nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
@@ -335,6 +437,8 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
             variant={BackgroundVariant.Dots}
           />
 
+          <CoverageSummary nodes={nodes} />
+
           <CanvasToolbar
             onAddNode={() => addNode()}
             onUndo={handleUndo}
@@ -345,6 +449,8 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
             onFitView={() => fitView({ duration: FIT_VIEW_DURATION_MS })}
             saveStatus={saveStatus}
           />
+
+          <BulkActionBar nodes={displayNodes} onBulkStatusChange={onBulkStatusChange} />
         </ReactFlow>
 
         <AnimatePresence>

@@ -4,6 +4,7 @@ import type { Node, Edge } from "@xyflow/react";
 interface UseKeyboardShortcutsOptions {
   editingNodeId: string | null;
   addNode: (parentId?: string) => void;
+  nodesRef: React.RefObject<Node[]>;
   getNodes: () => Node[];
   setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
@@ -15,6 +16,7 @@ interface UseKeyboardShortcutsOptions {
 export function useKeyboardShortcuts({
   editingNodeId,
   addNode,
+  nodesRef,
   getNodes,
   setNodes,
   setEdges,
@@ -53,7 +55,9 @@ export function useKeyboardShortcuts({
         const isCanvasFocused = target.closest(".react-flow") !== null;
         if (isCanvasFocused) {
           e.preventDefault();
-          const selected = getNodes().find((n) => n.selected);
+          // Use nodesRef (React state) instead of getNodes() (ReactFlow store)
+          // to avoid stale selection state from store sync timing
+          const selected = nodesRef.current.find((n: Node) => n.selected);
           addNode(selected?.id);
         }
       }
@@ -80,5 +84,5 @@ export function useKeyboardShortcuts({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [editingNodeId, addNode, getNodes, setNodes, setEdges, handleUndo, handleRedo, pushSnapshot]);
+  }, [editingNodeId, addNode, nodesRef, getNodes, setNodes, setEdges, handleUndo, handleRedo, pushSnapshot]);
 }

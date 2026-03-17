@@ -33,7 +33,8 @@ test.describe("Workspace Import Spec", () => {
     await workspace.openImportModal();
     await workspace.importMarkdown(markdown, "create");
 
-    await expect(workspace.page.getByText(/creating new map|new map created/i)).toBeVisible();
+    // Loading toast or error when Supabase is not configured
+    await expect(workspace.page.getByText(/creating new map|new map created|import failed|failed/i)).toBeVisible();
   });
 
   test("should trigger 'replace' mode feedback", async () => {

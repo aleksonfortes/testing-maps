@@ -10,6 +10,8 @@ import {
   Check,
   Loader2,
   Pencil,
+  Trash2,
+  Copy,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -27,14 +29,15 @@ interface MapDropdownProps {
 }
 
 export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownProps) {
-  const { maps, loading, isCreating, isImporting, createMap, renameMap, importMap, saveMapData } = useMaps<ScenarioData>(userId);
-  const { openDropdown, setOpenDropdown, setIsHeroHidden } = useUI();
+  const { maps, loading, isCreating, isImporting, isDuplicating, createMap, deleteMap, duplicateMap, renameMap, importMap, saveMapData } = useMaps<ScenarioData>(userId);
+  const { openDropdown, setOpenDropdown, setIsHeroHidden, showImport, setShowImport } = useUI();
   const isOpen = openDropdown === "map";
 
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [search, setSearch] = useState("");
-  const [showImport, setShowImport] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const confirmDeleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const activeMap = maps.find((m) => m.id === activeMapId);
@@ -83,6 +86,44 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
     });
   };
 
+  const handleDeleteMap = (e: React.MouseEvent, mapId: string) => {
+    e.stopPropagation();
+    if (confirmDeleteId === mapId) {
+      if (confirmDeleteTimer.current) clearTimeout(confirmDeleteTimer.current);
+      setConfirmDeleteId(null);
+      const promise = deleteMap(mapId);
+      toast.promise(promise, {
+        loading: "Deleting map...",
+        success: () => {
+          if (activeMapId === mapId) onSelectMap("");
+          return "Map deleted";
+        },
+        error: "Failed to delete map",
+      });
+    } else {
+      setConfirmDeleteId(mapId);
+      if (confirmDeleteTimer.current) clearTimeout(confirmDeleteTimer.current);
+      confirmDeleteTimer.current = setTimeout(() => setConfirmDeleteId(null), 3000);
+    }
+  };
+
+  const handleDuplicate = (e: React.MouseEvent, mapId: string) => {
+    e.stopPropagation();
+    const promise = duplicateMap(mapId);
+    toast.promise(promise, {
+      loading: "Duplicating...",
+      success: (id) => {
+        if (id) {
+          onSelectMap(id);
+          setOpenDropdown(null);
+          return "Map duplicated";
+        }
+        throw new Error("Failed to duplicate map");
+      },
+      error: "Failed to duplicate map",
+    });
+  };
+
   const handleOpenImport = () => {
     setShowImport(true);
     setIsHeroHidden(true);
@@ -115,7 +156,10 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
       ) : (
         <Popover.Root
           open={isOpen}
-          onOpenChange={(open) => setOpenDropdown(open ? "map" : null)}
+          onOpenChange={(open) => {
+            setOpenDropdown(open ? "map" : null);
+            if (!open) setConfirmDeleteId(null);
+          }}
         >
           <Popover.Trigger asChild>
             <button
@@ -193,18 +237,18 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                         </div>
                       ) : (
                         filteredMaps.map((map) => (
-                          <button
+                          <div
                             key={map.id}
-                            onClick={() => {
-                              onSelectMap(map.id);
-                              setOpenDropdown(null);
-                            }}
                             className={cn(
-                              "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all mb-0.5 group/item",
+                              "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all mb-0.5 group/item cursor-pointer",
                               activeMapId === map.id
                                 ? "bg-white text-black font-bold"
                                 : "hover:bg-white/5 text-foreground/70 hover:text-foreground"
                             )}
+                            onClick={() => {
+                              onSelectMap(map.id);
+                              setOpenDropdown(null);
+                            }}
                           >
                             <div className="flex items-center gap-3 truncate">
                               <div
@@ -219,10 +263,44 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                                 {map.name}
                               </span>
                             </div>
-                            {activeMapId === map.id && (
-                              <Check className="w-3.5 h-3.5 shrink-0" />
-                            )}
-                          </button>
+                            <div className="flex items-center gap-0.5 shrink-0">
+                              {activeMapId === map.id && (
+                                <Check className="w-3.5 h-3.5 mr-1" />
+                              )}
+                              <button
+                                onClick={(e) => handleDuplicate(e, map.id)}
+                                disabled={isDuplicating}
+                                className={cn(
+                                  "p-1.5 rounded-lg transition-all opacity-0 group-hover/item:opacity-100",
+                                  activeMapId === map.id
+                                    ? "hover:bg-black/10 text-black/50 hover:text-black"
+                                    : "hover:bg-white/10 text-foreground/30 hover:text-foreground"
+                                )}
+                                title="Duplicate map"
+                                data-testid="duplicate-map-button"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={(e) => handleDeleteMap(e, map.id)}
+                                className={cn(
+                                  "p-1.5 rounded-lg transition-all",
+                                  confirmDeleteId === map.id
+                                    ? "bg-destructive text-destructive-foreground opacity-100"
+                                    : cn(
+                                        "opacity-0 group-hover/item:opacity-100",
+                                        activeMapId === map.id
+                                          ? "hover:bg-red-500/10 text-red-500/50 hover:text-red-500"
+                                          : "hover:bg-destructive/10 text-destructive/50 hover:text-destructive"
+                                      )
+                                )}
+                                title={confirmDeleteId === map.id ? "Click to confirm delete" : "Delete map"}
+                                data-testid="delete-map-button"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
                         ))
                       )}
                     </div>

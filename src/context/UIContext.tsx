@@ -17,6 +17,8 @@ interface UIContextType {
   setIsHeroHidden: (hidden: boolean) => void;
   openDropdown: "map" | "user" | null;
   setOpenDropdown: (id: "map" | "user" | null) => void;
+  showImport: boolean;
+  setShowImport: (show: boolean) => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -28,6 +30,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [activeTab, setActiveTab] = useState<"canvas" | "details">("canvas");
   const [isHeroHidden, setIsHeroHidden] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<"map" | "user" | null>(null);
+  const [showImport, setShowImport] = useState(false);
 
   const toggleFilter = useCallback((filter: DisplayFilter) => {
     setActiveFilters((prev) =>
@@ -50,6 +53,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
         setIsHeroHidden,
         openDropdown,
         setOpenDropdown,
+        showImport,
+        setShowImport,
       }}
     >
       {children}

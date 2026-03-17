@@ -14,6 +14,10 @@ export class WorkspacePage {
   readonly createOption: Locator;
   readonly importSubmitButton: Locator;
 
+  // Canvas features
+  readonly coverageSummary: Locator;
+  readonly bulkActionBar: Locator;
+
   constructor(page: Page) {
     this.page = page;
     this.mapDropdown = page.getByTestId("map-selection-toggle");
@@ -26,6 +30,9 @@ export class WorkspacePage {
     this.replaceOption = this.importModal.getByRole("button", { name: /replace current map/i });
     this.createOption = this.importModal.getByRole("button", { name: /create new map/i });
     this.importSubmitButton = this.importModal.getByRole("button", { name: /import/i });
+
+    this.coverageSummary = page.getByTestId("coverage-summary");
+    this.bulkActionBar = page.getByTestId("bulk-action-bar");
   }
 
   async goto() {

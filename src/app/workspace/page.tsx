@@ -5,7 +5,10 @@ import { UIProvider, useUI } from "@/context/UIContext";
 import { MapCanvas } from "@/components/MapCanvas";
 import { MapDropdown } from "@/components/MapDropdown";
 import { FilterHUD } from "@/components/FilterHUD";
-import { Map, Layers, Loader2, Plus, FileUp } from "lucide-react";
+import { Map, Layers, Loader2, Plus, FileUp, Command } from "lucide-react";
+import { useMaps } from "@/hooks/useMaps";
+import { toast } from "sonner";
+import type { ScenarioData } from "@/lib/types";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
@@ -65,7 +68,7 @@ function WorkspaceContentWrapper() {
   }, []);
 
   const handleSelectMap = useCallback((mapId: string) => {
-    setActiveMapId(mapId);
+    setActiveMapId(mapId || null);
   }, []);
 
   const testUser = { id: "test-user-id", email: "test@example.com" } as User;
@@ -100,10 +103,31 @@ function WorkspaceContent({
   handleSelectMap: (id: string) => void;
   handleSignOut: () => void;
 }) {
-  const { isHeroHidden, setOpenDropdown } = useUI();
+  const { isHeroHidden, setIsHeroHidden, setShowImport } = useUI();
+  const { createMap, isCreating } = useMaps<ScenarioData>(currentUser.id);
 
   // Determine if we should show the empty state hero
   const showEmptyState = !activeMapId && !isHeroHidden;
+
+  const handleHeroCreate = () => {
+    const promise = createMap("Untitled Map");
+    toast.promise(promise, {
+      loading: "Creating map...",
+      success: (id) => {
+        if (id) {
+          handleSelectMap(id);
+          return "Map created successfully";
+        }
+        throw new Error("Failed to create map");
+      },
+      error: "Failed to create map",
+    });
+  };
+
+  const handleHeroImport = () => {
+    setShowImport(true);
+    setIsHeroHidden(true);
+  };
 
   return (
     <main className="flex h-screen w-screen flex-col bg-background overflow-hidden text-foreground relative font-sans" data-hero-hidden={isHeroHidden}>
@@ -166,14 +190,19 @@ function WorkspaceContent({
                 {/* Primary actions */}
                 <div className="flex gap-3 mb-10">
                   <button
-                    onClick={() => setOpenDropdown("map")}
-                    className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-2xl text-sm font-bold shadow-xl hover:scale-[1.02] transition-all active:scale-[0.98]"
+                    onClick={handleHeroCreate}
+                    disabled={isCreating}
+                    className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-2xl text-sm font-bold shadow-xl hover:scale-[1.02] transition-all active:scale-[0.98] disabled:opacity-50"
                   >
-                    <Plus className="w-4 h-4" />
+                    {isCreating ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Plus className="w-4 h-4" />
+                    )}
                     New Map
                   </button>
                   <button
-                    onClick={() => setOpenDropdown("map")}
+                    onClick={handleHeroImport}
                     className="flex items-center gap-2 glass border border-white/10 px-6 py-3 rounded-2xl text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-white/10 transition-all"
                   >
                     <FileUp className="w-4 h-4" />
@@ -182,22 +211,26 @@ function WorkspaceContent({
                 </div>
 
                 {/* Keyboard shortcut hints */}
-                <div className="glass border border-white/5 rounded-2xl px-6 py-4 flex gap-6 text-xs text-foreground/30">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-2.5 text-xs text-foreground/30">
                   <span className="flex items-center gap-2">
-                    <kbd className="px-1.5 py-0.5 bg-white/5 rounded-md font-mono border border-white/10">Tab</kbd>
-                    Add node
+                    <kbd className="inline-flex items-center justify-center min-w-[2rem] px-1.5 py-0.5 bg-white/5 rounded-md font-mono text-[11px] border border-white/10">Tab</kbd>
+                    <span>Add a child node</span>
                   </span>
                   <span className="flex items-center gap-2">
-                    <kbd className="px-1.5 py-0.5 bg-white/5 rounded-md font-mono border border-white/10">Drag</kbd>
-                    Reparent
+                    <kbd className="inline-flex items-center justify-center min-w-[2rem] px-1.5 py-0.5 bg-white/5 rounded-md font-mono text-[11px] border border-white/10">Drag</kbd>
+                    <span>Reparent node</span>
                   </span>
                   <span className="flex items-center gap-2">
-                    <kbd className="px-1.5 py-0.5 bg-white/5 rounded-md font-mono border border-white/10">Del</kbd>
-                    Remove
+                    <kbd className="inline-flex items-center justify-center min-w-[2rem] px-1.5 py-0.5 bg-white/5 rounded-md font-mono text-[11px] border border-white/10">Del</kbd>
+                    <span>Delete selected</span>
                   </span>
                   <span className="flex items-center gap-2">
-                    <kbd className="px-1.5 py-0.5 bg-white/5 rounded-md font-mono border border-white/10">Dbl-click</kbd>
-                    Edit
+                    <kbd className="inline-flex items-center justify-center min-w-[2rem] px-1.5 py-0.5 bg-white/5 rounded-md font-mono text-[11px] border border-white/10 whitespace-nowrap">Dbl-click</kbd>
+                    <span>Edit details</span>
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <kbd className="inline-flex items-center gap-0.5 justify-center min-w-[2rem] px-1.5 py-0.5 bg-white/5 rounded-md font-mono text-[11px] border border-white/10"><Command className="w-2.5 h-2.5" />Z</kbd>
+                    <span>Undo / Redo</span>
                   </span>
                 </div>
               </div>

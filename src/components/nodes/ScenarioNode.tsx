@@ -15,6 +15,7 @@ import {
   Settings,
   FileText,
   Target,
+  ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -59,6 +60,9 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
   const finalSourcePos = sourcePosition || Position.Right;
 
   const isDropTarget = !!data.isDropTarget;
+  const isCollapsed = actionsRef.current.isCollapsed(id);
+  const childCount = actionsRef.current.getChildCount(id);
+  const hiddenChildCount = actionsRef.current.getHiddenChildCount(id);
 
   const showExpectations = activeFilters.includes("expectedResults");
   const showInstructions = activeFilters.includes("instructions");
@@ -243,6 +247,28 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
           )}
         </div>
       </div>
+
+      {/* Collapse/Expand toggle — only shown when node has children */}
+      {childCount > 0 && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            actionsRef.current.toggleCollapse(id);
+          }}
+          className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full bg-card border-2 border-border shadow-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all active:scale-95 z-20"
+          data-testid="collapse-toggle"
+        >
+          <ChevronRight
+            className={cn(
+              "w-3 h-3 transition-transform duration-200",
+              !isCollapsed && "rotate-90"
+            )}
+          />
+          {isCollapsed && (
+            <span className="text-primary/70">+{hiddenChildCount}</span>
+          )}
+        </button>
+      )}
     </div>
   );
 });
