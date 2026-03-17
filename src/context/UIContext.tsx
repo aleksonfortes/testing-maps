@@ -7,8 +7,7 @@ export type DisplayFilter = "expectedResults" | "instructions" | "testType" | "c
 interface UIContextType {
   activeFilters: DisplayFilter[];
   toggleFilter: (filter: DisplayFilter) => void;
-  viewMode: "diagram" | "mindmap";
-  setViewMode: (mode: "diagram" | "mindmap") => void;
+  viewMode: "mindmap";
   editingNodeId: string | null;
   setEditingNodeId: (id: string | null) => void;
   activeTab: "canvas" | "details";
@@ -27,7 +26,7 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export function UIProvider({ children }: { children: ReactNode }) {
   const [activeFilters, setActiveFilters] = useState<DisplayFilter[]>(["testType"]);
-  const [viewMode, setViewMode] = useState<"diagram" | "mindmap">("diagram");
+  const viewMode = "mindmap" as const;
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"canvas" | "details">("canvas");
   const [isHeroHidden, setIsHeroHidden] = useState(false);
@@ -47,7 +46,6 @@ export function UIProvider({ children }: { children: ReactNode }) {
         activeFilters,
         toggleFilter,
         viewMode,
-        setViewMode,
         editingNodeId,
         setEditingNodeId,
         activeTab,

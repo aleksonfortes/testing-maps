@@ -14,7 +14,6 @@ interface UseDragReparentOptions {
   getEdges: () => Edge[];
   setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
-  viewMode: "diagram" | "mindmap";
   fitView: (opts?: { duration?: number }) => void;
   pushSnapshot: (nodes: Node[], edges: Edge[]) => void;
 }
@@ -24,7 +23,6 @@ export function useDragReparent({
   getEdges,
   setNodes,
   setEdges,
-  viewMode,
   fitView,
   pushSnapshot,
 }: UseDragReparentOptions) {
@@ -137,8 +135,7 @@ export function useDragReparent({
       };
       newEdges.push(newEdge);
 
-      const direction = viewMode === "mindmap" ? "LR" : "TB";
-      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(allNodes, newEdges, direction);
+      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(allNodes, newEdges, "LR");
       const styledEdges = lEdges.map((e) => ({ ...e, type: "smoothstep", animated: true }));
 
       setNodes(lNodes);
@@ -147,7 +144,7 @@ export function useDragReparent({
 
       setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS }), FIT_VIEW_DELAY_MS);
     },
-    [getNodes, getEdges, findDropTarget, viewMode, setNodes, setEdges, pushSnapshot, fitView]
+    [getNodes, getEdges, findDropTarget, setNodes, setEdges, pushSnapshot, fitView]
   );
 
   return { onNodeDrag, onNodeDragStop };

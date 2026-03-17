@@ -89,7 +89,7 @@ export function MapCanvas({ mapId, userId, onSignOut }: MapCanvasProps) {
 // Inner component
 // ---------------------------------------------------------------------------
 function MapCanvasInner({ mapId }: MapCanvasProps) {
-  const { viewMode, editingNodeId, setEditingNodeId, activeFilters } = useUI();
+  const { editingNodeId, setEditingNodeId, activeFilters } = useUI();
   const { fitView, getNodes, getEdges } = useReactFlow();
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -97,7 +97,6 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   const [showMarkdown, setShowMarkdown] = useState(false);
 
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const lastLayoutMode = useRef<string>("");
   const nodesRef = useRef(nodes);
   nodesRef.current = nodes;
   const actionsRef = useRef<MapActions>({
@@ -129,7 +128,6 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     getEdges,
     setNodes,
     setEdges,
-    viewMode,
     fitView,
     pushSnapshot,
   });
@@ -330,8 +328,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
       const updatedEdges: Edge[] = newEdge ? [...visibleEdgesForLayout, newEdge] : visibleEdgesForLayout;
       const hiddenEdges = currentEdges.filter((e) => e.hidden);
 
-      const direction = viewMode === "mindmap" ? "LR" : "TB";
-      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(visibleUpdated, updatedEdges, direction);
+      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(visibleUpdated, updatedEdges, "LR");
       const styledEdges = lEdges.map((e) => ({ ...e, type: "smoothstep", animated: true }));
 
       // Merge back: laid-out visible + unchanged hidden
@@ -344,22 +341,12 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
 
       setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS }), FIT_VIEW_DELAY_MS);
     },
-    [getNodes, getEdges, setNodes, setEdges, viewMode, fitView, pushSnapshot, collapsed]
+    [getNodes, getEdges, setNodes, setEdges, fitView, pushSnapshot, collapsed]
   );
 
   // -----------------------------------------------------------------------
-  // View mode / filter layout effects
+  // Filter layout effect
   // -----------------------------------------------------------------------
-  useEffect(() => {
-    if (viewMode === "mindmap" && lastLayoutMode.current !== "mindmap") {
-      onLayout("LR");
-      lastLayoutMode.current = "mindmap";
-    } else if (viewMode === "diagram" && lastLayoutMode.current !== "diagram") {
-      onLayout("TB");
-      lastLayoutMode.current = "diagram";
-    }
-  }, [viewMode, onLayout]);
-
   const lastFiltersRef = useRef<string>("");
 
   useEffect(() => {
@@ -367,10 +354,9 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     const filtersKey = [...activeFilters].sort().join(",");
     if (filtersKey !== lastFiltersRef.current) {
       lastFiltersRef.current = filtersKey;
-      const direction = viewMode === "mindmap" ? "LR" : "TB";
-      setTimeout(() => onLayout(direction), LAYOUT_DELAY);
+      setTimeout(() => onLayout("LR"), LAYOUT_DELAY);
     }
-  }, [activeFilters, onLayout, viewMode, loadedFromCloud]);
+  }, [activeFilters, onLayout, loadedFromCloud]);
 
   // -----------------------------------------------------------------------
   // Undo/Redo actions
