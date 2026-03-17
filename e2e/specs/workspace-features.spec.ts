@@ -16,11 +16,12 @@ test.describe("Map Dropdown Actions", () => {
     await expect(workspace.importButton).toBeVisible();
   });
 
-  test("should trigger create map toast feedback", async () => {
+  test("should open new map modal from dropdown", async () => {
     await workspace.openMapDropdown();
     await workspace.clickNewMap();
-    // Without Supabase configured, the toast shows an error
-    await expect(workspace.page.getByText(/creating map|failed to create/i)).toBeVisible();
+    // Should open the NewMapModal
+    await expect(workspace.page.getByTestId("new-map-name-input")).toBeVisible();
+    await expect(workspace.page.getByTestId("create-map-submit")).toBeVisible();
   });
 });
 
@@ -65,11 +66,13 @@ test.describe("Workspace Hero", () => {
     await expect(page.getByText("Undo / Redo")).toBeVisible();
   });
 
-  test("hero New Map button should trigger create map", async ({ page }) => {
-    // Click the hero "New Map" button — should directly create a map (not open dropdown)
+  test("hero New Map button should open new map modal", async ({ page }) => {
+    // Click the hero "New Map" button — should open the name modal
     await page.getByRole("button", { name: /new map/i }).first().click();
 
-    // Should show a toast feedback (creating or error since no Supabase)
-    await expect(page.getByText(/creating map|failed to create/i)).toBeVisible();
+    // Should show the NewMapModal with its name input
+    await expect(page.getByTestId("new-map-name-input")).toBeVisible();
+    await expect(page.getByTestId("create-map-submit")).toBeVisible();
+    await expect(page.getByText("Give your map a name to get started")).toBeVisible();
   });
 });

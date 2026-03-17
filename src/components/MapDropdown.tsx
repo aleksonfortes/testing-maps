@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { useMaps } from "@/hooks/useMaps";
 import { useUI } from "@/context/UIContext";
 import { MarkdownImport } from "./modals/MarkdownImport";
+import { NewMapModal } from "./modals/NewMapModal";
 import { toast } from "sonner";
 import type { Node, Edge } from "@xyflow/react";
 import type { ScenarioData } from "@/lib/types";
@@ -29,8 +30,8 @@ interface MapDropdownProps {
 }
 
 export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownProps) {
-  const { maps, loading, isCreating, isImporting, isDuplicating, createMap, deleteMap, duplicateMap, renameMap, importMap, saveMapData } = useMaps<ScenarioData>(userId);
-  const { openDropdown, setOpenDropdown, setIsHeroHidden, showImport, setShowImport } = useUI();
+  const { maps, loading, isImporting, isDuplicating, deleteMap, duplicateMap, renameMap, importMap, saveMapData } = useMaps<ScenarioData>(userId);
+  const { openDropdown, setOpenDropdown, setIsHeroHidden, showImport, setShowImport, showNewMapModal, setShowNewMapModal } = useUI();
   const isOpen = openDropdown === "map";
 
   const [isEditing, setIsEditing] = useState(false);
@@ -70,20 +71,50 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
     setIsEditing(false);
   };
 
-  const handleCreate = async () => {
-    const promise = createMap("Untitled Map");
+  const handleCreate = () => {
+    setShowNewMapModal(true);
+    setIsHeroHidden(true);
+    setOpenDropdown(null);
+  };
+
+  const handleCreateWithName = async (name: string): Promise<string | null> => {
+    // Build a root node with the map name as label
+    const rootNode: Node<ScenarioData> = {
+      id: "root",
+      type: "scenario",
+      position: { x: 0, y: 0 },
+      data: {
+        label: name,
+        status: "untested",
+        testType: "manual",
+      },
+    };
+
+    const id = await importMap(name, [rootNode], []);
+    if (id) {
+      onSelectMap(id);
+      setShowNewMapModal(false);
+      setIsHeroHidden(false);
+    }
+    return id;
+  };
+
+  const handleNewMapSubmit = async (name: string) => {
+    const promise = handleCreateWithName(name);
     toast.promise(promise, {
       loading: "Creating map...",
       success: (id) => {
-        if (id) {
-          onSelectMap(id);
-          setOpenDropdown(null);
-          return "Map created successfully";
-        }
+        if (id) return `"${name}" created`;
         throw new Error("Failed to create map");
       },
       error: "Failed to create map",
     });
+    return await promise;
+  };
+
+  const handleCloseNewMapModal = () => {
+    setShowNewMapModal(false);
+    setIsHeroHidden(false);
   };
 
   const handleDeleteMap = (e: React.MouseEvent, mapId: string) => {
@@ -309,15 +340,10 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                     <div className="p-3 bg-white/[0.02] border-t border-white/5 grid grid-cols-2 gap-3">
                       <button
                         onClick={handleCreate}
-                        disabled={isCreating}
-                        className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white text-black rounded-xl text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 transition-all active:scale-[0.98] disabled:opacity-50 group/btn"
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white text-black rounded-xl text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 transition-all active:scale-[0.98] group/btn"
                         data-testid="new-map-button"
                       >
-                        {isCreating ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <Plus className="w-4 h-4 transition-transform group-hover/btn:rotate-90" />
-                        )}
+                        <Plus className="w-4 h-4 transition-transform group-hover/btn:rotate-90" />
                         New Map
                       </button>
                       <button
@@ -341,6 +367,15 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
           </AnimatePresence>
         </Popover.Root>
       )}
+
+      <AnimatePresence>
+        {showNewMapModal && (
+          <NewMapModal
+            onCreateMap={handleNewMapSubmit}
+            onClose={handleCloseNewMapModal}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showImport && (

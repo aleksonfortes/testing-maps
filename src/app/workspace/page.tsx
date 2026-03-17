@@ -6,9 +6,6 @@ import { MapCanvas } from "@/components/MapCanvas";
 import { MapDropdown } from "@/components/MapDropdown";
 import { FilterHUD } from "@/components/FilterHUD";
 import { Map, Layers, Loader2, Plus, FileUp, Command } from "lucide-react";
-import { useMaps } from "@/hooks/useMaps";
-import { toast } from "sonner";
-import type { ScenarioData } from "@/lib/types";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
@@ -103,25 +100,14 @@ function WorkspaceContent({
   handleSelectMap: (id: string) => void;
   handleSignOut: () => void;
 }) {
-  const { isHeroHidden, setIsHeroHidden, setShowImport } = useUI();
-  const { createMap, isCreating } = useMaps<ScenarioData>(currentUser.id);
+  const { isHeroHidden, setIsHeroHidden, setShowImport, setShowNewMapModal } = useUI();
 
   // Determine if we should show the empty state hero
   const showEmptyState = !activeMapId && !isHeroHidden;
 
   const handleHeroCreate = () => {
-    const promise = createMap("Untitled Map");
-    toast.promise(promise, {
-      loading: "Creating map...",
-      success: (id) => {
-        if (id) {
-          handleSelectMap(id);
-          return "Map created successfully";
-        }
-        throw new Error("Failed to create map");
-      },
-      error: "Failed to create map",
-    });
+    setShowNewMapModal(true);
+    setIsHeroHidden(true);
   };
 
   const handleHeroImport = () => {
@@ -191,14 +177,9 @@ function WorkspaceContent({
                 <div className="flex gap-3 mb-10">
                   <button
                     onClick={handleHeroCreate}
-                    disabled={isCreating}
-                    className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-2xl text-sm font-bold shadow-xl hover:scale-[1.02] transition-all active:scale-[0.98] disabled:opacity-50"
+                    className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-2xl text-sm font-bold shadow-xl hover:scale-[1.02] transition-all active:scale-[0.98]"
                   >
-                    {isCreating ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Plus className="w-4 h-4" />
-                    )}
+                    <Plus className="w-4 h-4" />
                     New Map
                   </button>
                   <button

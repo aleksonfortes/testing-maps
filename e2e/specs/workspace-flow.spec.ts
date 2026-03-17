@@ -12,8 +12,10 @@ test.describe("Workspace Flow Spec", () => {
   test("should initiate new map creation flow", async () => {
     await workspace.openMapDropdown();
     await workspace.clickNewMap();
-    
-    // Check for toast feedback (loading or error when Supabase is not configured)
-    await expect(workspace.page.getByText(/creating map|failed to create/i)).toBeVisible();
+
+    // Should open the NewMapModal with name input
+    await expect(workspace.page.getByTestId("new-map-name-input")).toBeVisible();
+    await expect(workspace.page.getByText("Give your map a name to get started")).toBeVisible();
+    await expect(workspace.page.getByTestId("create-map-submit")).toBeVisible();
   });
 });
