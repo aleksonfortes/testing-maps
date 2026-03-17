@@ -53,6 +53,7 @@ interface MapActions {
   isCollapsed: (id: string) => boolean;
   getChildCount: (id: string) => number;
   getHiddenChildCount: (id: string) => number;
+  updateNodeStatus: (id: string, status: "untested" | "verified" | "failed") => void;
 }
 
 const MapActionsContext = createContext<React.RefObject<MapActions> | null>(null);
@@ -105,6 +106,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     isCollapsed: () => false,
     getChildCount: () => 0,
     getHiddenChildCount: () => 0,
+    updateNodeStatus: () => {},
   });
 
   // Undo/Redo
@@ -188,17 +190,6 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     return map;
   }, [edges]);
 
-  useEffect(() => {
-    actionsRef.current.deleteNode = onDeleteNode;
-    actionsRef.current.toggleCollapse = toggleCollapse;
-    actionsRef.current.isCollapsed = (id: string) => collapsed.has(id);
-    actionsRef.current.getChildCount = (id: string) => childCountMap.get(id) || 0;
-    actionsRef.current.getHiddenChildCount = (id: string) => {
-      const descendants = getHiddenNodeIds(new Set([id]), edges);
-      return descendants.size;
-    };
-  }, [onDeleteNode, toggleCollapse, collapsed, childCountMap, edges]);
-
   const onUpdateNode = useCallback(
     (id: string, newData: Partial<ScenarioData>) => {
       setNodes((nds) => {
@@ -209,6 +200,20 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     },
     [setNodes, pushSnapshot, getEdges]
   );
+
+  useEffect(() => {
+    actionsRef.current.deleteNode = onDeleteNode;
+    actionsRef.current.toggleCollapse = toggleCollapse;
+    actionsRef.current.isCollapsed = (id: string) => collapsed.has(id);
+    actionsRef.current.getChildCount = (id: string) => childCountMap.get(id) || 0;
+    actionsRef.current.getHiddenChildCount = (id: string) => {
+      const descendants = getHiddenNodeIds(new Set([id]), edges);
+      return descendants.size;
+    };
+    actionsRef.current.updateNodeStatus = (id: string, status: "untested" | "verified" | "failed") => {
+      onUpdateNode(id, { status });
+    };
+  }, [onDeleteNode, toggleCollapse, collapsed, childCountMap, edges, onUpdateNode]);
 
   const onConnect = useCallback(
     (params: Connection) => {

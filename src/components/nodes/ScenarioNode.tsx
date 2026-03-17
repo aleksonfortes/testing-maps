@@ -12,10 +12,12 @@ import {
   Code,
   MoreHorizontal,
   Trash2,
-  Settings,
+  Pencil,
   FileText,
   Target,
   ChevronRight,
+  Check,
+  X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -124,7 +126,7 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
       <div
         className={cn(
           "relative rounded-2xl border-2 transition-all p-6",
-          "bg-card/80 backdrop-blur-xl shadow-xl flex flex-col items-stretch overflow-hidden",
+          "bg-card/80 backdrop-blur-xl shadow-xl flex flex-col items-stretch",
           isDropTarget
             ? "border-blue-500 ring-4 ring-blue-500/20 scale-[1.02]"
             : selected
@@ -133,55 +135,6 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
         )}
       >
         <div className="flex flex-col gap-4">
-          {/* Menu */}
-          <div className="absolute right-4 top-4 z-10">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowMenu(!showMenu);
-              }}
-              className="p-2 hover:bg-secondary rounded-xl opacity-0 group-hover:opacity-100 transition-all active:scale-95"
-              aria-label="Node options"
-            >
-              <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
-            </button>
-            <AnimatePresence>
-              {showMenu && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                  className="absolute right-0 top-full mt-2 w-48 p-2 bg-card border border-border shadow-2xl rounded-2xl z-[100] overflow-hidden"
-                >
-                  <button
-                    onClick={() => {
-                      setEditingNodeId(id);
-                      setShowMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 p-3 rounded-xl hover:bg-secondary transition-colors text-left"
-                  >
-                    <Settings className="w-4 h-4" />
-                    <span className="text-sm font-medium">Manage Node</span>
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    className={cn(
-                      "w-full flex items-center gap-2 p-3 rounded-xl transition-colors text-left",
-                      confirmDelete
-                        ? "bg-destructive text-destructive-foreground"
-                        : "hover:bg-destructive/10 text-destructive"
-                    )}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span className="text-sm font-medium">
-                      {confirmDelete ? "Click to confirm" : "Quick Delete"}
-                    </span>
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
           {/* Content */}
           <div className="flex-1 flex flex-col gap-4">
             <div className="flex items-start gap-4 w-full">
@@ -246,6 +199,93 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
             </div>
           )}
         </div>
+      </div>
+
+      {/* Menu — positioned outside the content div to avoid overflow clipping */}
+      <div className="absolute right-4 top-4 z-30">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowMenu(!showMenu);
+          }}
+          className="p-2 hover:bg-secondary rounded-xl opacity-0 group-hover:opacity-100 transition-all active:scale-95"
+          aria-label="Node options"
+        >
+          <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
+        </button>
+        <AnimatePresence>
+          {showMenu && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: -4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -4 }}
+              className="absolute right-0 top-full mt-2 w-52 p-1.5 bg-card border border-border shadow-2xl rounded-2xl z-[200]"
+            >
+              {/* Quick status actions */}
+              <div className="flex gap-1 p-1.5 mb-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    actionsRef.current.updateNodeStatus(id, "verified");
+                    setShowMenu(false);
+                  }}
+                  className={cn(
+                    "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all active:scale-95",
+                    data.status === "verified"
+                      ? "bg-green-500 text-white"
+                      : "bg-green-500/10 text-green-600 hover:bg-green-500/20"
+                  )}
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  Pass
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    actionsRef.current.updateNodeStatus(id, "failed");
+                    setShowMenu(false);
+                  }}
+                  className={cn(
+                    "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all active:scale-95",
+                    data.status === "failed"
+                      ? "bg-destructive text-destructive-foreground"
+                      : "bg-destructive/10 text-destructive hover:bg-destructive/20"
+                  )}
+                >
+                  <X className="w-3.5 h-3.5" />
+                  Fail
+                </button>
+              </div>
+
+              <div className="border-t border-border/50 my-1" />
+
+              <button
+                onClick={() => {
+                  setEditingNodeId(id);
+                  setShowMenu(false);
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-secondary transition-colors text-left"
+              >
+                <Pencil className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Edit Test</span>
+              </button>
+              <button
+                onClick={handleDelete}
+                className={cn(
+                  "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-colors text-left",
+                  confirmDelete
+                    ? "bg-destructive text-destructive-foreground"
+                    : "hover:bg-destructive/10 text-destructive"
+                )}
+              >
+                <Trash2 className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  {confirmDelete ? "Click to confirm" : "Delete"}
+                </span>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Collapse/Expand toggle — only shown when node has children */}
