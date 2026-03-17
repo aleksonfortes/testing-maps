@@ -1,61 +1,45 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { 
-  ChevronDown, 
-  Map, 
-  Plus, 
-  Upload, 
-  Search, 
-  Check, 
+import { useState, useRef } from "react";
+import * as Popover from "@radix-ui/react-popover";
+import {
+  ChevronDown,
+  Plus,
+  Upload,
+  Search,
+  Check,
   Loader2,
+  Pencil,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useMaps } from "@/hooks/useMaps";
+import { useUI } from "@/context/UIContext";
 import { MarkdownImport } from "./modals/MarkdownImport";
 import { toast } from "sonner";
 import type { Node, Edge } from "@xyflow/react";
-import type { TestingMapListItem, ScenarioData } from "@/lib/types";
+import type { ScenarioData } from "@/lib/types";
 
 interface MapDropdownProps {
   userId: string;
   activeMapId: string | null;
   onSelectMap: (mapId: string) => void;
-  onImportingChange?: (isImporting: boolean) => void;
 }
 
-import { useUI } from "@/context/UIContext";
-
 export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownProps) {
-  const { maps, loading, isCreating, isImporting, createMap, deleteMap, renameMap, importMap, saveMapData } = useMaps<ScenarioData>(userId);
-  const { setIsHeroHidden } = useUI();
-  const [isOpen, setIsOpen] = useState(false);
+  const { maps, loading, isCreating, isImporting, createMap, renameMap, importMap, saveMapData } = useMaps<ScenarioData>(userId);
+  const { openDropdown, setOpenDropdown, setIsHeroHidden } = useUI();
+  const isOpen = openDropdown === "map";
+
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [search, setSearch] = useState("");
   const [showImport, setShowImport] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const activeMap = maps.find((m) => m.id === activeMapId);
 
-  useEffect(() => {
-    setIsHeroHidden(showImport);
-  }, [showImport, setIsHeroHidden]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as globalThis.Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const filteredMaps = maps.filter((m) => 
+  const filteredMaps = maps.filter((m) =>
     m.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -64,7 +48,7 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
     if (activeMap) {
       setEditName(activeMap.name);
       setIsEditing(true);
-      setIsOpen(false);
+      setOpenDropdown(null);
     }
   };
 
@@ -90,7 +74,7 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
       success: (id) => {
         if (id) {
           onSelectMap(id);
-          setIsOpen(false);
+          setOpenDropdown(null);
           return "Map created successfully";
         }
         throw new Error("Failed to create map");
@@ -99,8 +83,19 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
     });
   };
 
+  const handleOpenImport = () => {
+    setShowImport(true);
+    setIsHeroHidden(true);
+    setOpenDropdown(null);
+  };
+
+  const handleCloseImport = () => {
+    setShowImport(false);
+    setIsHeroHidden(false);
+  };
+
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative">
       {isEditing ? (
         <div className="flex items-center h-8 bg-white/5 rounded-lg border border-white/10 px-2 animate-in fade-in zoom-in-95 duration-200">
           <input
@@ -118,126 +113,156 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
           />
         </div>
       ) : (
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          data-testid="map-selection-toggle"
-          className={cn(
-            "flex items-center gap-2 px-1.5 h-8 rounded-lg transition-all group/identity relative",
-            isOpen ? "bg-white/5" : "hover:bg-white/5"
-          )}
+        <Popover.Root
+          open={isOpen}
+          onOpenChange={(open) => setOpenDropdown(open ? "map" : null)}
         >
-          <span className="text-[13px] font-semibold text-foreground/90 transition-colors tracking-tight truncate max-w-[200px] select-none">
-            {activeMap ? activeMap.name : "Select a Map"}
-          </span>
-          
-          <div className="flex items-center gap-1 opacity-0 group-hover/identity:opacity-100 transition-opacity">
-            <div 
-              onClick={startEditing}
-              className="p-1.5 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-              title="Rename map"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-muted-foreground hover:text-primary transition-colors">
-                <path d="M12 20H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M16.5 3.5C16.8978 3.10217 17.4374 2.87868 18 2.87868C18.2786 2.87868 18.5544 2.93335 18.8118 3.03995C19.0692 3.14656 19.303 3.30281 19.5 3.5C19.697 3.69699 19.8532 3.93083 19.9598 4.18821C20.0665 4.44559 20.1213 4.72143 20.1213 5C20.1213 5.27857 20.0665 5.55441 19.9598 5.81179C19.8532 6.06917 19.697 6.30301 19.5 6.5L7 19L3 20L4 16L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-          </div>
-          <ChevronDown className={cn("w-3 h-3 text-muted-foreground/30 transition-transform duration-300", isOpen && "rotate-180")} />
-        </button>
-      )}
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute left-0 top-[calc(100%+8px)] w-80 bg-background/95 glass z-[100] overflow-hidden rounded-2xl island-shadow border border-white/5 shadow-2xl"
-          >
-            {/* Search */}
-            <div className="p-4 border-b border-white/5 bg-white/[0.02]">
-              <div className="relative group/search">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30 group-focus-within/search:text-primary transition-all duration-300" />
-                <input
-                  autoFocus
-                  type="text"
-                  placeholder="Find your map..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full bg-black/20 border border-white/5 rounded-xl py-2.5 pl-10 pr-4 text-[13px] text-foreground/90 placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all font-medium"
-                />
-              </div>
-            </div>
-
-            {/* List */}
-            <div className="max-h-64 overflow-y-auto p-1.5 custom-scrollbar">
-              {loading && maps.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                  <Loader2 className="w-5 h-5 animate-spin mb-2" />
-                  <span className="text-[10px] font-medium uppercase tracking-widest">Loading maps...</span>
-                </div>
-              ) : filteredMaps.length === 0 ? (
-                <div className="py-8 text-center text-muted-foreground text-xs italic">
-                  No maps found
-                </div>
-              ) : (
-                filteredMaps.map((map) => (
-                  <button
-                    key={map.id}
-                    onClick={() => {
-                      onSelectMap(map.id);
-                      setIsOpen(false);
-                    }}
-                    className={cn(
-                      "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all mb-0.5 group/item",
-                      activeMapId === map.id 
-                        ? "bg-white text-black font-bold" 
-                        : "hover:bg-white/5 text-foreground/70 hover:text-foreground"
-                    )}
-                  >
-                    <div className="flex items-center gap-3 truncate">
-                      <div className={cn(
-                        "w-1.5 h-1.5 rounded-full transition-all",
-                        activeMapId === map.id ? "bg-black" : "bg-white/20"
-                      )} />
-                      <span className="text-sm font-medium truncate">{map.name}</span>
-                    </div>
-                    {activeMapId === map.id && (
-                      <Check className="w-3.5 h-3.5 shrink-0" />
-                    )}
-                  </button>
-                ))
+          <Popover.Trigger asChild>
+            <button
+              data-testid="map-selection-toggle"
+              className={cn(
+                "flex items-center gap-2 px-1.5 h-8 rounded-lg transition-all group/identity relative",
+                isOpen ? "bg-white/5" : "hover:bg-white/5"
               )}
-            </div>
+            >
+              <span className="text-[13px] font-semibold text-foreground/90 transition-colors tracking-tight truncate max-w-[200px] select-none">
+                {activeMap ? activeMap.name : "Select a Map"}
+              </span>
 
-            {/* Actions */}
-            <div className="p-3 bg-white/[0.02] border-t border-white/5 grid grid-cols-2 gap-3">
-              <button
-                onClick={handleCreate}
-                disabled={isCreating}
-                className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white text-black rounded-xl text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 transition-all active:scale-[0.98] disabled:opacity-50 group/btn"
-                data-testid="new-map-button"
-              >
-                {isCreating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-4 h-4 transition-transform group-hover/btn:rotate-90" />}
-                New Map
-              </button>
-              <button
-                onClick={() => {
-                  setShowImport(true);
-                  setIsOpen(false);
-                }}
-                disabled={isImporting}
-                className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white/5 text-foreground/70 border border-white/10 rounded-xl text-[11px] font-bold uppercase tracking-wider hover:bg-white/10 hover:text-foreground transition-all active:scale-[0.98] disabled:opacity-50"
-                data-testid="import-button"
-              >
-                {isImporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-4 h-4" />}
-                Import
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <div className="flex items-center gap-1 opacity-0 group-hover/identity:opacity-100 transition-opacity">
+                <div
+                  onClick={startEditing}
+                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                  title="Rename map"
+                >
+                  <Pencil className="w-3 h-3 text-muted-foreground hover:text-primary transition-colors" />
+                </div>
+              </div>
+              <ChevronDown
+                className={cn(
+                  "w-3 h-3 text-muted-foreground/30 transition-transform duration-300",
+                  isOpen && "rotate-180"
+                )}
+              />
+            </button>
+          </Popover.Trigger>
+
+          <AnimatePresence>
+            {isOpen && (
+              <Popover.Portal forceMount>
+                <Popover.Content
+                  forceMount
+                  asChild
+                  align="start"
+                  sideOffset={8}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="w-80 glass z-[100] overflow-hidden rounded-2xl island-shadow border border-white/5 shadow-2xl"
+                  >
+                    {/* Search */}
+                    <div className="p-4 border-b border-white/5 bg-white/[0.02]">
+                      <div className="relative group/search">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30 group-focus-within/search:text-primary transition-all duration-300" />
+                        <input
+                          autoFocus
+                          type="text"
+                          placeholder="Find your map..."
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          className="w-full bg-black/20 border border-white/5 rounded-xl py-2.5 pl-10 pr-4 text-[13px] text-foreground/90 placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all font-medium"
+                        />
+                      </div>
+                    </div>
+
+                    {/* List */}
+                    <div className="max-h-64 overflow-y-auto p-1.5">
+                      {loading && maps.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                          <Loader2 className="w-5 h-5 animate-spin mb-2" />
+                          <span className="text-[10px] font-medium uppercase tracking-widest">
+                            Loading maps...
+                          </span>
+                        </div>
+                      ) : filteredMaps.length === 0 ? (
+                        <div className="py-8 text-center text-muted-foreground text-xs italic">
+                          No maps found
+                        </div>
+                      ) : (
+                        filteredMaps.map((map) => (
+                          <button
+                            key={map.id}
+                            onClick={() => {
+                              onSelectMap(map.id);
+                              setOpenDropdown(null);
+                            }}
+                            className={cn(
+                              "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all mb-0.5 group/item",
+                              activeMapId === map.id
+                                ? "bg-white text-black font-bold"
+                                : "hover:bg-white/5 text-foreground/70 hover:text-foreground"
+                            )}
+                          >
+                            <div className="flex items-center gap-3 truncate">
+                              <div
+                                className={cn(
+                                  "w-1.5 h-1.5 rounded-full transition-all",
+                                  activeMapId === map.id
+                                    ? "bg-black"
+                                    : "bg-white/20"
+                                )}
+                              />
+                              <span className="text-sm font-medium truncate">
+                                {map.name}
+                              </span>
+                            </div>
+                            {activeMapId === map.id && (
+                              <Check className="w-3.5 h-3.5 shrink-0" />
+                            )}
+                          </button>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="p-3 bg-white/[0.02] border-t border-white/5 grid grid-cols-2 gap-3">
+                      <button
+                        onClick={handleCreate}
+                        disabled={isCreating}
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white text-black rounded-xl text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 transition-all active:scale-[0.98] disabled:opacity-50 group/btn"
+                        data-testid="new-map-button"
+                      >
+                        {isCreating ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Plus className="w-4 h-4 transition-transform group-hover/btn:rotate-90" />
+                        )}
+                        New Map
+                      </button>
+                      <button
+                        onClick={handleOpenImport}
+                        disabled={isImporting}
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white/5 text-foreground/70 border border-white/10 rounded-xl text-[11px] font-bold uppercase tracking-wider hover:bg-white/10 hover:text-foreground transition-all active:scale-[0.98] disabled:opacity-50"
+                        data-testid="import-button"
+                      >
+                        {isImporting ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Upload className="w-4 h-4" />
+                        )}
+                        Import
+                      </button>
+                    </div>
+                  </motion.div>
+                </Popover.Content>
+              </Popover.Portal>
+            )}
+          </AnimatePresence>
+        </Popover.Root>
+      )}
 
       <AnimatePresence>
         {showImport && (
@@ -248,20 +273,21 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                 mode = "create";
               }
 
-              const promise = mode === "create" 
-                ? importMap("Imported Map", nodes, edges)
-                : (async () => {
-                    const success = await saveMapData(activeMapId!, nodes, edges);
-                    if (success) return activeMapId;
-                    throw new Error("Failed to replace map data");
-                  })();
+              const promise =
+                mode === "create"
+                  ? importMap("Imported Map", nodes, edges)
+                  : (async () => {
+                      const success = await saveMapData(activeMapId!, nodes, edges);
+                      if (success) return activeMapId;
+                      throw new Error("Failed to replace map data");
+                    })();
 
               toast.promise(promise, {
                 loading: mode === "create" ? "Creating new map..." : "Replacing map data...",
                 success: (id) => {
                   if (id) {
                     onSelectMap(id);
-                    setShowImport(false);
+                    handleCloseImport();
                     return mode === "create" ? "New map created" : "Map data replaced";
                   }
                   throw new Error(mode === "create" ? "Import failed" : "Replace failed");
@@ -269,7 +295,7 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                 error: (err) => err.message || "Operation failed",
               });
             }}
-            onClose={() => setShowImport(false)}
+            onClose={handleCloseImport}
           />
         )}
       </AnimatePresence>

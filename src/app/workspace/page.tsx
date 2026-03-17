@@ -4,12 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { UIProvider, useUI } from "@/context/UIContext";
 import { MapCanvas } from "@/components/MapCanvas";
 import { MapDropdown } from "@/components/MapDropdown";
-import { WorkspaceErrorBoundary } from "@/components/WorkspaceErrorBoundary";
 import { FilterHUD } from "@/components/FilterHUD";
-import { Map, Layers, ChevronRight, Loader2, Search } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Map, Layers, Loader2, Plus, FileUp } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import { UserMenu } from "@/components/UserMenu";
@@ -26,11 +23,17 @@ function WorkspaceContentWrapper() {
   const [user, setUser] = useState<User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [activeMapId, setActiveMapId] = useState<string | null>(null);
+  const [isTestMode, setIsTestMode] = useState(
+    process.env.NEXT_PUBLIC_TEST_MODE === "true"
+  );
 
-  const isQueryTestMode = typeof window !== 'undefined' && 
-    new URLSearchParams(window.location.search).get("testMode") === "true";
-  const isEnvTestMode = process.env.NEXT_PUBLIC_TEST_MODE === "true";
-  const isTestMode = isQueryTestMode || isEnvTestMode;
+  useEffect(() => {
+    // Check query param on client only to avoid hydration mismatch
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("testMode") === "true") {
+      setIsTestMode(true);
+    }
+  }, []);
 
   useEffect(() => {
     supabase.auth
@@ -97,7 +100,7 @@ function WorkspaceContent({
   handleSelectMap: (id: string) => void;
   handleSignOut: () => void;
 }) {
-  const { isHeroHidden } = useUI();
+  const { isHeroHidden, setOpenDropdown } = useUI();
 
   // Determine if we should show the empty state hero
   const showEmptyState = !activeMapId && !isHeroHidden;
@@ -107,15 +110,11 @@ function WorkspaceContent({
       {/* Miro-style Floating Interface */}
       
       {/* Top Left Island: Identity & Map Switcher */}
-      <div className="fixed top-6 left-6 z-50 flex items-center bg-background/95 glass border border-white/10 island-shadow rounded-3xl animate-in fade-in slide-in-from-top-4 duration-500 hover:scale-[1.01] active:scale-[0.99] transition-transform">
+      <div className="fixed top-6 left-6 z-50 flex items-center glass island-shadow rounded-3xl animate-in fade-in slide-in-from-top-4 duration-500 hover:scale-[1.01] active:scale-[0.99] transition-transform">
         <div className="flex items-center p-2 border-r border-white/5">
-          <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-lg">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-black">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
+          <Link href="/" className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform" title="Back to home">
+            <Layers className="w-[18px] h-[18px] text-black" strokeWidth={2.5} />
+          </Link>
         </div>
         
         <div className="flex items-center">
@@ -129,7 +128,7 @@ function WorkspaceContent({
 
       {/* Top Right Island: User Account */}
       <div className="fixed top-6 right-6 z-50 flex items-center animate-in fade-in slide-in-from-top-4 duration-500">
-        <div className="p-2 bg-background/95 glass border border-white/10 island-shadow rounded-full hover:scale-[1.05] active:scale-[0.95] transition-transform">
+        <div className="p-2 glass island-shadow rounded-full hover:scale-[1.05] active:scale-[0.95] transition-transform">
           <UserMenu user={currentUser} onSignOut={handleSignOut} />
         </div>
       </div>
@@ -145,26 +144,62 @@ function WorkspaceContent({
               onSignOut={handleSignOut}
             />
           ) : showEmptyState ? (
-            <div 
+            <div
               className="flex flex-col h-full items-center justify-center p-6 bg-background relative"
               data-testid="workspace-hero"
             >
-              <div className="bg-background/95 glass border border-white/10 island-shadow rounded-[3rem] p-12 flex flex-col items-center max-w-md animate-in zoom-in-95 duration-700">
-                <div className="mb-8 relative">
-                  <div className="w-24 h-24 rounded-[2rem] bg-white flex items-center justify-center shadow-2xl rotate-12">
-                    <Map className="w-10 h-10 text-black" strokeWidth={1.5} />
-                  </div>
-                  <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-black flex items-center justify-center shadow-lg -rotate-12 border border-white/10">
-                    <Search className="w-4 h-4 text-white" />
+              <div className="animate-in zoom-in-95 duration-700 flex flex-col items-center max-w-lg">
+                {/* Icon cluster */}
+                <div className="mb-10 relative">
+                  <div className="w-20 h-20 rounded-[1.75rem] bg-white flex items-center justify-center shadow-2xl">
+                    <Map className="w-9 h-9 text-black" strokeWidth={1.5} />
                   </div>
                 </div>
-                
-                <h3 className="text-2xl font-bold text-foreground mb-4 tracking-tight">
-                  No Map Selected
+
+                <h3 className="text-3xl font-bold text-foreground mb-3 tracking-tight text-center">
+                  Map your test scenarios
                 </h3>
-                <p className="text-sm text-foreground/40 leading-relaxed text-center font-medium italic">
-                  Select a test map from the switcher above or create a new one to start your journey.
+                <p className="text-sm text-foreground/40 leading-relaxed text-center max-w-sm mb-10">
+                  Visually organize, connect, and track your testing strategy. Create a map to get started.
                 </p>
+
+                {/* Primary actions */}
+                <div className="flex gap-3 mb-10">
+                  <button
+                    onClick={() => setOpenDropdown("map")}
+                    className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-2xl text-sm font-bold shadow-xl hover:scale-[1.02] transition-all active:scale-[0.98]"
+                  >
+                    <Plus className="w-4 h-4" />
+                    New Map
+                  </button>
+                  <button
+                    onClick={() => setOpenDropdown("map")}
+                    className="flex items-center gap-2 glass border border-white/10 px-6 py-3 rounded-2xl text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-white/10 transition-all"
+                  >
+                    <FileUp className="w-4 h-4" />
+                    Import Markdown
+                  </button>
+                </div>
+
+                {/* Keyboard shortcut hints */}
+                <div className="glass border border-white/5 rounded-2xl px-6 py-4 flex gap-6 text-xs text-foreground/30">
+                  <span className="flex items-center gap-2">
+                    <kbd className="px-1.5 py-0.5 bg-white/5 rounded-md font-mono border border-white/10">Tab</kbd>
+                    Add node
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <kbd className="px-1.5 py-0.5 bg-white/5 rounded-md font-mono border border-white/10">Drag</kbd>
+                    Reparent
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <kbd className="px-1.5 py-0.5 bg-white/5 rounded-md font-mono border border-white/10">Del</kbd>
+                    Remove
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <kbd className="px-1.5 py-0.5 bg-white/5 rounded-md font-mono border border-white/10">Dbl-click</kbd>
+                    Edit
+                  </span>
+                </div>
               </div>
             </div>
           ) : null}

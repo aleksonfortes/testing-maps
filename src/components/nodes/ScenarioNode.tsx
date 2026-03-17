@@ -119,7 +119,7 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
       {/* Content */}
       <div
         className={cn(
-          "relative rounded-[32px] border-2 transition-all p-6",
+          "relative rounded-2xl border-2 transition-all p-6",
           "bg-card/80 backdrop-blur-xl shadow-xl flex flex-col items-stretch overflow-hidden",
           isDropTarget
             ? "border-blue-500 ring-4 ring-blue-500/20 scale-[1.02]"
