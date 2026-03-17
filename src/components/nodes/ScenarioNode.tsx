@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useState } from "react";
+import React, { memo, useState, useRef, useEffect } from "react";
 import { Handle, Position } from "@xyflow/react";
 import {
   CheckCircle2,
@@ -52,6 +52,9 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
   const actionsRef = useMapActions();
   const [showMenu, setShowMenu] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isEditingLabel, setIsEditingLabel] = useState(false);
+  const [editLabel, setEditLabel] = useState(data.label);
+  const labelInputRef = useRef<HTMLInputElement>(null);
 
   const status = statusConfig[data.status] ?? statusConfig.untested;
   const type = typeConfig[data.testType] ?? typeConfig.manual;
@@ -78,6 +81,28 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
     transform: "translate(-50%, -50%)",
     zIndex: 100,
   });
+
+  // Sync editLabel when data changes externally (e.g. undo)
+  useEffect(() => {
+    if (!isEditingLabel) setEditLabel(data.label);
+  }, [data.label, isEditingLabel]);
+
+  const startLabelEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditLabel(data.label);
+    setIsEditingLabel(true);
+    setTimeout(() => labelInputRef.current?.select(), 0);
+  };
+
+  const commitLabelEdit = () => {
+    const trimmed = editLabel.trim();
+    if (trimmed && trimmed !== data.label) {
+      actionsRef.current.updateNodeLabel(id, trimmed);
+    } else {
+      setEditLabel(data.label);
+    }
+    setIsEditingLabel(false);
+  };
 
   const handleDelete = () => {
     if (confirmDelete) {
@@ -145,9 +170,34 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
               </div>
 
               <div className="flex-1 pt-1">
-                <h3 className="font-bold text-base tracking-tight leading-snug text-left">
-                  {data.label}
-                </h3>
+                {isEditingLabel ? (
+                  <input
+                    ref={labelInputRef}
+                    type="text"
+                    value={editLabel}
+                    onChange={(e) => setEditLabel(e.target.value)}
+                    onBlur={commitLabelEdit}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") commitLabelEdit();
+                      if (e.key === "Escape") {
+                        setEditLabel(data.label);
+                        setIsEditingLabel(false);
+                      }
+                      e.stopPropagation();
+                    }}
+                    className="w-full font-bold text-base tracking-tight leading-snug text-left bg-transparent border-b-2 border-primary/40 outline-none py-0.5 -my-0.5"
+                    maxLength={100}
+                    autoFocus
+                  />
+                ) : (
+                  <h3
+                    onClick={startLabelEdit}
+                    className="font-bold text-base tracking-tight leading-snug text-left cursor-text hover:text-primary/80 transition-colors"
+                    title="Click to rename"
+                  >
+                    {data.label}
+                  </h3>
+                )}
 
                 {showTestType && (
                   <div className="flex items-center gap-2 mt-2">

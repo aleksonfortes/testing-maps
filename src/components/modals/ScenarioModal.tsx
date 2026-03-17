@@ -59,17 +59,17 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
           >
             <div className="pointer-events-auto relative w-full max-w-2xl glass border border-white/10 shadow-2xl rounded-[2.5rem] island-shadow flex flex-col overflow-hidden max-h-[90vh]">
               {/* Header */}
-              <header className="flex items-center justify-between p-8 border-b border-white/5 bg-white/5">
+              <header className="flex items-center justify-between p-8 border-b border-border bg-secondary/20">
                 <div>
-                  <Dialog.Title className="text-2xl font-bold tracking-tight">Manage Scenario</Dialog.Title>
-                  <Dialog.Description className="text-sm text-foreground/50 mt-1 font-medium italic">
-                    Configure testing details for this node
+                  <Dialog.Title className="text-xl font-bold tracking-tight">Edit Test</Dialog.Title>
+                  <Dialog.Description className="text-sm text-muted-foreground">
+                    Configure testing details for this scenario
                   </Dialog.Description>
                 </div>
                 <Dialog.Close asChild>
                   <button
-                    className="p-2.5 hover:bg-white/10 rounded-full transition-all border border-white/10 hover:scale-110 active:scale-95 text-foreground/50 hover:text-foreground"
-                    aria-label="Close modal"
+                    className="p-3 hover:bg-secondary rounded-full transition-all hover:rotate-90"
+                    aria-label="Close"
                   >
                     <X className="w-6 h-6" />
                   </button>
@@ -176,21 +176,21 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
               </div>
 
               {/* Footer */}
-              <footer className="p-8 border-t border-white/5 flex items-center justify-between gap-6 bg-white/5">
+              <footer className="p-8 border-t border-border flex items-center justify-between gap-4 bg-secondary/10">
                 <button
                   onClick={handleDelete}
                   className={
                     confirmDelete
-                      ? "flex items-center gap-2 bg-destructive text-destructive-foreground px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg scale-105"
-                      : "flex items-center gap-2 text-foreground/30 hover:text-destructive hover:bg-destructive/10 px-5 py-2.5 rounded-xl text-xs font-bold transition-all"
+                      ? "flex items-center gap-2 bg-destructive text-destructive-foreground px-5 py-3 rounded-2xl text-[13px] font-bold uppercase tracking-wider transition-all"
+                      : "flex items-center gap-2 text-foreground/30 hover:text-destructive hover:bg-destructive/10 px-5 py-3 rounded-2xl text-[13px] font-bold uppercase tracking-wider transition-all"
                   }
                 >
                   <Trash2 className="w-4 h-4" />
-                  {confirmDelete ? "Click to Confirm" : "Delete Node"}
+                  {confirmDelete ? "Confirm Delete" : "Delete"}
                 </button>
                 <button
                   onClick={handleSave}
-                  className="flex-1 flex items-center justify-center gap-2 bg-white text-black px-8 py-4 rounded-2xl font-bold shadow-xl hover:scale-[1.02] transition-all active:scale-[0.98] text-sm uppercase tracking-widest"
+                  className="flex items-center justify-center gap-2 px-8 py-3 bg-white text-black rounded-2xl font-bold text-[13px] uppercase tracking-wider hover:bg-white/90 transition-all active:scale-[0.98]"
                 >
                   <Save className="w-4 h-4" />
                   Save Changes

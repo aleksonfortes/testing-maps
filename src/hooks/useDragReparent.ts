@@ -111,7 +111,7 @@ export function useDragReparent({
       const target = findDropTarget(draggedNode, allNodes, allEdges);
 
       if (!target) {
-        pushSnapshot(allNodes, allEdges);
+        // No reparent — don't push a snapshot (avoids duplicates on simple clicks)
         return;
       }
 
@@ -119,7 +119,7 @@ export function useDragReparent({
         (e) => e.target === draggedNode.id && e.source === target.id
       );
       if (existingParentEdge) {
-        pushSnapshot(allNodes, allEdges);
+        // Already a child of this target — no-op, don't push snapshot
         return;
       }
 

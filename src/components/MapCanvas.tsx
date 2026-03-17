@@ -54,6 +54,7 @@ interface MapActions {
   getChildCount: (id: string) => number;
   getHiddenChildCount: (id: string) => number;
   updateNodeStatus: (id: string, status: "untested" | "verified" | "failed") => void;
+  updateNodeLabel: (id: string, label: string) => void;
 }
 
 const MapActionsContext = createContext<React.RefObject<MapActions> | null>(null);
@@ -107,6 +108,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     getChildCount: () => 0,
     getHiddenChildCount: () => 0,
     updateNodeStatus: () => {},
+    updateNodeLabel: () => {},
   });
 
   // Undo/Redo
@@ -212,6 +214,9 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     };
     actionsRef.current.updateNodeStatus = (id: string, status: "untested" | "verified" | "failed") => {
       onUpdateNode(id, { status });
+    };
+    actionsRef.current.updateNodeLabel = (id: string, label: string) => {
+      onUpdateNode(id, { label });
     };
   }, [onDeleteNode, toggleCollapse, collapsed, childCountMap, edges, onUpdateNode]);
 
