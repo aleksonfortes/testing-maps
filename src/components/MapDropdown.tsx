@@ -43,6 +43,15 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
 
   const activeMap = maps.find((m) => m.id === activeMapId);
 
+  // Auto-select the most recently used map when maps finish loading
+  // and no map is currently active. Maps are sorted by updated_at DESC
+  // from the repository, so maps[0] is the most recent.
+  useEffect(() => {
+    if (!loading && maps.length > 0 && !activeMapId) {
+      onSelectMap(maps[0].id);
+    }
+  }, [loading, maps, activeMapId, onSelectMap]);
+
   // Clean up confirm-delete timer on unmount
   useEffect(() => {
     return () => {
