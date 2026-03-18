@@ -194,9 +194,11 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
 
   const onUpdateNode = useCallback(
     (id: string, newData: Partial<ScenarioData>) => {
+      // Capture edges before entering setNodes updater to avoid stale closure
+      const currentEdges = getEdges();
       setNodes((nds) => {
         const updated = nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, ...newData } } : n));
-        pushSnapshot(updated, getEdges());
+        pushSnapshot(updated, currentEdges);
         return updated;
       });
     },

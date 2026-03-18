@@ -11,6 +11,7 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadMaps = useCallback(async () => {
@@ -113,7 +114,7 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
   }, [loadMaps]);
 
   const saveMapData = useCallback(async (mapId: string, nodes: Node<T>[], edges: Edge[]) => {
-    setIsImporting(true);
+    setIsSaving(true);
     try {
       await testingMapRepository.saveMap(mapId, nodes, edges);
       await loadMaps();
@@ -122,7 +123,7 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
       console.error("Failed to save map data:", err);
       return false;
     } finally {
-      setIsImporting(false);
+      setIsSaving(false);
     }
   }, [loadMaps]);
 
@@ -134,6 +135,7 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
     isDeleting,
     isDuplicating,
     isRenaming,
+    isSaving,
     error,
     refresh: loadMaps,
     createMap,

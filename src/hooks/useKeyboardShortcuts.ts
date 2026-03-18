@@ -64,19 +64,19 @@ export function useKeyboardShortcuts({
 
       // Delete/Backspace: batch delete, skip form fields
       if ((e.key === "Backspace" || e.key === "Delete") && !isInput) {
-        const selectedNodes = getNodes().filter((n) => n.selected);
+        const allNodes = getNodes();
+        const selectedNodes = allNodes.filter((n) => n.selected);
         if (selectedNodes.length > 0) {
           const ids = new Set(selectedNodes.map((n) => n.id));
-          setNodes((nds) => {
-            const updated = nds.filter((n) => !ids.has(n.id));
-            setEdges((eds) => {
-              const updatedEdges = eds.filter(
-                (edge) => !ids.has(edge.source) && !ids.has(edge.target)
-              );
-              pushSnapshot(updated, updatedEdges);
-              return updatedEdges;
-            });
-            return updated;
+          // Compute updated lists from the ReactFlow store snapshot (avoids nested setState)
+          const updatedNodes = allNodes.filter((n) => !ids.has(n.id));
+          setNodes(updatedNodes);
+          setEdges((eds) => {
+            const updatedEdges = eds.filter(
+              (edge) => !ids.has(edge.source) && !ids.has(edge.target)
+            );
+            pushSnapshot(updatedNodes, updatedEdges);
+            return updatedEdges;
           });
         }
       }

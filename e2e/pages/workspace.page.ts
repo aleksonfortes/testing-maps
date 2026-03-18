@@ -36,7 +36,7 @@ export class WorkspacePage {
   }
 
   async goto() {
-    await this.page.goto("/workspace?testMode=true");
+    await this.page.goto("/workspace");
     // Wait for the page to be ready
     await expect(this.page).toHaveTitle(/testing maps/i);
   }

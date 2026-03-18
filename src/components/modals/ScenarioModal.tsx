@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { motion } from "framer-motion";
 import { X, Trash2, Save, Type, FileText, CheckCircle2, AlertCircle, HelpCircle } from "lucide-react";
@@ -18,6 +18,7 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
   const { setEditingNodeId } = useUI();
   const [formData, setFormData] = useState<ScenarioData>({ ...initialData });
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const confirmDeleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleClose = () => setEditingNodeId(null);
 
@@ -29,13 +30,22 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
 
   const handleDelete = () => {
     if (confirmDelete) {
+      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
       onDelete(nodeId);
       setEditingNodeId(null);
     } else {
       setConfirmDelete(true);
-      setTimeout(() => setConfirmDelete(false), 3000);
+      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
+      confirmDeleteTimerRef.current = setTimeout(() => setConfirmDelete(false), 3000);
     }
   };
+
+  // Clean up confirm-delete timer on unmount
+  useEffect(() => {
+    return () => {
+      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
+    };
+  }, []);
 
   return (
     <Dialog.Root open onOpenChange={(open) => { if (!open) handleClose(); }}>

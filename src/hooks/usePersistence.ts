@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Node, Edge } from "@xyflow/react";
 import { testingMapRepository } from "@/lib/repository";
 import { SAVE_DEBOUNCE_MS, LOAD_SETTLE_MS } from "@/lib/constants";
@@ -30,6 +30,11 @@ export function usePersistence({
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const hasPendingSaveRef = useRef(false);
 
+  // Stable ref for pushSnapshot to safely include it in the load effect
+  // without causing re-runs when the callback identity changes.
+  const pushSnapshotRef = useRef(pushSnapshot);
+  pushSnapshotRef.current = pushSnapshot;
+
   // Load from Supabase by mapId
   useEffect(() => {
     let cancelled = false;
@@ -42,9 +47,9 @@ export function usePersistence({
         if (data) {
           setNodes(data.nodes as Node[]);
           setEdges(data.edges as Edge[]);
-          pushSnapshot(data.nodes as Node[], data.edges as Edge[]);
+          pushSnapshotRef.current(data.nodes as Node[], data.edges as Edge[]);
         } else {
-          pushSnapshot([], []);
+          pushSnapshotRef.current([], []);
         }
 
         setTimeout(() => {
@@ -83,6 +88,14 @@ export function usePersistence({
     const timer = setTimeout(saveData, SAVE_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [nodes, edges, loadedFromCloud, mapId]);
+
+  // Clear error status after a delay so the user sees the error briefly
+  // then the UI resets, allowing the next save attempt to show fresh status.
+  useEffect(() => {
+    if (saveStatus !== "error") return;
+    const timer = setTimeout(() => setSaveStatus("idle"), 5000);
+    return () => clearTimeout(timer);
+  }, [saveStatus]);
 
   // Warn on unload if there are pending changes
   useEffect(() => {

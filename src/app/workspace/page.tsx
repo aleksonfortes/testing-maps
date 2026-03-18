@@ -23,17 +23,9 @@ function WorkspaceContentWrapper() {
   const [user, setUser] = useState<User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [activeMapId, setActiveMapId] = useState<string | null>(null);
-  const [isTestMode, setIsTestMode] = useState(
-    process.env.NEXT_PUBLIC_TEST_MODE === "true"
-  );
-
-  useEffect(() => {
-    // Check query param on client only to avoid hydration mismatch
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("testMode") === "true") {
-      setIsTestMode(true);
-    }
-  }, []);
+  // Test mode is only enabled via build-time environment variable — never from URL params.
+  // This prevents unauthenticated access in production.
+  const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === "true";
 
   useEffect(() => {
     supabase.auth

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import {
   ChevronDown,
@@ -42,6 +42,13 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
   const inputRef = useRef<HTMLInputElement>(null);
 
   const activeMap = maps.find((m) => m.id === activeMapId);
+
+  // Clean up confirm-delete timer on unmount
+  useEffect(() => {
+    return () => {
+      if (confirmDeleteTimer.current) clearTimeout(confirmDeleteTimer.current);
+    };
+  }, []);
 
   const filteredMaps = maps.filter((m) =>
     m.name.toLowerCase().includes(search.toLowerCase())

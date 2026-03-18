@@ -52,6 +52,7 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
   const actionsRef = useMapActions();
   const [showMenu, setShowMenu] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const confirmDeleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isEditingLabel, setIsEditingLabel] = useState(false);
   const [editLabel, setEditLabel] = useState(data.label);
   const labelInputRef = useRef<HTMLInputElement>(null);
@@ -95,6 +96,8 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
   };
 
   const commitLabelEdit = () => {
+    // Guard against double-trigger from Enter keydown + blur firing in sequence
+    if (!isEditingLabel) return;
     const trimmed = editLabel.trim();
     if (trimmed && trimmed !== data.label) {
       actionsRef.current.updateNodeLabel(id, trimmed);
@@ -106,14 +109,23 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
 
   const handleDelete = () => {
     if (confirmDelete) {
+      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
       actionsRef.current.deleteNode(id);
       setShowMenu(false);
       setConfirmDelete(false);
     } else {
       setConfirmDelete(true);
-      setTimeout(() => setConfirmDelete(false), 3000);
+      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
+      confirmDeleteTimerRef.current = setTimeout(() => setConfirmDelete(false), 3000);
     }
   };
+
+  // Clean up confirm-delete timer on unmount
+  useEffect(() => {
+    return () => {
+      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
+    };
+  }, []);
 
   return (
     <div
