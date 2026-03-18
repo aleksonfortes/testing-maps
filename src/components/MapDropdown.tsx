@@ -63,12 +63,15 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
     m.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const startEditing = (e: React.MouseEvent) => {
+  const startEditing = (e: React.MouseEvent, mapId: string) => {
     e.stopPropagation();
-    if (activeMap) {
-      setEditName(activeMap.name);
+    const map = maps.find((m) => m.id === mapId);
+    if (map) {
+      setEditName(map.name);
       setIsEditing(true);
       setOpenDropdown(null);
+      // Temporarily select this map so rename targets the right one
+      if (mapId !== activeMapId) onSelectMap(mapId);
     }
   };
 
@@ -219,16 +222,6 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
               <span className="text-[13px] font-semibold text-foreground/90 transition-colors tracking-tight truncate max-w-[200px] select-none">
                 {activeMap ? activeMap.name : "Select a Map"}
               </span>
-
-              <div className="flex items-center gap-1 opacity-0 group-hover/identity:opacity-100 transition-opacity">
-                <div
-                  onClick={startEditing}
-                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-                  title="Rename map"
-                >
-                  <Pencil className="w-3 h-3 text-muted-foreground hover:text-primary transition-colors" />
-                </div>
-              </div>
               <ChevronDown
                 className={cn(
                   "w-3 h-3 text-muted-foreground/30 transition-transform duration-300",
@@ -314,6 +307,19 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                               {activeMapId === map.id && (
                                 <Check className="w-3.5 h-3.5 mr-1" />
                               )}
+                              <button
+                                onClick={(e) => startEditing(e, map.id)}
+                                className={cn(
+                                  "p-1.5 rounded-lg transition-all opacity-0 group-hover/item:opacity-100",
+                                  activeMapId === map.id
+                                    ? "hover:bg-black/10 text-black/50 hover:text-black"
+                                    : "hover:bg-white/10 text-foreground/30 hover:text-foreground"
+                                )}
+                                title="Rename map"
+                                data-testid="rename-map-button"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
                               <button
                                 onClick={(e) => handleDuplicate(e, map.id)}
                                 disabled={isDuplicating}
