@@ -6,6 +6,7 @@ interface UseKeyboardShortcutsOptions {
   addNode: (parentId?: string) => void;
   nodesRef: React.RefObject<Node[]>;
   getNodes: () => Node[];
+  getEdges: () => Edge[];
   setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
   handleUndo: () => void;
@@ -18,6 +19,7 @@ export function useKeyboardShortcuts({
   addNode,
   nodesRef,
   getNodes,
+  getEdges,
   setNodes,
   setEdges,
   handleUndo,
@@ -50,39 +52,44 @@ export function useKeyboardShortcuts({
         return;
       }
 
-      // Tab: only when canvas is focused, not in form fields
+      // Tab: add child node — works anywhere unless typing in a form field
       if (e.key === "Tab" && !isInput) {
-        const isCanvasFocused = target.closest(".react-flow") !== null;
-        if (isCanvasFocused) {
-          e.preventDefault();
-          // Use nodesRef (React state) instead of getNodes() (ReactFlow store)
-          // to avoid stale selection state from store sync timing
-          const selected = nodesRef.current.find((n: Node) => n.selected);
-          addNode(selected?.id);
-        }
+        e.preventDefault();
+        // Use nodesRef (React state) instead of getNodes() (ReactFlow store)
+        // to avoid stale selection state from store sync timing
+        const selected = nodesRef.current.find((n: Node) => n.selected);
+        addNode(selected?.id);
       }
 
-      // Delete/Backspace: batch delete, skip form fields
+      // Select All: Cmd/Ctrl+A — select all visible nodes and edges
+      if (isMod && e.key === "a" && !isInput) {
+        e.preventDefault();
+        setNodes((nds) => nds.map((n) => ({ ...n, selected: !n.hidden })));
+        setEdges((eds) => eds.map((e) => ({ ...e, selected: !e.hidden })));
+        return;
+      }
+
+      // Delete/Backspace: batch delete selected nodes and/or edges, skip form fields
       if ((e.key === "Backspace" || e.key === "Delete") && !isInput) {
         const allNodes = getNodes();
+        const allEdges = getEdges();
         const selectedNodes = allNodes.filter((n) => n.selected);
-        if (selectedNodes.length > 0) {
-          const ids = new Set(selectedNodes.map((n) => n.id));
-          // Compute updated lists from the ReactFlow store snapshot (avoids nested setState)
-          const updatedNodes = allNodes.filter((n) => !ids.has(n.id));
+        const selectedEdgeIds = new Set(allEdges.filter((e) => e.selected).map((e) => e.id));
+        const nodeIds = new Set(selectedNodes.map((n) => n.id));
+
+        if (selectedNodes.length > 0 || selectedEdgeIds.size > 0) {
+          const updatedNodes = allNodes.filter((n) => !nodeIds.has(n.id));
+          const updatedEdges = allEdges.filter(
+            (edge) => !selectedEdgeIds.has(edge.id) && !nodeIds.has(edge.source) && !nodeIds.has(edge.target)
+          );
           setNodes(updatedNodes);
-          setEdges((eds) => {
-            const updatedEdges = eds.filter(
-              (edge) => !ids.has(edge.source) && !ids.has(edge.target)
-            );
-            pushSnapshot(updatedNodes, updatedEdges);
-            return updatedEdges;
-          });
+          setEdges(updatedEdges);
+          pushSnapshot(updatedNodes, updatedEdges);
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [editingNodeId, addNode, nodesRef, getNodes, setNodes, setEdges, handleUndo, handleRedo, pushSnapshot]);
+  }, [editingNodeId, addNode, nodesRef, getNodes, getEdges, setNodes, setEdges, handleUndo, handleRedo, pushSnapshot]);
 }

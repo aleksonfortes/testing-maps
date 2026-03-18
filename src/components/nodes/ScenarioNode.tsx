@@ -55,6 +55,8 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
   const [isEditingLabel, setIsEditingLabel] = useState(false);
   const [editLabel, setEditLabel] = useState(data.label);
   const labelInputRef = useRef<HTMLInputElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleDeleteConfirmed = useCallback(() => {
     actionsRef.current.deleteNode(id);
@@ -87,6 +89,14 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
     transform: "translate(-50%, -50%)",
     zIndex: 100,
   });
+
+  // Auto-focus first menu item when context menu opens
+  useEffect(() => {
+    if (showMenu && menuRef.current) {
+      const firstItem = menuRef.current.querySelector<HTMLElement>("[role='menuitem']");
+      firstItem?.focus();
+    }
+  }, [showMenu]);
 
   // Sync editLabel when data changes externally (e.g. undo)
   useEffect(() => {
@@ -252,26 +262,62 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
       {/* Menu — positioned outside the content div to avoid overflow clipping */}
       <div className="absolute right-4 top-4 z-30">
         <button
+          ref={menuButtonRef}
           onClick={(e) => {
             e.stopPropagation();
             setShowMenu(!showMenu);
           }}
-          className="p-2 hover:bg-secondary rounded-xl opacity-0 group-hover:opacity-100 transition-all active:scale-95"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowMenu(!showMenu);
+            } else if (e.key === "Escape" && showMenu) {
+              e.stopPropagation();
+              setShowMenu(false);
+            }
+          }}
+          className="p-2 hover:bg-secondary rounded-xl opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all active:scale-95"
           aria-label="Node options"
+          aria-haspopup="menu"
+          aria-expanded={showMenu}
         >
           <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
         </button>
         <AnimatePresence>
           {showMenu && (
             <motion.div
+              ref={menuRef}
               initial={{ opacity: 0, scale: 0.9, y: -4 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: -4 }}
+              role="menu"
+              aria-label="Node actions"
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.stopPropagation();
+                  setShowMenu(false);
+                  menuButtonRef.current?.focus();
+                } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const items = menuRef.current?.querySelectorAll<HTMLElement>("[role='menuitem']");
+                  if (!items?.length) return;
+                  const current = document.activeElement as HTMLElement;
+                  const idx = Array.from(items).indexOf(current);
+                  const next = e.key === "ArrowDown"
+                    ? items[(idx + 1) % items.length]
+                    : items[(idx - 1 + items.length) % items.length];
+                  next?.focus();
+                }
+              }}
               className="absolute right-0 top-full mt-2 w-52 p-1.5 bg-card border border-border shadow-2xl rounded-2xl z-[200]"
             >
               {/* Quick status actions */}
               <div className="flex gap-1 p-1.5 mb-1">
                 <button
+                  role="menuitem"
+                  tabIndex={-1}
                   onClick={(e) => {
                     e.stopPropagation();
                     actionsRef.current.updateNodeStatus(id, "verified");
@@ -288,6 +334,8 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
                   Pass
                 </button>
                 <button
+                  role="menuitem"
+                  tabIndex={-1}
                   onClick={(e) => {
                     e.stopPropagation();
                     actionsRef.current.updateNodeStatus(id, "failed");
@@ -308,6 +356,8 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
               <div className="border-t border-border/50 my-1" />
 
               <button
+                role="menuitem"
+                tabIndex={-1}
                 onClick={() => {
                   setEditingNodeId(id);
                   setShowMenu(false);
@@ -318,6 +368,8 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
                 <span className="text-sm font-medium">Edit Test</span>
               </button>
               <button
+                role="menuitem"
+                tabIndex={-1}
                 onClick={handleDelete}
                 className={cn(
                   "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-colors text-left",
@@ -343,6 +395,8 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
             e.stopPropagation();
             actionsRef.current.toggleCollapse(id);
           }}
+          aria-expanded={!isCollapsed}
+          aria-label={isCollapsed ? `Expand ${hiddenChildCount} hidden children` : "Collapse children"}
           className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full bg-card border-2 border-border shadow-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all active:scale-95 z-20"
           data-testid="collapse-toggle"
         >

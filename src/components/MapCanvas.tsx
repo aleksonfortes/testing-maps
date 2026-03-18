@@ -45,6 +45,7 @@ import {
   CHILD_VERTICAL_SPACING,
 } from "@/lib/constants";
 import { AnimatePresence } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import type { ScenarioData } from "@/lib/types";
 
 // ---------------------------------------------------------------------------
@@ -400,12 +401,22 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     addNode,
     nodesRef,
     getNodes,
+    getEdges,
     setNodes,
     setEdges,
     handleUndo,
     handleRedo,
     pushSnapshot,
   });
+
+  // Edge click: select the clicked edge (deselect others)
+  const onEdgeClick = useCallback(
+    (_: React.MouseEvent, edge: Edge) => {
+      setEdges((eds) => eds.map((e) => ({ ...e, selected: e.id === edge.id })));
+      setNodes((nds) => nds.map((n) => ({ ...n, selected: false })));
+    },
+    [setEdges, setNodes]
+  );
 
   // -----------------------------------------------------------------------
   // Derived
@@ -415,6 +426,17 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   // -----------------------------------------------------------------------
   // Render
   // -----------------------------------------------------------------------
+  if (!loadedFromCloud) {
+    return (
+      <div className="h-full w-full flex items-center justify-center bg-background">
+        <div className="glass island-shadow rounded-2xl px-8 py-6 border border-white/5 flex items-center gap-4">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">Loading map...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <MapActionsContext.Provider value={actionsRef}>
       <div className="h-full w-full relative group">
@@ -428,6 +450,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
           onNodeDrag={onNodeDrag}
           onNodeDragStop={onNodeDragStop}
           onNodeDoubleClick={(_, node) => setEditingNodeId(node.id)}
+          onEdgeClick={onEdgeClick}
           selectionOnDrag
           selectionMode={SelectionMode.Partial}
           multiSelectionKeyCode="Shift"

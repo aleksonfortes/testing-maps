@@ -24,3 +24,6 @@ export const MAX_UNDO_HISTORY = 50;
 export const REPARENT_DISTANCE_THRESHOLD = 150;
 export const MAX_MAP_NAME_LENGTH = 100;
 export const MAX_LABEL_LENGTH = 100;
+export const MAX_INSTRUCTIONS_LENGTH = 2000;
+export const MAX_EXPECTED_RESULTS_LENGTH = 2000;
+export const MAX_CODE_REF_LENGTH = 500;

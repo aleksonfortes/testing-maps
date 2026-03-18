@@ -6,7 +6,18 @@ import { motion } from "framer-motion";
 import { X, Trash2, Save, Type, FileText, CheckCircle2, AlertCircle, HelpCircle } from "lucide-react";
 import { useUI } from "@/context/UIContext";
 import { useConfirmAction } from "@/hooks/useConfirmAction";
+import { MAX_LABEL_LENGTH, MAX_INSTRUCTIONS_LENGTH, MAX_EXPECTED_RESULTS_LENGTH, MAX_CODE_REF_LENGTH } from "@/lib/constants";
 import type { ScenarioData } from "@/lib/types";
+
+function CharCount({ current, max }: { current: number; max: number }) {
+  if (current < max * 0.8) return null;
+  const isAtLimit = current >= max;
+  return (
+    <span className={`text-[10px] tabular-nums ${isAtLimit ? "text-destructive" : "text-muted-foreground/50"}`}>
+      {current}/{max}
+    </span>
+  );
+}
 
 interface ScenarioModalProps {
   nodeId: string;
@@ -78,12 +89,14 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
                   <label htmlFor="scenario-name" className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 flex items-center gap-2">
                     <Type className="w-3.5 h-3.5" />
                     Scenario Name
+                    <CharCount current={formData.label.length} max={MAX_LABEL_LENGTH} />
                   </label>
                   <input
                     id="scenario-name"
                     type="text"
                     value={formData.label}
                     onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+                    maxLength={MAX_LABEL_LENGTH}
                     className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-sm focus:ring-2 ring-white/10 transition-all outline-none font-medium"
                     placeholder="Enter scenario name..."
                   />
@@ -129,11 +142,13 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
                   <label htmlFor="scenario-instructions" className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 flex items-center gap-2">
                     <FileText className="w-3.5 h-3.5" />
                     Instructions
+                    <CharCount current={(formData.instructions ?? "").length} max={MAX_INSTRUCTIONS_LENGTH} />
                   </label>
                   <textarea
                     id="scenario-instructions"
                     value={formData.instructions ?? ""}
                     onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
+                    maxLength={MAX_INSTRUCTIONS_LENGTH}
                     rows={3}
                     className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-sm focus:ring-2 ring-white/10 transition-all outline-none resize-none font-medium leading-relaxed"
                     placeholder="What needs to be tested?"
@@ -144,11 +159,13 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
                   <label htmlFor="scenario-expected" className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 flex items-center gap-2">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     Expected Results
+                    <CharCount current={(formData.expectedResults ?? "").length} max={MAX_EXPECTED_RESULTS_LENGTH} />
                   </label>
                   <textarea
                     id="scenario-expected"
                     value={formData.expectedResults ?? ""}
                     onChange={(e) => setFormData({ ...formData, expectedResults: e.target.value })}
+                    maxLength={MAX_EXPECTED_RESULTS_LENGTH}
                     rows={3}
                     className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-sm focus:ring-2 ring-white/10 transition-all outline-none resize-none font-medium leading-relaxed"
                     placeholder="What is the successful outcome?"
@@ -159,12 +176,14 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
                   <label htmlFor="scenario-code-ref" className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 flex items-center gap-2">
                     <AlertCircle className="w-3.5 h-3.5" />
                     Code Reference
+                    <CharCount current={(formData.codeRef ?? "").length} max={MAX_CODE_REF_LENGTH} />
                   </label>
                   <input
                     id="scenario-code-ref"
                     type="text"
                     value={formData.codeRef ?? ""}
                     onChange={(e) => setFormData({ ...formData, codeRef: e.target.value })}
+                    maxLength={MAX_CODE_REF_LENGTH}
                     className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-sm font-mono focus:ring-2 ring-white/10 transition-all outline-none opacity-80"
                     placeholder="e.g. tests/auth.spec.ts"
                   />

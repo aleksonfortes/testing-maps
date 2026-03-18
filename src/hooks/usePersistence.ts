@@ -29,6 +29,7 @@ export function usePersistence({
   const [loadedFromCloud, setLoadedFromCloud] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const hasPendingSaveRef = useRef(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Stable ref for pushSnapshot to safely include it in the load effect
   // without causing re-runs when the callback identity changes.
@@ -86,7 +87,11 @@ export function usePersistence({
     };
 
     const timer = setTimeout(saveData, SAVE_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
+    saveTimerRef.current = timer;
+    return () => {
+      clearTimeout(timer);
+      saveTimerRef.current = null;
+    };
   }, [nodes, edges, loadedFromCloud, mapId]);
 
   // Clear error status after a delay so the user sees the error briefly
@@ -114,6 +119,11 @@ export function usePersistence({
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden" && hasPendingSaveRef.current) {
+        // Cancel the pending debounce timer to prevent a double save
+        if (saveTimerRef.current) {
+          clearTimeout(saveTimerRef.current);
+          saveTimerRef.current = null;
+        }
         testingMapRepository.saveMap(mapId, getNodes(), getEdges()).catch(() => {});
         hasPendingSaveRef.current = false;
       }
