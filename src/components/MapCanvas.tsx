@@ -16,6 +16,7 @@ import {
   Node,
   Edge,
   BackgroundVariant,
+  SelectionMode,
   useReactFlow,
   ReactFlowProvider,
   useNodesState,
@@ -40,6 +41,8 @@ import {
   LAYOUT_DELAY,
   FIT_VIEW_DELAY_MS,
   FIT_VIEW_DURATION_MS,
+  NEW_NODE_HORIZONTAL_OFFSET,
+  CHILD_VERTICAL_SPACING,
 } from "@/lib/constants";
 import { AnimatePresence } from "framer-motion";
 import type { ScenarioData } from "@/lib/types";
@@ -317,7 +320,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
           codeRef: "",
         },
         position: selectedNode
-          ? { x: selectedNode.position.x + 380, y: selectedNode.position.y + (childrenCount - 1) * 150 }
+          ? { x: selectedNode.position.x + NEW_NODE_HORIZONTAL_OFFSET, y: selectedNode.position.y + (childrenCount - 1) * CHILD_VERTICAL_SPACING }
           : { x: 100, y: 100 },
       };
 
@@ -425,6 +428,9 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
           onNodeDrag={onNodeDrag}
           onNodeDragStop={onNodeDragStop}
           onNodeDoubleClick={(_, node) => setEditingNodeId(node.id)}
+          selectionOnDrag
+          selectionMode={SelectionMode.Partial}
+          multiSelectionKeyCode="Shift"
           fitView
           className="bg-background"
         >

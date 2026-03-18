@@ -27,22 +27,27 @@ export function CoverageSummary({ nodes }: CoverageSummaryProps) {
       <div
         className="glass island-shadow rounded-2xl px-5 py-2.5 border border-white/5 flex items-center gap-4 text-xs font-semibold"
         data-testid="coverage-summary"
+        role="status"
+        aria-label={`Coverage: ${counts.verified} verified, ${counts.untested} untested, ${counts.failed} failed out of ${counts.total}`}
       >
         <span className="text-foreground/60">
           {counts.total} scenario{counts.total !== 1 ? "s" : ""}
         </span>
-        <div className="h-4 w-px bg-white/10" />
-        <span className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-green-500" />
+        <div className="h-4 w-px bg-white/10" aria-hidden="true" />
+        <span className="flex items-center gap-1.5" title="Verified">
+          <span className="w-2 h-2 rounded-full bg-green-500" aria-hidden="true" />
           <span className="text-green-500/80">{counts.verified}</span>
+          <span className="sr-only">verified</span>
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-muted-foreground" />
+        <span className="flex items-center gap-1.5" title="Untested">
+          <span className="w-2 h-2 rounded-full bg-muted-foreground" aria-hidden="true" />
           <span className="text-muted-foreground">{counts.untested}</span>
+          <span className="sr-only">untested</span>
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-destructive" />
+        <span className="flex items-center gap-1.5" title="Failed">
+          <span className="w-2 h-2 rounded-full bg-destructive" aria-hidden="true" />
           <span className="text-destructive/80">{counts.failed}</span>
+          <span className="sr-only">failed</span>
         </span>
       </div>
     </Panel>

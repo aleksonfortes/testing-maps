@@ -5,6 +5,8 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Copy, X, FileJson, Download, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Node, Edge } from "@xyflow/react";
+import type { ScenarioData } from "@/lib/types";
+import { CLIPBOARD_SUCCESS_TIMEOUT_MS } from "@/lib/constants";
 
 interface MarkdownExportProps {
   nodes: Node[];
@@ -13,7 +15,7 @@ interface MarkdownExportProps {
 }
 
 export function MarkdownExport({ nodes, edges, onClose }: MarkdownExportProps) {
-  const [copySuccess, setCopySuccess] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle");
 
   const markdown = useMemo(() => {
     const rootNodes = nodes.filter((node) => !edges.some((edge) => edge.target === node.id));
@@ -23,7 +25,7 @@ export function MarkdownExport({ nodes, edges, onClose }: MarkdownExportProps) {
       if (visited.has(node.id)) return;
       visited.add(node.id);
 
-      const data = node.data as Record<string, string | undefined>;
+      const data = node.data as ScenarioData;
       const status = data.status ? data.status.toUpperCase() : "UNKNOWN";
       const testType = data.testType ?? "unknown";
       result += `${"  ".repeat(level)}- **${data.label ?? "Untitled"}** [${status}] (${testType})\n`;
@@ -42,10 +44,11 @@ export function MarkdownExport({ nodes, edges, onClose }: MarkdownExportProps) {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(markdown);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
+      setCopyStatus("success");
+      setTimeout(() => setCopyStatus("idle"), CLIPBOARD_SUCCESS_TIMEOUT_MS);
     } catch {
-      // Clipboard API failed
+      setCopyStatus("error");
+      setTimeout(() => setCopyStatus("idle"), CLIPBOARD_SUCCESS_TIMEOUT_MS);
     }
   };
 
@@ -117,8 +120,8 @@ export function MarkdownExport({ nodes, edges, onClose }: MarkdownExportProps) {
                   onClick={copyToClipboard}
                   className="flex items-center gap-2 px-8 py-3 bg-white text-black rounded-2xl font-bold text-[13px] uppercase tracking-wider hover:bg-white/90 transition-all"
                 >
-                  {copySuccess ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  {copySuccess ? "Copied" : "Copy"}
+                  {copyStatus === "success" ? <Check className="w-4 h-4" /> : copyStatus === "error" ? <X className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copyStatus === "success" ? "Copied" : copyStatus === "error" ? "Failed" : "Copy"}
                 </button>
               </footer>
             </div>

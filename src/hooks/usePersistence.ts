@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Node, Edge } from "@xyflow/react";
 import { testingMapRepository } from "@/lib/repository";
-import { SAVE_DEBOUNCE_MS, LOAD_SETTLE_MS } from "@/lib/constants";
+import { SAVE_DEBOUNCE_MS, LOAD_SETTLE_MS, SAVE_ERROR_CLEAR_TIMEOUT_MS } from "@/lib/constants";
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
 
@@ -93,7 +93,7 @@ export function usePersistence({
   // then the UI resets, allowing the next save attempt to show fresh status.
   useEffect(() => {
     if (saveStatus !== "error") return;
-    const timer = setTimeout(() => setSaveStatus("idle"), 5000);
+    const timer = setTimeout(() => setSaveStatus("idle"), SAVE_ERROR_CLEAR_TIMEOUT_MS);
     return () => clearTimeout(timer);
   }, [saveStatus]);
 

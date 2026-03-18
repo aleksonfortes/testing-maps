@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Map, X, Loader2, Sparkles } from "lucide-react";
+import { MAX_MAP_NAME_LENGTH } from "@/lib/constants";
 import { motion } from "framer-motion";
 
 interface NewMapModalProps {
@@ -96,7 +97,7 @@ export function NewMapModal({ onCreateMap, onClose }: NewMapModalProps) {
                     placeholder="My Testing Map"
                     disabled={isSubmitting}
                     className="w-full bg-black/20 border border-white/10 rounded-2xl py-4 px-5 text-base text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 transition-all font-medium disabled:opacity-50"
-                    maxLength={100}
+                    maxLength={MAX_MAP_NAME_LENGTH}
                     autoComplete="off"
                   />
                   {name.trim() && (

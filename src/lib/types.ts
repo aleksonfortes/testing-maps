@@ -1,5 +1,6 @@
 import type { Node, Edge } from "@xyflow/react";
 
+// extends Record<string, unknown> is required by ReactFlow's Node<T> data constraint
 export interface ScenarioData extends Record<string, unknown> {
   label: string;
   status: "untested" | "verified" | "failed";

@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { testingMapRepository } from "@/lib/repository";
-import type { TestingMapListItem } from "@/lib/types";
+import type { TestingMapListItem, ScenarioData } from "@/lib/types";
 import type { Node, Edge } from "@xyflow/react";
 
-export function useMaps<T extends Record<string, unknown> = any>(userId: string | undefined) {
+const isDev = process.env.NODE_ENV === "development";
+
+export function useMaps(userId: string | undefined) {
   const [maps, setMaps] = useState<TestingMapListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -23,7 +25,7 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
       setError(null);
     } catch (err) {
       setError("Failed to load maps");
-      console.error(err);
+      if (isDev) console.error(err);
     } finally {
       setLoading(false);
     }
@@ -41,14 +43,14 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
       await loadMaps();
       return newId;
     } catch (err) {
-      console.error("Failed to create map:", err);
+      if (isDev) console.error("Failed to create map:", err);
       return null;
     } finally {
       setIsCreating(false);
     }
   }, [userId, loadMaps]);
 
-  const importMap = useCallback(async (name: string, nodes: Node<T>[], edges: Edge[]) => {
+  const importMap = useCallback(async (name: string, nodes: Node<ScenarioData>[], edges: Edge[]) => {
     if (!userId) return null;
     setIsImporting(true);
     try {
@@ -56,7 +58,7 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
       await loadMaps();
       return newId;
     } catch (err) {
-      console.error("Failed to import map:", err);
+      if (isDev) console.error("Failed to import map:", err);
       return null;
     } finally {
       setIsImporting(false);
@@ -70,7 +72,7 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
       await loadMaps();
       return true;
     } catch (err) {
-      console.error("Failed to delete map:", err);
+      if (isDev) console.error("Failed to delete map:", err);
       return false;
     } finally {
       setIsDeleting(false);
@@ -92,7 +94,7 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
       await loadMaps();
       return newId;
     } catch (err) {
-      console.error("Failed to duplicate map:", err);
+      if (isDev) console.error("Failed to duplicate map:", err);
       return null;
     } finally {
       setIsDuplicating(false);
@@ -106,21 +108,21 @@ export function useMaps<T extends Record<string, unknown> = any>(userId: string 
       await loadMaps();
       return true;
     } catch (err) {
-      console.error("Failed to rename map:", err);
+      if (isDev) console.error("Failed to rename map:", err);
       return false;
     } finally {
       setIsRenaming(false);
     }
   }, [loadMaps]);
 
-  const saveMapData = useCallback(async (mapId: string, nodes: Node<T>[], edges: Edge[]) => {
+  const saveMapData = useCallback(async (mapId: string, nodes: Node<ScenarioData>[], edges: Edge[]) => {
     setIsSaving(true);
     try {
       await testingMapRepository.saveMap(mapId, nodes, edges);
       await loadMaps();
       return true;
     } catch (err) {
-      console.error("Failed to save map data:", err);
+      if (isDev) console.error("Failed to save map data:", err);
       return false;
     } finally {
       setIsSaving(false);

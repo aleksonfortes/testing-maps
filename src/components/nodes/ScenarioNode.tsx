@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useState, useRef, useEffect } from "react";
+import React, { memo, useState, useRef, useEffect, useCallback } from "react";
 import { Handle, Position } from "@xyflow/react";
 import {
   CheckCircle2,
@@ -23,7 +23,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useUI } from "@/context/UIContext";
 import { useMapActions } from "@/components/MapCanvas";
-import { NODE_WIDTH, NODE_MIN_HEIGHT } from "@/lib/constants";
+import { useConfirmAction } from "@/hooks/useConfirmAction";
+import { NODE_WIDTH, NODE_MIN_HEIGHT, MAX_LABEL_LENGTH } from "@/lib/constants";
 import type { ScenarioData } from "@/lib/types";
 
 interface ScenarioNodeProps {
@@ -51,11 +52,15 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
   const { setEditingNodeId, activeFilters } = useUI();
   const actionsRef = useMapActions();
   const [showMenu, setShowMenu] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const confirmDeleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isEditingLabel, setIsEditingLabel] = useState(false);
   const [editLabel, setEditLabel] = useState(data.label);
   const labelInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDeleteConfirmed = useCallback(() => {
+    actionsRef.current.deleteNode(id);
+    setShowMenu(false);
+  }, [actionsRef, id]);
+  const { isPending: confirmDelete, trigger: handleDelete, reset: resetDelete } = useConfirmAction(handleDeleteConfirmed);
 
   const status = statusConfig[data.status] ?? statusConfig.untested;
   const type = typeConfig[data.testType] ?? typeConfig.manual;
@@ -107,32 +112,13 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
     setIsEditingLabel(false);
   };
 
-  const handleDelete = () => {
-    if (confirmDelete) {
-      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
-      actionsRef.current.deleteNode(id);
-      setShowMenu(false);
-      setConfirmDelete(false);
-    } else {
-      setConfirmDelete(true);
-      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
-      confirmDeleteTimerRef.current = setTimeout(() => setConfirmDelete(false), 3000);
-    }
-  };
-
-  // Clean up confirm-delete timer on unmount
-  useEffect(() => {
-    return () => {
-      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
-    };
-  }, []);
 
   return (
     <div
       className="group relative"
       data-testid="scenario-node"
       style={{ width: NODE_WIDTH, minHeight: NODE_MIN_HEIGHT, boxSizing: "border-box" }}
-      onMouseLeave={() => { setShowMenu(false); setConfirmDelete(false); }}
+      onMouseLeave={() => { setShowMenu(false); resetDelete(); }}
     >
       {/* Handles — invisible but required for ReactFlow edge connections.
            Inline styles override ReactFlow's min-width/min-height/background defaults. */}
@@ -198,7 +184,7 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
                       e.stopPropagation();
                     }}
                     className="w-full font-bold text-base tracking-tight leading-snug text-left bg-transparent border-b-2 border-primary/40 outline-none py-0.5 -my-0.5"
-                    maxLength={100}
+                    maxLength={MAX_LABEL_LENGTH}
                     autoFocus
                   />
                 ) : (

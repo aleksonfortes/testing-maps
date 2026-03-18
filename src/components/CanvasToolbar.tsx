@@ -101,15 +101,24 @@ export function CanvasToolbar({
           </ToolbarButton>
 
           {/* Save status indicator */}
-          <div className="pl-1 pr-1.5 flex items-center">
+          <div className="pl-1 pr-1.5 flex items-center" role="status" aria-live="polite">
             {saveStatus === "saving" && (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-foreground/40" />
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-foreground/40" />
+                <span className="sr-only">Saving changes…</span>
+              </>
             )}
             {saveStatus === "saved" && (
-              <Cloud className="w-3.5 h-3.5 text-green-500/80" />
+              <>
+                <Cloud className="w-3.5 h-3.5 text-green-500/80" />
+                <span className="sr-only">All changes saved</span>
+              </>
             )}
             {saveStatus === "error" && (
-              <CloudOff className="w-3.5 h-3.5 text-destructive/60" />
+              <>
+                <CloudOff className="w-3.5 h-3.5 text-destructive/60" />
+                <span className="sr-only">Failed to save</span>
+              </>
             )}
           </div>
         </div>

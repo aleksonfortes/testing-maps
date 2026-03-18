@@ -20,7 +20,7 @@ import { useUI } from "@/context/UIContext";
 import { MarkdownImport } from "./modals/MarkdownImport";
 import { NewMapModal } from "./modals/NewMapModal";
 import { toast } from "sonner";
-import type { Node, Edge } from "@xyflow/react";
+import type { Node } from "@xyflow/react";
 import type { ScenarioData } from "@/lib/types";
 
 interface MapDropdownProps {
@@ -30,7 +30,7 @@ interface MapDropdownProps {
 }
 
 export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownProps) {
-  const { maps, loading, isImporting, isDuplicating, deleteMap, duplicateMap, renameMap, importMap, saveMapData } = useMaps<ScenarioData>(userId);
+  const { maps, loading, isImporting, isDuplicating, isRenaming, deleteMap, duplicateMap, renameMap, importMap, saveMapData } = useMaps(userId);
   const { openDropdown, setOpenDropdown, setIsHeroHidden, showImport, setShowImport, showNewMapModal, setShowNewMapModal } = useUI();
   const isOpen = openDropdown === "map";
 
@@ -64,18 +64,18 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
   };
 
   const handleRenameSubmit = async () => {
-    if (!activeMapId || !editName.trim() || editName === activeMap?.name) {
+    if (!activeMapId || !editName.trim() || editName === activeMap?.name || isRenaming) {
       setIsEditing(false);
       return;
     }
 
+    setIsEditing(false);
     const promise = renameMap(activeMapId, editName.trim());
     toast.promise(promise, {
       loading: "Renaming...",
       success: "Map renamed successfully",
       error: "Failed to rename map",
     });
-    setIsEditing(false);
   };
 
   const handleCreate = () => {

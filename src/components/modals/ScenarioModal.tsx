@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { motion } from "framer-motion";
 import { X, Trash2, Save, Type, FileText, CheckCircle2, AlertCircle, HelpCircle } from "lucide-react";
 import { useUI } from "@/context/UIContext";
+import { useConfirmAction } from "@/hooks/useConfirmAction";
 import type { ScenarioData } from "@/lib/types";
 
 interface ScenarioModalProps {
@@ -17,35 +18,20 @@ interface ScenarioModalProps {
 export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: ScenarioModalProps) {
   const { setEditingNodeId } = useUI();
   const [formData, setFormData] = useState<ScenarioData>({ ...initialData });
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const confirmDeleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleClose = () => setEditingNodeId(null);
 
   const handleSave = () => {
-    const { ...data } = formData;
-    onUpdate(nodeId, data);
+    onUpdate(nodeId, formData);
     setEditingNodeId(null);
   };
 
-  const handleDelete = () => {
-    if (confirmDelete) {
-      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
-      onDelete(nodeId);
-      setEditingNodeId(null);
-    } else {
-      setConfirmDelete(true);
-      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
-      confirmDeleteTimerRef.current = setTimeout(() => setConfirmDelete(false), 3000);
-    }
-  };
+  const handleDeleteConfirmed = useCallback(() => {
+    onDelete(nodeId);
+    setEditingNodeId(null);
+  }, [onDelete, nodeId, setEditingNodeId]);
 
-  // Clean up confirm-delete timer on unmount
-  useEffect(() => {
-    return () => {
-      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
-    };
-  }, []);
+  const { isPending: confirmDelete, trigger: handleDelete } = useConfirmAction(handleDeleteConfirmed);
 
   return (
     <Dialog.Root open onOpenChange={(open) => { if (!open) handleClose(); }}>
