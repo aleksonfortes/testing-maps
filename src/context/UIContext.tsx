@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
 
 export type DisplayFilter = "expectedResults" | "instructions" | "testType" | "codeReference";
 
@@ -25,7 +25,12 @@ interface UIContextType {
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export function UIProvider({ children }: { children: ReactNode }) {
-  const [activeFilters, setActiveFilters] = useState<DisplayFilter[]>(["testType"]);
+  const [activeFilters, setActiveFilters] = useState<DisplayFilter[]>(() => {
+    try {
+      const stored = localStorage.getItem("tm:activeFilters");
+      return stored ? (JSON.parse(stored) as DisplayFilter[]) : ["testType"];
+    } catch { return ["testType"]; }
+  });
   const viewMode = "mindmap" as const;
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"canvas" | "details">("canvas");
@@ -39,6 +44,12 @@ export function UIProvider({ children }: { children: ReactNode }) {
       prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
     );
   }, []);
+
+  // Persist filter preferences
+  useEffect(() => {
+    try { localStorage.setItem("tm:activeFilters", JSON.stringify(activeFilters)); }
+    catch { /* localStorage unavailable */ }
+  }, [activeFilters]);
 
   return (
     <UIContext.Provider

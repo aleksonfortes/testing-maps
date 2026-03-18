@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { testingMapRepository } from "@/lib/repository";
+import { toast } from "sonner";
 import type { TestingMapListItem, ScenarioData } from "@/lib/types";
 import type { Node, Edge } from "@xyflow/react";
 
@@ -25,6 +26,7 @@ export function useMaps(userId: string | undefined) {
       setError(null);
     } catch (err) {
       setError("Failed to load maps");
+      toast.error("Failed to load maps. Check your connection.");
       if (isDev) console.error(err);
     } finally {
       setLoading(false);

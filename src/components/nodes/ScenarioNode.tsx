@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Check,
   X,
+  Copy,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -200,8 +201,8 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
                 ) : (
                   <h3
                     onClick={startLabelEdit}
-                    className="font-bold text-base tracking-tight leading-snug text-left cursor-text hover:text-primary/80 transition-colors"
-                    title="Click to rename"
+                    className="font-bold text-base tracking-tight leading-snug text-left cursor-text hover:text-primary/80 transition-colors truncate"
+                    title={data.label}
                   >
                     {data.label}
                   </h3>
@@ -370,6 +371,18 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
               <button
                 role="menuitem"
                 tabIndex={-1}
+                onClick={() => {
+                  actionsRef.current.duplicateNode(id);
+                  setShowMenu(false);
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-secondary transition-colors text-left"
+              >
+                <Copy className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Duplicate</span>
+              </button>
+              <button
+                role="menuitem"
+                tabIndex={-1}
                 onClick={handleDelete}
                 className={cn(
                   "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-colors text-left",
@@ -380,7 +393,7 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
               >
                 <Trash2 className="w-4 h-4" />
                 <span className="text-sm font-medium">
-                  {confirmDelete ? "Click to confirm" : "Delete"}
+                  {confirmDelete ? `Delete "${data.label}"?` : "Delete"}
                 </span>
               </button>
             </motion.div>

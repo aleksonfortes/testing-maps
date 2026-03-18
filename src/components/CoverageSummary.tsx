@@ -7,20 +7,26 @@ import type { ScenarioData } from "@/lib/types";
 
 interface CoverageSummaryProps {
   nodes: Node[];
+  hiddenIds?: Set<string>;
 }
 
-export function CoverageSummary({ nodes }: CoverageSummaryProps) {
+export function CoverageSummary({ nodes, hiddenIds }: CoverageSummaryProps) {
   const counts = useMemo(() => {
-    const scenarioNodes = nodes.filter((n) => n.type === "scenario");
+    const allScenarios = nodes.filter((n) => n.type === "scenario");
+    const visibleScenarios = hiddenIds
+      ? allScenarios.filter((n) => !hiddenIds.has(n.id))
+      : allScenarios;
+    const hiddenCount = allScenarios.length - visibleScenarios.length;
     return {
-      total: scenarioNodes.length,
-      verified: scenarioNodes.filter((n) => (n.data as ScenarioData).status === "verified").length,
-      untested: scenarioNodes.filter((n) => (n.data as ScenarioData).status === "untested").length,
-      failed: scenarioNodes.filter((n) => (n.data as ScenarioData).status === "failed").length,
+      total: visibleScenarios.length,
+      hiddenCount,
+      verified: visibleScenarios.filter((n) => (n.data as ScenarioData).status === "verified").length,
+      untested: visibleScenarios.filter((n) => (n.data as ScenarioData).status === "untested").length,
+      failed: visibleScenarios.filter((n) => (n.data as ScenarioData).status === "failed").length,
     };
-  }, [nodes]);
+  }, [nodes, hiddenIds]);
 
-  if (counts.total === 0) return null;
+  if (counts.total === 0 && counts.hiddenCount === 0) return null;
 
   return (
     <Panel position="top-center" className="mt-6 pointer-events-auto">
@@ -28,10 +34,13 @@ export function CoverageSummary({ nodes }: CoverageSummaryProps) {
         className="glass island-shadow rounded-2xl px-5 py-2.5 border border-white/5 flex items-center gap-4 text-xs font-semibold"
         data-testid="coverage-summary"
         role="status"
-        aria-label={`Coverage: ${counts.verified} verified, ${counts.untested} untested, ${counts.failed} failed out of ${counts.total}`}
+        aria-label={`Coverage: ${counts.verified} verified, ${counts.untested} untested, ${counts.failed} failed out of ${counts.total}${counts.hiddenCount > 0 ? ` (${counts.hiddenCount} hidden)` : ""}`}
       >
         <span className="text-foreground/60">
           {counts.total} scenario{counts.total !== 1 ? "s" : ""}
+          {counts.hiddenCount > 0 && (
+            <span className="text-foreground/30 ml-1">(+{counts.hiddenCount} hidden)</span>
+          )}
         </span>
         <div className="h-4 w-px bg-white/10" aria-hidden="true" />
         <span className="flex items-center gap-1.5" title="Verified">

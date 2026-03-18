@@ -29,6 +29,7 @@ import { getLayoutedElements } from "@/lib/layout";
 import { ScenarioNode } from "./nodes/ScenarioNode";
 import { ScenarioModal } from "./modals/ScenarioModal";
 import { MarkdownExport } from "./modals/MarkdownExport";
+import { KeyboardShortcutsModal } from "./modals/KeyboardShortcutsModal";
 import { CoverageSummary } from "./CoverageSummary";
 import { BulkActionBar } from "./BulkActionBar";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
@@ -45,7 +46,8 @@ import {
   CHILD_VERTICAL_SPACING,
 } from "@/lib/constants";
 import { AnimatePresence } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle, Plus, Copy } from "lucide-react";
+import { toast } from "sonner";
 import type { ScenarioData } from "@/lib/types";
 
 // ---------------------------------------------------------------------------
@@ -53,6 +55,7 @@ import type { ScenarioData } from "@/lib/types";
 // ---------------------------------------------------------------------------
 interface MapActions {
   deleteNode: (id: string) => void;
+  duplicateNode: (id: string) => void;
   toggleCollapse: (id: string) => void;
   isCollapsed: (id: string) => boolean;
   getChildCount: (id: string) => number;
@@ -101,12 +104,19 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [showMarkdown, setShowMarkdown] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem(`collapsed:${mapId}`);
+      return stored ? new Set(JSON.parse(stored) as string[]) : new Set();
+    } catch { return new Set(); }
+  });
   const nodesRef = useRef(nodes);
   nodesRef.current = nodes;
   const actionsRef = useRef<MapActions>({
     deleteNode: () => {},
+    duplicateNode: () => {},
     toggleCollapse: () => {},
     isCollapsed: () => false,
     getChildCount: () => 0,
@@ -119,7 +129,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   const { pushSnapshot, undo, redo, finishRestore, canUndo, canRedo } = useUndoRedo();
 
   // Persistence (load/save)
-  const { loadedFromCloud, saveStatus } = usePersistence({
+  const { loadedFromCloud, loadError, retryLoad, saveStatus } = usePersistence({
     mapId,
     nodes,
     edges,
@@ -158,6 +168,43 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     [setNodes, setEdges, pushSnapshot]
   );
 
+  const onDuplicateNode = useCallback(
+    (id: string) => {
+      const currentNodes = getNodes();
+      const currentEdges = getEdges();
+      const sourceNode = currentNodes.find((n) => n.id === id);
+      if (!sourceNode) return;
+
+      const newId = crypto.randomUUID();
+      const sourceData = sourceNode.data as ScenarioData;
+      const newNode: Node<ScenarioData> = {
+        id: newId,
+        type: "scenario",
+        selected: true,
+        data: { ...sourceData, label: `${sourceData.label} (Copy)` },
+        position: { x: sourceNode.position.x + 40, y: sourceNode.position.y + 40 },
+      };
+
+      // Find parent edge and create one for the duplicate too
+      const parentEdge = currentEdges.find((e) => e.target === id);
+      const newEdge: Edge | null = parentEdge
+        ? { id: `e-${crypto.randomUUID()}`, source: parentEdge.source, target: newId, sourceHandle: "source", targetHandle: "target", animated: true, type: "smoothstep" }
+        : null;
+
+      const updatedNodes = [...currentNodes.map((n) => ({ ...n, selected: false })), newNode];
+      const updatedEdges = newEdge ? [...currentEdges, newEdge] : currentEdges;
+
+      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(updatedNodes, updatedEdges, "LR");
+      const styledEdges = lEdges.map((e) => ({ ...e, type: "smoothstep", animated: true }));
+
+      setNodes(lNodes);
+      setEdges(styledEdges);
+      pushSnapshot(lNodes, styledEdges);
+      setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS }), FIT_VIEW_DELAY_MS);
+    },
+    [getNodes, getEdges, setNodes, setEdges, pushSnapshot, fitView]
+  );
+
   // -----------------------------------------------------------------------
   // Collapse / expand
   // -----------------------------------------------------------------------
@@ -169,6 +216,13 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
       return next;
     });
   }, []);
+
+  // Persist collapse state to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(`collapsed:${mapId}`, JSON.stringify([...collapsed]));
+    } catch { /* localStorage full or unavailable */ }
+  }, [collapsed, mapId]);
 
   const hiddenIds = useMemo(
     () => getHiddenNodeIds(collapsed, edges),
@@ -211,6 +265,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
 
   useEffect(() => {
     actionsRef.current.deleteNode = onDeleteNode;
+    actionsRef.current.duplicateNode = onDuplicateNode;
     actionsRef.current.toggleCollapse = toggleCollapse;
     actionsRef.current.isCollapsed = (id: string) => collapsed.has(id);
     actionsRef.current.getChildCount = (id: string) => childCountMap.get(id) || 0;
@@ -224,7 +279,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     actionsRef.current.updateNodeLabel = (id: string, label: string) => {
       onUpdateNode(id, { label });
     };
-  }, [onDeleteNode, toggleCollapse, collapsed, childCountMap, edges, onUpdateNode]);
+  }, [onDeleteNode, onDuplicateNode, toggleCollapse, collapsed, childCountMap, edges, onUpdateNode]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -407,6 +462,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     handleUndo,
     handleRedo,
     pushSnapshot,
+    onShowShortcuts: () => setShowShortcuts(true),
   });
 
   // Edge click: select the clicked edge (deselect others)
@@ -426,6 +482,23 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   // -----------------------------------------------------------------------
   // Render
   // -----------------------------------------------------------------------
+  if (loadError) {
+    return (
+      <div className="h-full w-full flex items-center justify-center bg-background">
+        <div className="glass island-shadow rounded-2xl px-8 py-6 border border-white/5 flex flex-col items-center gap-4 max-w-sm text-center">
+          <AlertTriangle className="w-6 h-6 text-destructive" />
+          <span className="text-sm font-medium text-muted-foreground">{loadError}</span>
+          <button
+            onClick={retryLoad}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-white/90 transition-all active:scale-[0.98]"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!loadedFromCloud) {
     return (
       <div className="h-full w-full flex items-center justify-center bg-background">
@@ -464,7 +537,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
             variant={BackgroundVariant.Dots}
           />
 
-          <CoverageSummary nodes={nodes} />
+          <CoverageSummary nodes={nodes} hiddenIds={hiddenIds} />
 
           <CanvasToolbar
             onAddNode={() => addNode()}
@@ -479,6 +552,23 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
 
           <BulkActionBar nodes={displayNodes} onBulkStatusChange={onBulkStatusChange} />
         </ReactFlow>
+
+        {/* Empty map guidance */}
+        {nodes.length === 0 && loadedFromCloud && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+            <div className="pointer-events-auto glass island-shadow rounded-2xl px-8 py-8 border border-white/5 flex flex-col items-center gap-4 max-w-xs text-center">
+              <p className="text-sm font-medium text-muted-foreground">This map is empty</p>
+              <p className="text-xs text-muted-foreground/60">Press <kbd className="px-1.5 py-0.5 bg-white/5 rounded font-mono text-[11px] border border-white/10">Tab</kbd> or click below to add your first scenario.</p>
+              <button
+                onClick={() => addNode()}
+                className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-white/90 transition-all active:scale-[0.98]"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Scenario
+              </button>
+            </div>
+          </div>
+        )}
 
         <AnimatePresence>
           {editingNode && (
@@ -495,6 +585,12 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
         <AnimatePresence>
           {showMarkdown && (
             <MarkdownExport nodes={nodes} edges={edges} onClose={() => setShowMarkdown(false)} />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showShortcuts && (
+            <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
           )}
         </AnimatePresence>
 

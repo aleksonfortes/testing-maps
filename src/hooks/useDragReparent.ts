@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import type { Node, Edge } from "@xyflow/react";
 import { getLayoutedElements } from "@/lib/layout";
+import { toast } from "sonner";
 import {
   REPARENT_DISTANCE_THRESHOLD,
   NODE_WIDTH,
@@ -8,6 +9,7 @@ import {
   FIT_VIEW_DELAY_MS,
   FIT_VIEW_DURATION_MS,
 } from "@/lib/constants";
+import type { ScenarioData } from "@/lib/types";
 
 interface UseDragReparentOptions {
   getNodes: () => Node[];
@@ -123,6 +125,12 @@ export function useDragReparent({
         return;
       }
 
+      // Prevent circular dependency: reject if target is a descendant of dragged node
+      const descendants = getDescendants(draggedNode.id, allEdges);
+      if (descendants.has(target.id)) {
+        return;
+      }
+
       const newEdges = allEdges.filter((e) => e.target !== draggedNode.id);
       const newEdge: Edge = {
         id: `e-${crypto.randomUUID()}`,
@@ -142,9 +150,13 @@ export function useDragReparent({
       setEdges(styledEdges);
       pushSnapshot(lNodes, styledEdges);
 
+      const draggedLabel = (draggedNode.data as ScenarioData).label ?? "Node";
+      const targetLabel = (target.data as ScenarioData).label ?? "Node";
+      toast.success(`Moved "${draggedLabel}" under "${targetLabel}"`, { duration: 2000 });
+
       setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS }), FIT_VIEW_DELAY_MS);
     },
-    [getNodes, getEdges, findDropTarget, setNodes, setEdges, pushSnapshot, fitView]
+    [getNodes, getEdges, findDropTarget, getDescendants, setNodes, setEdges, pushSnapshot, fitView]
   );
 
   return { onNodeDrag, onNodeDragStop };

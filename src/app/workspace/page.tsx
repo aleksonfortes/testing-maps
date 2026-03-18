@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { UIProvider, useUI } from "@/context/UIContext";
 import { MapCanvas } from "@/components/MapCanvas";
 import { MapDropdown } from "@/components/MapDropdown";
 import { FilterHUD } from "@/components/FilterHUD";
-import { Map, Layers, Loader2, Plus, FileUp, Command } from "lucide-react";
+import { Map, Layers, Loader2, Plus, FileUp } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
@@ -93,6 +93,7 @@ function WorkspaceContent({
   handleSignOut: () => void;
 }) {
   const { isHeroHidden, setIsHeroHidden, setShowImport, setShowNewMapModal } = useUI();
+  const modKey = useMemo(() => (typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent) ? "⌘" : "Ctrl+"), []);
 
   // Determine if we should show the empty state hero
   const showEmptyState = !activeMapId && !isHeroHidden;
@@ -202,7 +203,7 @@ function WorkspaceContent({
                     <span>Edit details</span>
                   </span>
                   <span className="flex items-center gap-2">
-                    <kbd className="inline-flex items-center gap-0.5 justify-center min-w-[2rem] px-1.5 py-0.5 bg-white/5 rounded-md font-mono text-[11px] border border-white/10"><Command className="w-2.5 h-2.5" />Z</kbd>
+                    <kbd className="inline-flex items-center gap-0.5 justify-center min-w-[2rem] px-1.5 py-0.5 bg-white/5 rounded-md font-mono text-[11px] border border-white/10">{modKey}Z</kbd>
                     <span>Undo / Redo</span>
                   </span>
                 </div>

@@ -12,6 +12,7 @@ interface UseKeyboardShortcutsOptions {
   handleUndo: () => void;
   handleRedo: () => void;
   pushSnapshot: (nodes: Node[], edges: Edge[]) => void;
+  onShowShortcuts?: () => void;
 }
 
 export function useKeyboardShortcuts({
@@ -25,6 +26,7 @@ export function useKeyboardShortcuts({
   handleUndo,
   handleRedo,
   pushSnapshot,
+  onShowShortcuts,
 }: UseKeyboardShortcutsOptions) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -69,6 +71,13 @@ export function useKeyboardShortcuts({
         return;
       }
 
+      // ?: show keyboard shortcuts help
+      if (e.key === "?" && !isInput && onShowShortcuts) {
+        e.preventDefault();
+        onShowShortcuts();
+        return;
+      }
+
       // Delete/Backspace: batch delete selected nodes and/or edges, skip form fields
       if ((e.key === "Backspace" || e.key === "Delete") && !isInput) {
         const allNodes = getNodes();
@@ -91,5 +100,5 @@ export function useKeyboardShortcuts({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [editingNodeId, addNode, nodesRef, getNodes, getEdges, setNodes, setEdges, handleUndo, handleRedo, pushSnapshot]);
+  }, [editingNodeId, addNode, nodesRef, getNodes, getEdges, setNodes, setEdges, handleUndo, handleRedo, pushSnapshot, onShowShortcuts]);
 }

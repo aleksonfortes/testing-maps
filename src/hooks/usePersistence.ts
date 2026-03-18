@@ -27,6 +27,7 @@ export function usePersistence({
   pushSnapshot,
 }: UsePersistenceOptions) {
   const [loadedFromCloud, setLoadedFromCloud] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const hasPendingSaveRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -36,12 +37,19 @@ export function usePersistence({
   const pushSnapshotRef = useRef(pushSnapshot);
   pushSnapshotRef.current = pushSnapshot;
 
+  const retryLoad = useCallback(() => {
+    setLoadError(null);
+    setLoadedFromCloud(false);
+  }, []);
+
   // Load from Supabase by mapId
   useEffect(() => {
+    if (loadedFromCloud) return;
     let cancelled = false;
 
     const loadData = async () => {
       try {
+        setLoadError(null);
         const data = await testingMapRepository.loadMap(mapId);
         if (cancelled) return;
 
@@ -57,6 +65,9 @@ export function usePersistence({
           if (!cancelled) setLoadedFromCloud(true);
         }, LOAD_SETTLE_MS);
       } catch (err) {
+        if (!cancelled) {
+          setLoadError("Failed to load map. Check your connection and try again.");
+        }
         if (process.env.NODE_ENV === "development") {
           console.error("Cloud load error:", err);
         }
@@ -67,7 +78,7 @@ export function usePersistence({
     return () => {
       cancelled = true;
     };
-  }, [mapId, setNodes, setEdges]);
+  }, [mapId, setNodes, setEdges, loadedFromCloud]);
 
   // Persist to Supabase (debounced)
   useEffect(() => {
@@ -132,5 +143,5 @@ export function usePersistence({
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [mapId, loadedFromCloud, getNodes, getEdges]);
 
-  return { loadedFromCloud, saveStatus };
+  return { loadedFromCloud, loadError, retryLoad, saveStatus };
 }

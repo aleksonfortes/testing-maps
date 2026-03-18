@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { motion } from "framer-motion";
 import { X, Trash2, Save, Type, FileText, CheckCircle2, AlertCircle, HelpCircle } from "lucide-react";
@@ -30,7 +30,24 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
   const { setEditingNodeId } = useUI();
   const [formData, setFormData] = useState<ScenarioData>({ ...initialData });
 
-  const handleClose = () => setEditingNodeId(null);
+  const isDirty = useMemo(() => {
+    return (
+      formData.label !== initialData.label ||
+      formData.status !== initialData.status ||
+      formData.testType !== initialData.testType ||
+      (formData.instructions ?? "") !== (initialData.instructions ?? "") ||
+      (formData.expectedResults ?? "") !== (initialData.expectedResults ?? "") ||
+      (formData.codeRef ?? "") !== (initialData.codeRef ?? "")
+    );
+  }, [formData, initialData]);
+
+  const handleClose = () => {
+    if (isDirty) {
+      const ok = window.confirm("You have unsaved changes. Discard them?");
+      if (!ok) return;
+    }
+    setEditingNodeId(null);
+  };
 
   const handleSave = () => {
     onUpdate(nodeId, formData);
