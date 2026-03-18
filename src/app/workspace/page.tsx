@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { UIProvider, useUI } from "@/context/UIContext";
 import { MapCanvas } from "@/components/MapCanvas";
 import { MapDropdown } from "@/components/MapDropdown";
-import { FilterHUD } from "@/components/FilterHUD";
 import { Map, Layers, Loader2, Plus, FileUp } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -210,7 +209,6 @@ function WorkspaceContent({
               </div>
             </div>
           ) : null}
-          <FilterHUD />
         </div>
       </div>
     </main>

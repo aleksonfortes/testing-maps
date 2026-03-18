@@ -31,6 +31,7 @@ import { ScenarioModal } from "./modals/ScenarioModal";
 import { MarkdownExport } from "./modals/MarkdownExport";
 import { KeyboardShortcutsModal } from "./modals/KeyboardShortcutsModal";
 import { CoverageSummary } from "./CoverageSummary";
+import { FilterHUD } from "./FilterHUD";
 import { BulkActionBar } from "./BulkActionBar";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { usePersistence } from "@/hooks/usePersistence";
@@ -478,6 +479,10 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   // Derived
   // -----------------------------------------------------------------------
   const editingNode = nodes.find((n) => n.id === editingNodeId);
+  const selectedCount = useMemo(
+    () => displayNodes.filter((n) => n.selected && !n.hidden).length,
+    [displayNodes]
+  );
 
   // -----------------------------------------------------------------------
   // Render
@@ -552,6 +557,9 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
 
           <BulkActionBar nodes={displayNodes} onBulkStatusChange={onBulkStatusChange} />
         </ReactFlow>
+
+        {/* Filter HUD — hidden when bulk action bar is visible */}
+        {selectedCount < 2 && <FilterHUD />}
 
         {/* Empty map guidance */}
         {nodes.length === 0 && loadedFromCloud && (
