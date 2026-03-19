@@ -117,11 +117,12 @@ function WorkspaceContent({
       {/* Top Left Island: Identity & Map Switcher — hidden in markdown view */}
       {!isMarkdownView && (
         <div className="fixed top-6 left-6 z-50 flex items-center glass island-shadow rounded-3xl animate-in fade-in slide-in-from-top-4 duration-500 hover:scale-[1.01] active:scale-[0.99] transition-transform">
-          <div className="flex items-center p-2 border-r border-white/5 relative">
-            <Link href="/" className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform overflow-hidden" title="Back to home">
+          <div className="flex items-center p-2 pr-10 border-r border-white/5 relative gap-2">
+            <Link href="/" className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform overflow-hidden shrink-0" title="Back to home">
               <Logo size={32} className="rounded-none bg-transparent scale-110" />
             </Link>
-            <BetaBadge className="absolute -top-1 -right-3 z-10" />
+            <span className="font-bold text-sm tracking-tight text-foreground/80 whitespace-nowrap">Testing Maps</span>
+            <BetaBadge className="absolute top-1 right-2 z-10 scale-90" />
           </div>
           
           <div className="flex items-center">
