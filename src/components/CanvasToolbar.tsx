@@ -2,7 +2,7 @@
 
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { Panel } from "@xyflow/react";
-import { Plus, Undo2, Redo2, FileText, Cloud, CloudOff, Loader2, Maximize, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
+import { Plus, Undo2, Redo2, FileText, Cloud, CloudOff, Loader2, Maximize, ChevronsDownUp, ChevronsUpDown, Code2 } from "lucide-react";
 import type { SaveStatus } from "@/hooks/usePersistence";
 
 interface CanvasToolbarProps {
@@ -17,6 +17,7 @@ interface CanvasToolbarProps {
   onExpandAll: () => void;
   hasCollapsed: boolean;
   hasExpandable: boolean;
+  onToggleMarkdownView: () => void;
   saveStatus: SaveStatus;
 }
 
@@ -80,6 +81,7 @@ export function CanvasToolbar({
   onExpandAll,
   hasCollapsed,
   hasExpandable,
+  onToggleMarkdownView,
   saveStatus,
 }: CanvasToolbarProps) {
   return (
@@ -115,6 +117,9 @@ export function CanvasToolbar({
 
           <ToolbarButton onClick={onExport} label="Export Markdown">
             <FileText className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton onClick={onToggleMarkdownView} label="Markdown View" shortcut="Cmd+E">
+            <Code2 className="w-4 h-4" />
           </ToolbarButton>
 
           {/* Save status indicator */}

@@ -36,6 +36,7 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
     { keys: ["1"], description: "Set verified" },
     { keys: ["2"], description: "Set failed" },
     { keys: ["3"], description: "Set untested" },
+    { keys: [`${mod}+E`], description: "Markdown view" },
     { keys: ["?"], description: "Show this help" },
   ];
 

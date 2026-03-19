@@ -14,6 +14,7 @@ interface UseKeyboardShortcutsOptions {
   pushSnapshot: (nodes: Node[], edges: Edge[]) => void;
   onShowShortcuts?: () => void;
   onUpdateSelectedStatus?: (status: "verified" | "failed" | "untested") => void;
+  onToggleMarkdownView?: () => void;
 }
 
 export function useKeyboardShortcuts({
@@ -29,6 +30,7 @@ export function useKeyboardShortcuts({
   pushSnapshot,
   onShowShortcuts,
   onUpdateSelectedStatus,
+  onToggleMarkdownView,
 }: UseKeyboardShortcutsOptions) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -53,6 +55,13 @@ export function useKeyboardShortcuts({
       if ((isMod && e.key === "z" && e.shiftKey) || (isMod && e.key === "y")) {
         e.preventDefault();
         handleRedo();
+        return;
+      }
+
+      // Cmd/Ctrl+E: toggle markdown view
+      if (isMod && e.key === "e" && onToggleMarkdownView) {
+        e.preventDefault();
+        onToggleMarkdownView();
         return;
       }
 
@@ -109,5 +118,5 @@ export function useKeyboardShortcuts({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [editingNodeId, addNode, nodesRef, getNodes, getEdges, setNodes, setEdges, handleUndo, handleRedo, pushSnapshot, onShowShortcuts, onUpdateSelectedStatus]);
+  }, [editingNodeId, addNode, nodesRef, getNodes, getEdges, setNodes, setEdges, handleUndo, handleRedo, pushSnapshot, onShowShortcuts, onUpdateSelectedStatus, onToggleMarkdownView]);
 }

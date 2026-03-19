@@ -38,7 +38,10 @@ import { usePersistence } from "@/hooks/usePersistence";
 import { useDragReparent } from "@/hooks/useDragReparent";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { CanvasToolbar } from "./CanvasToolbar";
+import { MarkdownEditor } from "./MarkdownEditor";
 import { getHiddenNodeIds } from "@/lib/tree-utils";
+import { generateMarkdown } from "@/lib/markdown-generator";
+import { parseMarkdown } from "@/lib/markdown-parser";
 import {
   LAYOUT_DELAY,
   FIT_VIEW_DELAY_MS,
@@ -106,6 +109,8 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [showMarkdown, setShowMarkdown] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [isMarkdownView, setIsMarkdownView] = useState(false);
+  const [markdownSnapshot, setMarkdownSnapshot] = useState("");
 
   const [collapsed, setCollapsed] = useState<Set<string>>(() => {
     try {
@@ -479,6 +484,13 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     handleRedo,
     pushSnapshot,
     onShowShortcuts: () => setShowShortcuts(true),
+    onToggleMarkdownView: () => {
+      if (isMarkdownView) {
+        handleMarkdownCancel();
+      } else {
+        enterMarkdownView();
+      }
+    },
     onUpdateSelectedStatus: (status: "verified" | "failed" | "untested") => {
       const currentEdges = getEdges();
       setNodes((nds) => {
@@ -499,6 +511,64 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     },
     [setEdges, setNodes]
   );
+
+  // -----------------------------------------------------------------------
+  // Markdown view
+  // -----------------------------------------------------------------------
+  const mapName = useMemo(() => {
+    const rootNode = nodes.find((n) => !edges.some((e) => e.target === n.id));
+    return (rootNode?.data as ScenarioData | undefined)?.label;
+  }, [nodes, edges]);
+
+  const enterMarkdownView = useCallback(() => {
+    const md = generateMarkdown(nodes, edges, mapName);
+    setMarkdownSnapshot(md);
+    setIsMarkdownView(true);
+  }, [nodes, edges, mapName]);
+
+  const handleMarkdownApply = useCallback(
+    (markdown: string) => {
+      try {
+        const { nodes: newNodes, edges: newEdges } = parseMarkdown(markdown);
+        if (newNodes.length === 0 && markdown.trim().length > 0) {
+          toast.error("No scenarios found. Check the markdown format.");
+          return;
+        }
+        const { nodes: lNodes, edges: lEdges } = getLayoutedElements(
+          newNodes,
+          newEdges,
+          "LR"
+        );
+        const styledEdges = lEdges.map((e) => ({
+          ...e,
+          type: "smoothstep",
+          animated: true,
+        }));
+
+        setNodes(lNodes);
+        setEdges(styledEdges);
+        pushSnapshot(lNodes, styledEdges);
+        setCollapsed(new Set());
+        setIsMarkdownView(false);
+
+        toast.success(
+          `Applied: ${lNodes.length} scenario${lNodes.length !== 1 ? "s" : ""}`,
+          { duration: 2000 }
+        );
+        setTimeout(
+          () => fitView({ duration: FIT_VIEW_DURATION_MS }),
+          FIT_VIEW_DELAY_MS
+        );
+      } catch {
+        toast.error("Failed to parse markdown. Fix the format and try again.");
+      }
+    },
+    [setNodes, setEdges, pushSnapshot, fitView, setCollapsed]
+  );
+
+  const handleMarkdownCancel = useCallback(() => {
+    setIsMarkdownView(false);
+  }, []);
 
   // -----------------------------------------------------------------------
   // Derived
@@ -549,99 +619,109 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   return (
     <MapActionsContext.Provider value={actionsRef}>
       <div className="h-full w-full relative group">
-        <ReactFlow
-          nodes={displayNodes}
-          edges={displayEdges}
-          nodeTypes={nodeTypes}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onNodeDrag={onNodeDrag}
-          onNodeDragStop={onNodeDragStop}
-          onNodeDoubleClick={(_, node) => setEditingNodeId(node.id)}
-          onEdgeClick={onEdgeClick}
-          selectionOnDrag
-          selectionMode={SelectionMode.Partial}
-          multiSelectionKeyCode="Shift"
-          fitView
-          className="bg-background"
-        >
-          <Background
-            gap={32}
-            color="currentColor"
-            className="text-muted-foreground/10"
-            variant={BackgroundVariant.Dots}
+        {isMarkdownView ? (
+          <MarkdownEditor
+            initialMarkdown={markdownSnapshot}
+            onApply={handleMarkdownApply}
+            onCancel={handleMarkdownCancel}
           />
+        ) : (
+          <>
+            <ReactFlow
+              nodes={displayNodes}
+              edges={displayEdges}
+              nodeTypes={nodeTypes}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onNodeDrag={onNodeDrag}
+              onNodeDragStop={onNodeDragStop}
+              onNodeDoubleClick={(_, node) => setEditingNodeId(node.id)}
+              onEdgeClick={onEdgeClick}
+              selectionOnDrag
+              selectionMode={SelectionMode.Partial}
+              multiSelectionKeyCode="Shift"
+              fitView
+              className="bg-background"
+            >
+              <Background
+                gap={32}
+                color="currentColor"
+                className="text-muted-foreground/10"
+                variant={BackgroundVariant.Dots}
+              />
 
-          <CoverageSummary nodes={nodes} hiddenIds={hiddenIds} />
+              <CoverageSummary nodes={nodes} hiddenIds={hiddenIds} />
 
-          <CanvasToolbar
-            onAddNode={() => addNode()}
-            onUndo={handleUndo}
-            onRedo={handleRedo}
-            canUndo={canUndo}
-            canRedo={canRedo}
-            onExport={() => setShowMarkdown(true)}
-            onFitView={() => fitView({ duration: FIT_VIEW_DURATION_MS })}
-            onCollapseAll={collapseAll}
-            onExpandAll={expandAll}
-            hasCollapsed={hasCollapsed}
-            hasExpandable={hasExpandable}
-            saveStatus={saveStatus}
-          />
+              <CanvasToolbar
+                onAddNode={() => addNode()}
+                onUndo={handleUndo}
+                onRedo={handleRedo}
+                canUndo={canUndo}
+                canRedo={canRedo}
+                onExport={() => setShowMarkdown(true)}
+                onFitView={() => fitView({ duration: FIT_VIEW_DURATION_MS })}
+                onCollapseAll={collapseAll}
+                onExpandAll={expandAll}
+                hasCollapsed={hasCollapsed}
+                hasExpandable={hasExpandable}
+                onToggleMarkdownView={enterMarkdownView}
+                saveStatus={saveStatus}
+              />
 
-          <BulkActionBar nodes={displayNodes} onBulkStatusChange={onBulkStatusChange} />
-        </ReactFlow>
+              <BulkActionBar nodes={displayNodes} onBulkStatusChange={onBulkStatusChange} />
+            </ReactFlow>
 
-        {/* Filter HUD — hidden when bulk action bar is visible */}
-        {selectedCount < 2 && <FilterHUD />}
+            {/* Filter HUD — hidden when bulk action bar is visible */}
+            {selectedCount < 2 && <FilterHUD />}
 
-        {/* Empty map guidance */}
-        {nodes.length === 0 && loadedFromCloud && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-            <div className="pointer-events-auto glass island-shadow rounded-2xl px-8 py-8 border border-white/5 flex flex-col items-center gap-4 max-w-xs text-center">
-              <p className="text-sm font-medium text-muted-foreground">This map is empty</p>
-              <p className="text-xs text-muted-foreground/60">Press <kbd className="px-1.5 py-0.5 bg-white/5 rounded font-mono text-[11px] border border-white/10">Tab</kbd> or click below to add your first scenario.</p>
-              <button
-                onClick={() => addNode()}
-                className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-white/90 transition-all active:scale-[0.98]"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Add Scenario
-              </button>
-            </div>
-          </div>
+            {/* Empty map guidance */}
+            {nodes.length === 0 && loadedFromCloud && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                <div className="pointer-events-auto glass island-shadow rounded-2xl px-8 py-8 border border-white/5 flex flex-col items-center gap-4 max-w-xs text-center">
+                  <p className="text-sm font-medium text-muted-foreground">This map is empty</p>
+                  <p className="text-xs text-muted-foreground/60">Press <kbd className="px-1.5 py-0.5 bg-white/5 rounded font-mono text-[11px] border border-white/10">Tab</kbd> or click below to add your first scenario.</p>
+                  <button
+                    onClick={() => addNode()}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-white/90 transition-all active:scale-[0.98]"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Add Scenario
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <AnimatePresence>
+              {editingNode && (
+                <ScenarioModal
+                  key={editingNode.id}
+                  nodeId={editingNode.id}
+                  initialData={editingNode.data as ScenarioData}
+                  onUpdate={onUpdateNode}
+                  onDelete={onDeleteNode}
+                />
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {showMarkdown && (
+                <MarkdownExport
+                  nodes={nodes}
+                  edges={edges}
+                  mapName={mapName}
+                  onClose={() => setShowMarkdown(false)}
+                />
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {showShortcuts && (
+                <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
+              )}
+            </AnimatePresence>
+          </>
         )}
-
-        <AnimatePresence>
-          {editingNode && (
-            <ScenarioModal
-              key={editingNode.id}
-              nodeId={editingNode.id}
-              initialData={editingNode.data as ScenarioData}
-              onUpdate={onUpdateNode}
-              onDelete={onDeleteNode}
-            />
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {showMarkdown && (
-            <MarkdownExport
-              nodes={nodes}
-              edges={edges}
-              mapName={(nodes.find((n) => !edges.some((e) => e.target === n.id))?.data as ScenarioData | undefined)?.label}
-              onClose={() => setShowMarkdown(false)}
-            />
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {showShortcuts && (
-            <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
-          )}
-        </AnimatePresence>
-
       </div>
     </MapActionsContext.Provider>
   );
