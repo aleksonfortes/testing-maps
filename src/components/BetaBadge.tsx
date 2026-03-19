@@ -10,7 +10,7 @@ export function BetaBadge({ className }: BetaBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-1 py-0 rounded text-[9px] font-black uppercase bg-primary text-primary-foreground border border-white/20 shadow-lg animate-in fade-in zoom-in-95 duration-500 whitespace-nowrap",
+        "inline-flex items-center px-1 py-0 rounded text-[8px] font-black uppercase bg-primary text-primary-foreground border border-white/20 shadow-lg animate-in fade-in zoom-in-95 duration-500 whitespace-nowrap",
         className
       )}
     >
