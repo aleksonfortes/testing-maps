@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { UIProvider, useUI } from "@/context/UIContext";
 import { MapCanvas } from "@/components/MapCanvas";
 import { MapDropdown } from "@/components/MapDropdown";
-import { Map, Layers, Loader2, Plus, FileUp } from "lucide-react";
+import { Layers, Loader2, Plus, FileUp } from "lucide-react";
+import { Logo } from "@/components/Logo";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
@@ -116,8 +117,8 @@ function WorkspaceContent({
       {!isMarkdownView && (
         <div className="fixed top-6 left-6 z-50 flex items-center glass island-shadow rounded-3xl animate-in fade-in slide-in-from-top-4 duration-500 hover:scale-[1.01] active:scale-[0.99] transition-transform">
           <div className="flex items-center p-2 border-r border-white/5">
-            <Link href="/" className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform" title="Back to home">
-              <Layers className="w-[18px] h-[18px] text-black" strokeWidth={2.5} />
+            <Link href="/" className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform overflow-hidden" title="Back to home">
+              <Logo size={32} className="rounded-none bg-transparent scale-110" />
             </Link>
           </div>
           
@@ -158,9 +159,7 @@ function WorkspaceContent({
               <div className="animate-in zoom-in-95 duration-700 flex flex-col items-center max-w-lg">
                 {/* Icon cluster */}
                 <div className="mb-10 relative">
-                  <div className="w-20 h-20 rounded-[1.75rem] bg-white flex items-center justify-center shadow-2xl">
-                    <Map className="w-9 h-9 text-black" strokeWidth={1.5} />
-                  </div>
+                  <Logo size={80} className="rounded-[1.75rem] shadow-2xl" />
                 </div>
 
                 <h3 className="text-3xl font-bold text-foreground mb-3 tracking-tight text-center">

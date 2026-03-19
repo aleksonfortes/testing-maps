@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, Map } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 export default function Home() {
   return (
@@ -11,7 +12,7 @@ export default function Home() {
 
       <nav className="fixed top-0 w-full p-6 flex justify-between items-center glass z-50">
         <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
-          <Map className="w-6 h-6" />
+          <Logo size={28} className="rounded-lg" />
           <span>Testing Maps</span>
         </div>
         <Link href="/auth" className="text-sm font-medium hover:text-primary transition-colors">

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { Map, Mail, Lock, Loader2, ArrowLeft } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowLeft } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 // Google icon as inline SVG
 function GoogleIcon() {
@@ -100,9 +101,7 @@ export default function AuthPage() {
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex justify-center">
-            <div className="bg-primary/10 p-3 rounded-2xl">
-              <Map className="w-8 h-8 text-primary" />
-            </div>
+            <Logo size={48} className="rounded-2xl shadow-xl mb-2" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Testing Maps</h1>
           <p className="text-muted-foreground italic">Connect your testing thoughts.</p>
