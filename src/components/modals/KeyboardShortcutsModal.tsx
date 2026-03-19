@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { motion } from "framer-motion";
 import { X, Keyboard } from "lucide-react";
+import { useOS } from "@/hooks/useOS";
 
 interface KeyboardShortcutsModalProps {
   onClose: () => void;
@@ -18,11 +19,7 @@ function Kbd({ children }: { children: React.ReactNode }) {
 }
 
 export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps) {
-  const isMac = useMemo(
-    () => typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent),
-    []
-  );
-  const mod = isMac ? "⌘" : "Ctrl";
+  const { modKey: mod } = useOS();
 
   const shortcuts = [
     { keys: ["Tab"], description: "Add child node" },

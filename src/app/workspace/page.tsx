@@ -9,6 +9,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import { UserMenu } from "@/components/UserMenu";
+import { useOS } from "@/hooks/useOS";
 
 export default function WorkspacePage() {
   return (
@@ -92,7 +93,7 @@ function WorkspaceContent({
   handleSignOut: () => void;
 }) {
   const { isHeroHidden, setIsHeroHidden, setShowImport, setShowNewMapModal, isMarkdownView } = useUI();
-  const modKey = useMemo(() => (typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent) ? "⌘" : "Ctrl+"), []);
+  const { modKeyPlus: modKey } = useOS();
 
   // Determine if we should show the empty state hero
   const showEmptyState = !activeMapId && !isHeroHidden;

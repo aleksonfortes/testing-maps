@@ -3,6 +3,7 @@
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { Panel } from "@xyflow/react";
 import { Plus, Undo2, Redo2, FileText, Maximize, ChevronsDownUp, ChevronsUpDown, Code2 } from "lucide-react";
+import { useOS } from "@/hooks/useOS";
 
 interface CanvasToolbarProps {
   onAddNode: () => void;
@@ -81,6 +82,8 @@ export function CanvasToolbar({
   hasExpandable,
   onToggleMarkdownView,
 }: CanvasToolbarProps) {
+  const { modKeyPlus } = useOS();
+
   return (
     <Panel position="bottom-right" className="mb-20 mr-6 pointer-events-auto">
       <Tooltip.Provider delayDuration={300}>
@@ -91,10 +94,10 @@ export function CanvasToolbar({
 
           <div className="h-6 w-px bg-white/10 mx-0.5" />
 
-          <ToolbarButton onClick={onUndo} disabled={!canUndo} label="Undo" shortcut="Cmd+Z">
+          <ToolbarButton onClick={onUndo} disabled={!canUndo} label="Undo" shortcut={`${modKeyPlus}Z`}>
             <Undo2 className="w-4 h-4" />
           </ToolbarButton>
-          <ToolbarButton onClick={onRedo} disabled={!canRedo} label="Redo" shortcut="Cmd+Shift+Z">
+          <ToolbarButton onClick={onRedo} disabled={!canRedo} label="Redo" shortcut={`${modKeyPlus}Shift+Z`}>
             <Redo2 className="w-4 h-4" />
           </ToolbarButton>
 
@@ -115,7 +118,7 @@ export function CanvasToolbar({
           <ToolbarButton onClick={onExport} label="Export Markdown">
             <FileText className="w-4 h-4" />
           </ToolbarButton>
-          <ToolbarButton onClick={onToggleMarkdownView} label="Markdown View" shortcut="Cmd+E">
+          <ToolbarButton onClick={onToggleMarkdownView} label="Markdown View" shortcut={`${modKeyPlus}E`}>
             <Code2 className="w-4 h-4" />
           </ToolbarButton>
         </div>
