@@ -32,10 +32,6 @@ export const metadata: Metadata = {
     description:
       "The definitive tool for mapping testing scenarios. Bridge the gap between requirements and code with visual mind maps.",
   },
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-  },
 };
 
 export default function RootLayout({
