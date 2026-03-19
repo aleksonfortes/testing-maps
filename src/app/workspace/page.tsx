@@ -91,7 +91,7 @@ function WorkspaceContent({
   handleSelectMap: (id: string) => void;
   handleSignOut: () => void;
 }) {
-  const { isHeroHidden, setIsHeroHidden, setShowImport, setShowNewMapModal } = useUI();
+  const { isHeroHidden, setIsHeroHidden, setShowImport, setShowNewMapModal, isMarkdownView } = useUI();
   const modKey = useMemo(() => (typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent) ? "⌘" : "Ctrl+"), []);
 
   // Determine if we should show the empty state hero
@@ -111,29 +111,33 @@ function WorkspaceContent({
     <main className="flex h-screen w-screen flex-col bg-background overflow-hidden text-foreground relative font-sans" data-hero-hidden={isHeroHidden}>
       {/* Miro-style Floating Interface */}
       
-      {/* Top Left Island: Identity & Map Switcher */}
-      <div className="fixed top-6 left-6 z-50 flex items-center glass island-shadow rounded-3xl animate-in fade-in slide-in-from-top-4 duration-500 hover:scale-[1.01] active:scale-[0.99] transition-transform">
-        <div className="flex items-center p-2 border-r border-white/5">
-          <Link href="/" className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform" title="Back to home">
-            <Layers className="w-[18px] h-[18px] text-black" strokeWidth={2.5} />
-          </Link>
+      {/* Top Left Island: Identity & Map Switcher — hidden in markdown view */}
+      {!isMarkdownView && (
+        <div className="fixed top-6 left-6 z-50 flex items-center glass island-shadow rounded-3xl animate-in fade-in slide-in-from-top-4 duration-500 hover:scale-[1.01] active:scale-[0.99] transition-transform">
+          <div className="flex items-center p-2 border-r border-white/5">
+            <Link href="/" className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform" title="Back to home">
+              <Layers className="w-[18px] h-[18px] text-black" strokeWidth={2.5} />
+            </Link>
+          </div>
+          
+          <div className="flex items-center">
+            <MapDropdown 
+              userId={currentUser.id} 
+              activeMapId={activeMapId} 
+              onSelectMap={handleSelectMap} 
+            />
+          </div>
         </div>
-        
-        <div className="flex items-center">
-          <MapDropdown 
-            userId={currentUser.id} 
-            activeMapId={activeMapId} 
-            onSelectMap={handleSelectMap} 
-          />
-        </div>
-      </div>
+      )}
 
-      {/* Top Right Island: User Account */}
-      <div className="fixed top-6 right-6 z-50 flex items-center animate-in fade-in slide-in-from-top-4 duration-500">
-        <div className="p-2 glass island-shadow rounded-full hover:scale-[1.05] active:scale-[0.95] transition-transform">
-          <UserMenu user={currentUser} onSignOut={handleSignOut} />
+      {/* Top Right Island: User Account — hidden in markdown view */}
+      {!isMarkdownView && (
+        <div className="fixed top-6 right-6 z-50 flex items-center animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="p-2 glass island-shadow rounded-full hover:scale-[1.05] active:scale-[0.95] transition-transform">
+            <UserMenu user={currentUser} onSignOut={handleSignOut} />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Canvas Layout */}
       <div className="flex flex-1 overflow-hidden relative">

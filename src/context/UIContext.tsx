@@ -20,6 +20,8 @@ interface UIContextType {
   setShowImport: (show: boolean) => void;
   showNewMapModal: boolean;
   setShowNewMapModal: (show: boolean) => void;
+  isMarkdownView: boolean;
+  setIsMarkdownView: (active: boolean) => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -38,6 +40,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [openDropdown, setOpenDropdown] = useState<"map" | "user" | null>(null);
   const [showImport, setShowImport] = useState(false);
   const [showNewMapModal, setShowNewMapModal] = useState(false);
+  const [isMarkdownView, setIsMarkdownView] = useState(false);
 
   const toggleFilter = useCallback((filter: DisplayFilter) => {
     setActiveFilters((prev) =>
@@ -69,6 +72,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
         setShowImport,
         showNewMapModal,
         setShowNewMapModal,
+        isMarkdownView,
+        setIsMarkdownView,
       }}
     >
       {children}

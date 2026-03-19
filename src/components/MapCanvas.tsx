@@ -102,14 +102,13 @@ export function MapCanvas({ mapId, userId, onSignOut }: MapCanvasProps) {
 // Inner component
 // ---------------------------------------------------------------------------
 function MapCanvasInner({ mapId }: MapCanvasProps) {
-  const { editingNodeId, setEditingNodeId, activeFilters } = useUI();
+  const { editingNodeId, setEditingNodeId, activeFilters, isMarkdownView, setIsMarkdownView } = useUI();
   const { fitView, getNodes, getEdges } = useReactFlow();
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [showMarkdown, setShowMarkdown] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
-  const [isMarkdownView, setIsMarkdownView] = useState(false);
   const [markdownSnapshot, setMarkdownSnapshot] = useState("");
 
   const [collapsed, setCollapsed] = useState<Set<string>>(() => {
@@ -524,7 +523,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     const md = generateMarkdown(nodes, edges, mapName);
     setMarkdownSnapshot(md);
     setIsMarkdownView(true);
-  }, [nodes, edges, mapName]);
+  }, [nodes, edges, mapName, setIsMarkdownView]);
 
   const handleMarkdownApply = useCallback(
     (markdown: string) => {
@@ -568,7 +567,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
 
   const handleMarkdownCancel = useCallback(() => {
     setIsMarkdownView(false);
-  }, []);
+  }, [setIsMarkdownView]);
 
   // -----------------------------------------------------------------------
   // Derived
