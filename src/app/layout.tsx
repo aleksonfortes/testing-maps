@@ -33,7 +33,8 @@ export const metadata: Metadata = {
       "The definitive tool for mapping testing scenarios. Bridge the gap between requirements and code with visual mind maps.",
   },
   icons: {
-    icon: "/icon.png",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
   },
 };
 
