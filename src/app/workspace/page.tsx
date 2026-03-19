@@ -11,7 +11,7 @@ import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import { UserMenu } from "@/components/UserMenu";
 import { useOS } from "@/hooks/useOS";
-import { BetaWarning } from "@/components/BetaBadge";
+import { BetaBadge, BetaWarning } from "@/components/BetaBadge";
 
 export default function WorkspacePage() {
   return (
@@ -117,10 +117,11 @@ function WorkspaceContent({
       {/* Top Left Island: Identity & Map Switcher — hidden in markdown view */}
       {!isMarkdownView && (
         <div className="fixed top-6 left-6 z-50 flex items-center glass island-shadow rounded-3xl animate-in fade-in slide-in-from-top-4 duration-500 hover:scale-[1.01] active:scale-[0.99] transition-transform">
-          <div className="flex items-center p-2 border-r border-white/5">
+          <div className="flex items-center p-2 border-r border-white/5 relative">
             <Link href="/" className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform overflow-hidden" title="Back to home">
               <Logo size={32} className="rounded-none bg-transparent scale-110" />
             </Link>
+            <BetaBadge className="absolute -top-1 -right-3 z-10" />
           </div>
           
           <div className="flex items-center">

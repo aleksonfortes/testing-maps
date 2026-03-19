@@ -20,9 +20,6 @@ export function Logo({ className, size = 32 }: LogoProps) {
         className={cn("object-contain", className)}
         priority
       />
-      <div className="absolute -top-1 -right-1 translate-x-1/2 -translate-y-1/2 z-20">
-        <BetaBadge />
-      </div>
     </div>
   );
 }

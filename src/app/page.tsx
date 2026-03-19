@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { BetaWarning } from "@/components/BetaBadge";
+import { BetaBadge, BetaWarning } from "@/components/BetaBadge";
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
@@ -34,9 +34,10 @@ export default async function Home() {
       </div>
 
       <nav className="fixed top-0 w-full p-6 flex justify-between items-center glass z-50">
-        <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
+        <div className="flex items-center gap-2 font-bold text-xl tracking-tight relative">
           <Logo size={28} className="rounded-lg" />
           <span>Testing Maps</span>
+          <BetaBadge className="absolute -top-1 -right-10" />
         </div>
         <Link href={isLoggedIn ? "/workspace" : "/auth"} className="text-sm font-medium hover:text-primary transition-colors">
           {isLoggedIn ? "Go to Workspace" : "Sign In"}

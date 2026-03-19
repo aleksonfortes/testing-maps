@@ -28,7 +28,7 @@ export function BetaWarning({ className }: BetaBadgeProps) {
       )}
     >
       <div className="flex items-center gap-1.5 font-bold uppercase tracking-widest text-[10px]">
-        <span>Experimental Alpha</span>
+        <span>Beta Version</span>
       </div>
       <p className="max-w-[280px] text-center leading-relaxed font-medium">
         Testing Maps is currently in early development. While we strive for stability, your maps and data may be subject to changes or resets.
