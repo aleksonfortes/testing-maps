@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { BetaWarning } from "@/components/BetaBadge";
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
@@ -53,7 +54,7 @@ export default async function Home() {
           requirements and low-level code with visual mind maps.
         </p>
 
-        <div className="flex justify-center pt-8">
+        <div className="flex flex-col items-center gap-6 pt-8">
           <Link
             href="/auth"
             className="flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition-all group"
@@ -61,6 +62,8 @@ export default async function Home() {
             Get Started
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
+          
+          <BetaWarning className="mt-8" />
         </div>
       </section>
     </main>

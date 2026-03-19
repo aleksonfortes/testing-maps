@@ -1,6 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase-server";
 
+/**
+ * Proxy middleware for Next.js 16/Turbopack.
+ * Handles Supabase session refreshing and route protection.
+ */
 export async function proxy(request: NextRequest) {
   const { supabase, response } = createSupabaseMiddlewareClient(request);
 
@@ -37,6 +41,13 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - logo.png (brand logo)
+     */
     "/((?!_next/static|_next/image|favicon.ico|logo.png).*)",
   ],
 };

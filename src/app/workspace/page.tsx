@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import { UserMenu } from "@/components/UserMenu";
 import { useOS } from "@/hooks/useOS";
+import { BetaWarning } from "@/components/BetaBadge";
 
 export default function WorkspacePage() {
   return (
@@ -188,7 +189,7 @@ function WorkspaceContent({
                 </div>
 
                 {/* Keyboard shortcut hints */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-2.5 text-xs text-foreground/30">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-2.5 text-xs text-foreground/30 mb-12">
                   <span className="flex items-center gap-2">
                     <kbd className="inline-flex items-center justify-center min-w-[2rem] px-1.5 py-0.5 bg-white/5 rounded-md font-mono text-[11px] border border-white/10">Tab</kbd>
                     <span>Add a child node</span>
@@ -210,6 +211,8 @@ function WorkspaceContent({
                     <span>Undo / Redo</span>
                   </span>
                 </div>
+
+                <BetaWarning />
               </div>
             </div>
           ) : null}
