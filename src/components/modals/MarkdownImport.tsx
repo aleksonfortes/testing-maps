@@ -52,7 +52,8 @@ export function MarkdownImport({ onImport, onClose }: MarkdownImportProps) {
   }, [markdown, mode, onImport, onClose]);
 
   const handleFileRead = useCallback((file: File) => {
-    if (!file.name.endsWith(".md") && !file.name.endsWith(".txt") && !file.name.endsWith(".markdown")) {
+    const lower = file.name.toLowerCase();
+    if (!lower.endsWith(".md") && !lower.endsWith(".txt") && !lower.endsWith(".markdown")) {
       setError("Please upload a .md, .txt, or .markdown file.");
       return;
     }

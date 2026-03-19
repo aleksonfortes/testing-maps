@@ -11,15 +11,17 @@ import { CLIPBOARD_SUCCESS_TIMEOUT_MS } from "@/lib/constants";
 interface MarkdownExportProps {
   nodes: Node[];
   edges: Edge[];
+  mapName?: string;
   onClose: () => void;
 }
 
-export function MarkdownExport({ nodes, edges, onClose }: MarkdownExportProps) {
+export function MarkdownExport({ nodes, edges, mapName, onClose }: MarkdownExportProps) {
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle");
 
   const markdown = useMemo(() => {
     const rootNodes = nodes.filter((node) => !edges.some((edge) => edge.target === node.id));
-    let result = "# Testing Map Export\n\n";
+    const title = mapName || "Testing Map Export";
+    let result = `# ${title}\n\n`;
 
     const processNode = (node: Node, level: number, visited: Set<string>) => {
       if (visited.has(node.id)) return;
@@ -57,7 +59,9 @@ export function MarkdownExport({ nodes, edges, onClose }: MarkdownExportProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "testing-map.md";
+    const slug = (mapName || "testing-map").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    const date = new Date().toISOString().slice(0, 10);
+    a.download = `${slug}-${date}.md`;
     a.click();
     URL.revokeObjectURL(url);
   };

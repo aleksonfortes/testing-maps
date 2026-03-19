@@ -13,6 +13,7 @@ interface UseKeyboardShortcutsOptions {
   handleRedo: () => void;
   pushSnapshot: (nodes: Node[], edges: Edge[]) => void;
   onShowShortcuts?: () => void;
+  onUpdateSelectedStatus?: (status: "verified" | "failed" | "untested") => void;
 }
 
 export function useKeyboardShortcuts({
@@ -27,6 +28,7 @@ export function useKeyboardShortcuts({
   handleRedo,
   pushSnapshot,
   onShowShortcuts,
+  onUpdateSelectedStatus,
 }: UseKeyboardShortcutsOptions) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -78,6 +80,13 @@ export function useKeyboardShortcuts({
         return;
       }
 
+      // 1/2/3: quick status change for selected node(s)
+      if (!isInput && !isMod && onUpdateSelectedStatus) {
+        if (e.key === "1") { onUpdateSelectedStatus("verified"); return; }
+        if (e.key === "2") { onUpdateSelectedStatus("failed"); return; }
+        if (e.key === "3") { onUpdateSelectedStatus("untested"); return; }
+      }
+
       // Delete/Backspace: batch delete selected nodes and/or edges, skip form fields
       if ((e.key === "Backspace" || e.key === "Delete") && !isInput) {
         const allNodes = getNodes();
@@ -100,5 +109,5 @@ export function useKeyboardShortcuts({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [editingNodeId, addNode, nodesRef, getNodes, getEdges, setNodes, setEdges, handleUndo, handleRedo, pushSnapshot, onShowShortcuts]);
+  }, [editingNodeId, addNode, nodesRef, getNodes, getEdges, setNodes, setEdges, handleUndo, handleRedo, pushSnapshot, onShowShortcuts, onUpdateSelectedStatus]);
 }

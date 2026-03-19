@@ -33,6 +33,9 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
     { keys: ["Dbl-click"], description: "Edit test details" },
     { keys: ["Drag"], description: "Reparent node" },
     { keys: ["Shift+Drag"], description: "Box select" },
+    { keys: ["1"], description: "Set verified" },
+    { keys: ["2"], description: "Set failed" },
+    { keys: ["3"], description: "Set untested" },
     { keys: ["?"], description: "Show this help" },
   ];
 

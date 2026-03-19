@@ -2,7 +2,7 @@
 
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { Panel } from "@xyflow/react";
-import { Plus, Undo2, Redo2, FileText, Cloud, CloudOff, Loader2, Maximize } from "lucide-react";
+import { Plus, Undo2, Redo2, FileText, Cloud, CloudOff, Loader2, Maximize, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
 import type { SaveStatus } from "@/hooks/usePersistence";
 
 interface CanvasToolbarProps {
@@ -13,6 +13,10 @@ interface CanvasToolbarProps {
   canRedo: boolean;
   onExport: () => void;
   onFitView: () => void;
+  onCollapseAll: () => void;
+  onExpandAll: () => void;
+  hasCollapsed: boolean;
+  hasExpandable: boolean;
   saveStatus: SaveStatus;
 }
 
@@ -72,6 +76,10 @@ export function CanvasToolbar({
   canRedo,
   onExport,
   onFitView,
+  onCollapseAll,
+  onExpandAll,
+  hasCollapsed,
+  hasExpandable,
   saveStatus,
 }: CanvasToolbarProps) {
   return (
@@ -96,6 +104,15 @@ export function CanvasToolbar({
           <ToolbarButton onClick={onFitView} label="Fit to Screen">
             <Maximize className="w-4 h-4" />
           </ToolbarButton>
+          <ToolbarButton onClick={onCollapseAll} disabled={!hasExpandable} label="Collapse All">
+            <ChevronsDownUp className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton onClick={onExpandAll} disabled={!hasCollapsed} label="Expand All">
+            <ChevronsUpDown className="w-4 h-4" />
+          </ToolbarButton>
+
+          <div className="h-6 w-px bg-white/10 mx-0.5" />
+
           <ToolbarButton onClick={onExport} label="Export Markdown">
             <FileText className="w-4 h-4" />
           </ToolbarButton>

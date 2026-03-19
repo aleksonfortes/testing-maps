@@ -225,6 +225,15 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     } catch { /* localStorage full or unavailable */ }
   }, [collapsed, mapId]);
 
+  const collapseAll = useCallback(() => {
+    const parentIds = new Set(edges.map((e) => e.source));
+    setCollapsed(parentIds);
+  }, [edges]);
+
+  const expandAll = useCallback(() => {
+    setCollapsed(new Set());
+  }, []);
+
   const hiddenIds = useMemo(
     () => getHiddenNodeIds(collapsed, edges),
     [collapsed, edges]
@@ -284,6 +293,9 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
 
   const onConnect = useCallback(
     (params: Connection) => {
+      // Prevent self-loop edges
+      if (params.source === params.target) return;
+
       const edge: Edge = {
         ...params,
         id: `e-${crypto.randomUUID()}`,
@@ -306,13 +318,16 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   // -----------------------------------------------------------------------
   const onBulkStatusChange = useCallback(
     (status: ScenarioData["status"]) => {
+      let count = 0;
       setNodes((nds) => {
-        const updated = nds.map((n) =>
-          n.selected ? { ...n, data: { ...n.data, status } } : n
-        );
+        const updated = nds.map((n) => {
+          if (n.selected) { count++; return { ...n, data: { ...n.data, status } }; }
+          return n;
+        });
         pushSnapshot(updated, getEdges());
         return updated;
       });
+      toast.success(`${count} scenario${count !== 1 ? "s" : ""} set to ${status}`, { duration: 2000 });
     },
     [setNodes, pushSnapshot, getEdges]
   );
@@ -464,6 +479,16 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     handleRedo,
     pushSnapshot,
     onShowShortcuts: () => setShowShortcuts(true),
+    onUpdateSelectedStatus: (status: "verified" | "failed" | "untested") => {
+      const currentEdges = getEdges();
+      setNodes((nds) => {
+        const updated = nds.map((n) =>
+          n.selected ? { ...n, data: { ...n.data, status } } : n
+        );
+        pushSnapshot(updated, currentEdges);
+        return updated;
+      });
+    },
   });
 
   // Edge click: select the clicked edge (deselect others)
@@ -479,6 +504,12 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   // Derived
   // -----------------------------------------------------------------------
   const editingNode = nodes.find((n) => n.id === editingNodeId);
+  const parentIds = useMemo(() => new Set(edges.map((e) => e.source)), [edges]);
+  const hasExpandable = useMemo(() => {
+    for (const pid of parentIds) { if (!collapsed.has(pid)) return true; }
+    return false;
+  }, [parentIds, collapsed]);
+  const hasCollapsed = collapsed.size > 0;
   const selectedCount = useMemo(
     () => displayNodes.filter((n) => n.selected && !n.hidden).length,
     [displayNodes]
@@ -552,6 +583,10 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
             canRedo={canRedo}
             onExport={() => setShowMarkdown(true)}
             onFitView={() => fitView({ duration: FIT_VIEW_DURATION_MS })}
+            onCollapseAll={collapseAll}
+            onExpandAll={expandAll}
+            hasCollapsed={hasCollapsed}
+            hasExpandable={hasExpandable}
             saveStatus={saveStatus}
           />
 
@@ -592,7 +627,12 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
 
         <AnimatePresence>
           {showMarkdown && (
-            <MarkdownExport nodes={nodes} edges={edges} onClose={() => setShowMarkdown(false)} />
+            <MarkdownExport
+              nodes={nodes}
+              edges={edges}
+              mapName={(nodes.find((n) => !edges.some((e) => e.target === n.id))?.data as ScenarioData | undefined)?.label}
+              onClose={() => setShowMarkdown(false)}
+            />
           )}
         </AnimatePresence>
 

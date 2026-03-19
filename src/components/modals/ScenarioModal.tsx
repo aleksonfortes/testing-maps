@@ -116,6 +116,7 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
                     maxLength={MAX_LABEL_LENGTH}
                     className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-sm focus:ring-2 ring-white/10 transition-all outline-none font-medium"
                     placeholder="Enter scenario name..."
+                    autoFocus
                   />
                 </div>
 
