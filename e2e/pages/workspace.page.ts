@@ -18,13 +18,26 @@ export class WorkspacePage {
   readonly coverageSummary: Locator;
   readonly bulkActionBar: Locator;
 
+  // Toolbar buttons
+  readonly addScenarioButton: Locator;
+  readonly undoButton: Locator;
+  readonly redoButton: Locator;
+  readonly fitScreenButton: Locator;
+  readonly collapseAllButton: Locator;
+  readonly expandAllButton: Locator;
+  readonly exportButton: Locator;
+  readonly markdownViewButton: Locator;
+
+  // Keyboard shortcuts modal
+  readonly shortcutsModal: Locator;
+
   constructor(page: Page) {
     this.page = page;
     this.mapDropdown = page.getByTestId("map-selection-toggle");
     this.newMapButton = page.getByTestId("new-map-button");
     this.importButton = page.getByTestId("import-button");
     this.heroSection = page.getByTestId("workspace-hero");
-    
+
     this.importModal = page.getByRole("dialog", { name: /markdown import/i });
     this.importTextarea = this.importModal.getByPlaceholder(/paste your markdown here/i);
     this.replaceOption = this.importModal.getByRole("button", { name: /replace current map/i });
@@ -33,6 +46,19 @@ export class WorkspacePage {
 
     this.coverageSummary = page.getByTestId("coverage-summary");
     this.bulkActionBar = page.getByTestId("bulk-action-bar");
+
+    // Toolbar
+    this.addScenarioButton = page.getByRole("button", { name: "Add Scenario" });
+    this.undoButton = page.getByRole("button", { name: "Undo" });
+    this.redoButton = page.getByRole("button", { name: "Redo" });
+    this.fitScreenButton = page.getByRole("button", { name: "Fit to Screen" });
+    this.collapseAllButton = page.getByRole("button", { name: "Collapse All" });
+    this.expandAllButton = page.getByRole("button", { name: "Expand All" });
+    this.exportButton = page.getByRole("button", { name: "Export Markdown" });
+    this.markdownViewButton = page.getByRole("button", { name: "Markdown View" });
+
+    // Keyboard shortcuts
+    this.shortcutsModal = page.getByRole("dialog", { name: /keyboard shortcuts/i });
   }
 
   async goto() {
