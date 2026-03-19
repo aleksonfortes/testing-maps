@@ -22,9 +22,8 @@ export default async function Home() {
   );
 
   const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    redirect("/workspace");
-  }
+  const isLoggedIn = !!session;
+
 
 
   return (
@@ -39,8 +38,8 @@ export default async function Home() {
           <Logo size={28} className="rounded-lg" />
           <span>Testing Maps</span>
         </div>
-        <Link href="/auth" className="text-sm font-medium hover:text-primary transition-colors">
-          Sign In
+        <Link href={isLoggedIn ? "/workspace" : "/auth"} className="text-sm font-medium hover:text-primary transition-colors">
+          {isLoggedIn ? "Go to Workspace" : "Sign In"}
         </Link>
       </nav>
 
@@ -56,10 +55,10 @@ export default async function Home() {
 
         <div className="flex flex-col items-center gap-6 pt-8">
           <Link
-            href="/auth"
+            href={isLoggedIn ? "/workspace" : "/auth"}
             className="flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition-all group"
           >
-            Get Started
+            {isLoggedIn ? "Go to Workspace" : "Get Started"}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           

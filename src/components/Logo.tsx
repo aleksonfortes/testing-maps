@@ -11,7 +11,7 @@ interface LogoProps {
 
 export function Logo({ className, size = 32 }: LogoProps) {
   return (
-    <div className={cn("relative flex items-center justify-center overflow-hidden rounded-xl bg-black", className)} style={{ width: size, height: size }}>
+    <div className={cn("relative flex items-center justify-center rounded-xl bg-black", className)} style={{ width: size, height: size }}>
       <Image
         src="/favicon.ico"
         alt="Testing Maps Logo"
@@ -19,7 +19,9 @@ export function Logo({ className, size = 32 }: LogoProps) {
         height={size}
         className={cn("object-contain", className)}
       />
-      <BetaBadge className="absolute -top-1 -right-8" />
+      <div className="absolute -top-1 -right-1 translate-x-1/2 -translate-y-1/2 z-10">
+        <BetaBadge />
+      </div>
     </div>
   );
 }
