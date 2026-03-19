@@ -2,8 +2,7 @@
 
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { Panel } from "@xyflow/react";
-import { Plus, Undo2, Redo2, FileText, Cloud, CloudOff, Loader2, Maximize, ChevronsDownUp, ChevronsUpDown, Code2 } from "lucide-react";
-import type { SaveStatus } from "@/hooks/usePersistence";
+import { Plus, Undo2, Redo2, FileText, Maximize, ChevronsDownUp, ChevronsUpDown, Code2 } from "lucide-react";
 
 interface CanvasToolbarProps {
   onAddNode: () => void;
@@ -18,7 +17,6 @@ interface CanvasToolbarProps {
   hasCollapsed: boolean;
   hasExpandable: boolean;
   onToggleMarkdownView: () => void;
-  saveStatus: SaveStatus;
 }
 
 function ToolbarButton({
@@ -82,7 +80,6 @@ export function CanvasToolbar({
   hasCollapsed,
   hasExpandable,
   onToggleMarkdownView,
-  saveStatus,
 }: CanvasToolbarProps) {
   return (
     <Panel position="bottom-right" className="mb-20 mr-6 pointer-events-auto">
@@ -121,28 +118,6 @@ export function CanvasToolbar({
           <ToolbarButton onClick={onToggleMarkdownView} label="Markdown View" shortcut="Cmd+E">
             <Code2 className="w-4 h-4" />
           </ToolbarButton>
-
-          {/* Save status indicator */}
-          <div className="pl-1 pr-1.5 flex items-center" role="status" aria-live="polite">
-            {saveStatus === "saving" && (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-foreground/40" />
-                <span className="sr-only">Saving changes…</span>
-              </>
-            )}
-            {saveStatus === "saved" && (
-              <>
-                <Cloud className="w-3.5 h-3.5 text-green-500/80" />
-                <span className="sr-only">All changes saved</span>
-              </>
-            )}
-            {saveStatus === "error" && (
-              <>
-                <CloudOff className="w-3.5 h-3.5 text-destructive/60" />
-                <span className="sr-only">Failed to save</span>
-              </>
-            )}
-          </div>
         </div>
       </Tooltip.Provider>
     </Panel>

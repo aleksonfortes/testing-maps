@@ -134,7 +134,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   const { pushSnapshot, undo, redo, finishRestore, canUndo, canRedo } = useUndoRedo();
 
   // Persistence (load/save)
-  const { loadedFromCloud, loadError, retryLoad, saveStatus } = usePersistence({
+  const { loadedFromCloud, loadError, retryLoad } = usePersistence({
     mapId,
     nodes,
     edges,
@@ -665,7 +665,6 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
                 hasCollapsed={hasCollapsed}
                 hasExpandable={hasExpandable}
                 onToggleMarkdownView={enterMarkdownView}
-                saveStatus={saveStatus}
               />
 
               <BulkActionBar nodes={displayNodes} onBulkStatusChange={onBulkStatusChange} />

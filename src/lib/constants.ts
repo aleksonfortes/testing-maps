@@ -17,7 +17,6 @@ export const FIT_VIEW_DELAY_MS = 50;
 export const FIT_VIEW_DURATION_MS = 800;
 export const CONFIRM_DELETE_TIMEOUT_MS = 3000;
 export const CLIPBOARD_SUCCESS_TIMEOUT_MS = 2000;
-export const SAVE_ERROR_CLEAR_TIMEOUT_MS = 5000;
 
 // Limits
 export const MAX_UNDO_HISTORY = 50;

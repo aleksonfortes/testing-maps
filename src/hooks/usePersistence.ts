@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Node, Edge } from "@xyflow/react";
 import { testingMapRepository } from "@/lib/repository";
-import { SAVE_DEBOUNCE_MS, LOAD_SETTLE_MS, SAVE_ERROR_CLEAR_TIMEOUT_MS } from "@/lib/constants";
-
-export type SaveStatus = "idle" | "saving" | "saved" | "error";
+import { SAVE_DEBOUNCE_MS, LOAD_SETTLE_MS } from "@/lib/constants";
 
 interface UsePersistenceOptions {
   mapId: string;
@@ -28,7 +26,6 @@ export function usePersistence({
 }: UsePersistenceOptions) {
   const [loadedFromCloud, setLoadedFromCloud] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const hasPendingSaveRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -87,13 +84,13 @@ export function usePersistence({
     hasPendingSaveRef.current = true;
 
     const saveData = async () => {
-      setSaveStatus("saving");
       try {
         await testingMapRepository.saveMap(mapId, nodes, edges);
-        setSaveStatus("saved");
         hasPendingSaveRef.current = false;
-      } catch {
-        setSaveStatus("error");
+      } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error("Save error:", err);
+        }
       }
     };
 
@@ -104,14 +101,6 @@ export function usePersistence({
       saveTimerRef.current = null;
     };
   }, [nodes, edges, loadedFromCloud, mapId]);
-
-  // Clear error status after a delay so the user sees the error briefly
-  // then the UI resets, allowing the next save attempt to show fresh status.
-  useEffect(() => {
-    if (saveStatus !== "error") return;
-    const timer = setTimeout(() => setSaveStatus("idle"), SAVE_ERROR_CLEAR_TIMEOUT_MS);
-    return () => clearTimeout(timer);
-  }, [saveStatus]);
 
   // Warn on unload if there are pending changes
   useEffect(() => {
@@ -143,5 +132,5 @@ export function usePersistence({
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [mapId, loadedFromCloud, getNodes, getEdges]);
 
-  return { loadedFromCloud, loadError, retryLoad, saveStatus };
+  return { loadedFromCloud, loadError, retryLoad };
 }
