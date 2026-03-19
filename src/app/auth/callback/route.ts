@@ -28,10 +28,12 @@ export async function GET(request: NextRequest) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const redirectUrl = new URL(next, origin);
+      return NextResponse.redirect(redirectUrl.toString());
     }
   }
 
   // Auth failed — redirect to auth with error param
-  return NextResponse.redirect(`${origin}/auth?error=auth_callback_failed`);
+  const errorUrl = new URL("/auth?error=auth_callback_failed", origin);
+  return NextResponse.redirect(errorUrl.toString());
 }

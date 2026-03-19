@@ -9,11 +9,14 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  // Refresh session if it's expired
+  await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const pathname = request.nextUrl.pathname;
 
   // Unauthenticated users trying to access /workspace → redirect to /auth
   if (!user && pathname.startsWith("/workspace")) {
@@ -33,5 +36,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/workspace/:path*", "/auth"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|logo.png).*)",
+  ],
 };
