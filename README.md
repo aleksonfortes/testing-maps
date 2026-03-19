@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# testing-maps
 
-## Getting Started
+A workspace mapping and visualization tool built with **Next.js**, **Supabase**, and **React Flow**.
 
-First, run the development server:
+## Tech Stack
+
+- [Next.js 16](https://nextjs.org/) — App Router, SSR, Middleware
+- [Supabase](https://supabase.com/) — Auth + PostgreSQL database
+- [React Flow (@xyflow/react)](https://reactflow.dev/) — Node-based graph visualization
+- [Framer Motion](https://www.framer.com/motion/) — Animations
+- [Radix UI](https://www.radix-ui.com/) — Accessible component primitives
+- [Tailwind CSS v4](https://tailwindcss.com/) — Styling
+
+---
+
+## Local Development
+
+### 1. Prerequisites
+
+- [Node.js 20+](https://nodejs.org/)
+- A [Supabase](https://supabase.com) project
+
+### 2. Clone & install
+
+```bash
+git clone <your-repo-url>
+cd testing-maps
+npm install
+```
+
+### 3. Set up environment variables
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and fill in your values — find them at **Supabase → Settings → API**:
+
+| Variable | Where to find it |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Project API Keys → `anon / public` |
+
+### 4. Set up the database schema
+
+Run the SQL file against your Supabase project:
+
+```bash
+# Via the Supabase CLI
+supabase db push
+
+# Or paste supabase/schema.sql into the Supabase SQL editor
+```
+
+### 5. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Testing
 
-## Learn More
+```bash
+# Unit tests (Vitest)
+npm run test
 
-To learn more about Next.js, take a look at the following resources:
+# E2E tests (Playwright) — requires a running dev server
+npm run test:e2e
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Playwright UI mode
+npm run test:e2e:ui
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Deploying to Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### One-click via Vercel dashboard
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push your code to GitHub
+2. Go to [vercel.com/new](https://vercel.com/new) and import the repository
+3. In the **Environment Variables** step, add:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. Click **Deploy** — Vercel auto-detects Next.js, no configuration needed
+
+### Via Vercel CLI
+
+```bash
+npm i -g vercel
+vercel
+# Follow the prompts, then set env vars:
+vercel env add NEXT_PUBLIC_SUPABASE_URL
+vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
+vercel --prod
+```
+
+> **Note:** Never commit your `.env` file. It is included in `.gitignore`.
+
+---
+
+## Project Structure
+
+```
+src/
+├── app/          # Next.js App Router pages & layouts
+│   ├── auth/     # Auth pages (sign in / sign up)
+│   └── workspace/# Main workspace view
+├── components/   # Reusable UI components
+├── context/      # React context providers
+├── hooks/        # Custom React hooks
+└── lib/          # Supabase client, utilities
+supabase/
+└── schema.sql    # Database schema
+e2e/              # Playwright end-to-end tests
+```
