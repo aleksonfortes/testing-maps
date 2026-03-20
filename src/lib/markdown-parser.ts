@@ -120,8 +120,7 @@ export function parseMarkdown(markdown: string): { nodes: Node<ScenarioData>[]; 
     }
 
     // Match scenario line: - **Label** [STATUS] (testType)
-    // Also strip optional task list checkboxes [ ] or [x]
-    const scenarioMatch = line.match(/^(\s*)-\s+(?:\[[\sxyX]\]\s+)?\*\*(.+?)\*\*\s*(?:\[(\w+)\])?\s*(?:\((\w+)\))?/);
+    const scenarioMatch = line.match(/^(\s*)-\s+\*\*(.+?)\*\*\s*(?:\[(\w+)\])?\s*(?:\((\w+)\))?/);
     if (scenarioMatch) {
       if (currentNode) parsedNodes.push(currentNode);
 
@@ -156,8 +155,7 @@ export function parseMarkdown(markdown: string): { nodes: Node<ScenarioData>[]; 
     }
 
     // Match plain list item: - Text
-    // Also strip optional task list checkboxes [ ] or [x]
-    const plainMatch = line.match(/^(\s*)-\s+(?:\[[\sxyX]\]\s+)?(.+)/);
+    const plainMatch = line.match(/^(\s*)-\s+(.+)/);
     if (plainMatch) {
       if (currentNode) parsedNodes.push(currentNode);
 
