@@ -207,12 +207,12 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
                     autoFocus
                   />
                 ) : (
-                  <h3
+                   <h3
                     onClick={startLabelEdit}
                     className="font-bold text-base tracking-tight leading-snug text-left cursor-text hover:text-primary/80 transition-colors whitespace-pre-wrap break-words"
                     title={data.label}
                   >
-                    {data.label}
+                    {data.label.replace(/^\s*\[[\sxyX]*\]\s*/, "")}
                   </h3>
                 )}
               </div>
