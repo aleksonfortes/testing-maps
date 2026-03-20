@@ -215,8 +215,96 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
                     {data.label}
                   </h3>
                 )}
+              </div>
 
-                {/* Top section only has the label now. Metadata moved to bottom section below divider. */}
+              {/* Menu Button - moved inside flex to prevent overlap */}
+              <div className="shrink-0 -mt-1 -mr-2">
+                <button
+                  ref={menuButtonRef}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMenu(!showMenu);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowMenu(!showMenu);
+                    } else if (e.key === "Escape" && showMenu) {
+                      e.stopPropagation();
+                      setShowMenu(false);
+                    }
+                  }}
+                  className="p-2 hover:bg-secondary rounded-xl opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all active:scale-95"
+                  aria-label="Node options"
+                  aria-haspopup="menu"
+                  aria-expanded={showMenu}
+                >
+                  <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
+                </button>
+                <AnimatePresence>
+                  {showMenu && (
+                    <motion.div
+                      ref={menuRef}
+                      initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                      role="menu"
+                      aria-label="Node actions"
+                      className="absolute right-0 top-12 z-50 min-w-[160px] bg-popover border border-border shadow-2xl rounded-2xl p-1.5 backdrop-blur-xl"
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") {
+                          e.stopPropagation();
+                          setShowMenu(false);
+                          menuButtonRef.current?.focus();
+                        } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const items = menuRef.current?.querySelectorAll<HTMLElement>("[role='menuitem']");
+                          if (!items?.length) return;
+                          const current = document.activeElement as HTMLElement;
+                          const idx = Array.from(items).indexOf(current);
+                          const next = e.key === "ArrowDown"
+                            ? items[(idx + 1) % items.length]
+                            : items[(idx - 1 + items.length) % items.length];
+                          next.focus();
+                        }
+                      }}
+                    >
+                      <div className="px-2 py-1.5 mb-1.5 border-b border-border/50">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50">Node Actions</p>
+                      </div>
+                      <button
+                        role="menuitem"
+                        onClick={(e) => { e.stopPropagation(); startLabelEdit(e); }}
+                        className="w-full flex items-center gap-2.5 px-2.5 py-2 text-sm font-medium rounded-lg hover:bg-secondary transition-colors text-left"
+                      >
+                        <Pencil className="w-4 h-4 text-blue-500" />
+                        Edit Name
+                      </button>
+                      <button
+                        role="menuitem"
+                        onClick={(e) => { e.stopPropagation(); actionsRef.current.duplicateNode(id); setShowMenu(false); }}
+                        className="w-full flex items-center gap-2.5 px-2.5 py-2 text-sm font-medium rounded-lg hover:bg-secondary transition-colors text-left"
+                      >
+                        <Copy className="w-4 h-4 text-emerald-500" />
+                        Duplicate
+                      </button>
+                      <div className="h-px bg-border/50 my-1" />
+                      <button
+                        role="menuitem"
+                        onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+                        className={cn(
+                          "w-full flex items-center gap-2.5 px-2.5 py-2 text-sm font-medium rounded-lg transition-all text-left",
+                          confirmDelete ? "bg-destructive text-destructive-foreground" : "hover:bg-destructive/10 text-destructive"
+                        )}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        {confirmDelete ? "Confirm Delete" : "Delete"}
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </div>
@@ -269,7 +357,6 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
           )}
         </div>
       </div>
-
       {/* Menu — positioned outside the content div to avoid overflow clipping */}
       <div className="absolute right-4 top-4 z-30">
         <button

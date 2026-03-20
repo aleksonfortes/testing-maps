@@ -120,7 +120,8 @@ export function parseMarkdown(markdown: string): { nodes: Node<ScenarioData>[]; 
     }
 
     // Match scenario line: - **Label** [STATUS] (testType)
-    const scenarioMatch = line.match(/^(\s*)-\s+\*\*(.+?)\*\*\s*(?:\[(\w+)\])?\s*(?:\((\w+)\))?/);
+    // Allow optional checkbox before the bold text
+    const scenarioMatch = line.match(/^(\s*)-\s+(?:\[[\sxyX]*\]\s+)?\*\*(.+?)\*\*\s*(?:\[(\w+)\])?\s*(?:\((\w+)\))?/);
     if (scenarioMatch) {
       if (currentNode) parsedNodes.push(currentNode);
 
@@ -141,7 +142,7 @@ export function parseMarkdown(markdown: string): { nodes: Node<ScenarioData>[]; 
 
       currentNode = {
         id,
-        label: scenarioMatch[2].trim().replace(/^\[[\sxyX]?\]\s*/, ""),
+        label: scenarioMatch[2].trim().replace(/^\s*\[[\sxyX]*\]\s*/, ""),
         status: STATUS_MAP[rawStatus] ?? "untested",
         testType: TEST_TYPE_MAP[rawTestType] ?? "manual",
         instructions: "",
@@ -172,7 +173,7 @@ export function parseMarkdown(markdown: string): { nodes: Node<ScenarioData>[]; 
 
       currentNode = {
         id,
-        label: plainMatch[2].trim().replace(/^\[[\sxyX]?\]\s*/, ""),
+        label: plainMatch[2].trim().replace(/^\s*\[[\sxyX]*\]\s*/, ""),
         status: "untested",
         testType: "manual",
         instructions: "",
