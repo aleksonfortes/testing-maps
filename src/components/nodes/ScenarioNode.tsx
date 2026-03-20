@@ -208,23 +208,25 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
                   </h3>
                 )}
 
-                {showTestType && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary/50 border border-border/50">
-                      <TypeIcon className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                        {type.label}
-                      </span>
-                    </div>
-                  </div>
-                )}
+                {/* Top section only has the label now. Metadata moved to bottom section below divider. */}
               </div>
             </div>
           </div>
 
-          {/* Detailed info (filtered) */}
-          {(showInstructions || showExpectations || showCodeRef) && (
-            <div className="space-y-3 pt-3 border-t border-border/50 animate-in fade-in slide-in-from-top-2 duration-300">
+          {/* Metadata Section (Below the "Score Line") */}
+          {(showTestType || showInstructions || showExpectations || showCodeRef) && (
+            <div className="space-y-3 pt-4 border-t border-border/50 animate-in fade-in slide-in-from-top-2 duration-300">
+              {showTestType && (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary/50 border border-border/50">
+                    <TypeIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {type.label}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {showInstructions && data.instructions && (
                 <div className="space-y-1">
                   <span className="text-[11px] font-bold uppercase text-muted-foreground/60 flex items-center gap-1">
