@@ -62,7 +62,7 @@ function WorkspaceContentWrapper() {
     setActiveMapId(mapId || null);
   }, []);
 
-  const testUser = { id: "test-user-id", email: "test@example.com" } as User;
+  const testUser = { id: "00000000-0000-0000-0000-000000000000", email: "test@example.com" } as User;
   if (!isTestMode && (!authChecked || !user)) {
     return (
       <main className="flex h-screen items-center justify-center bg-background">
@@ -107,7 +107,6 @@ function WorkspaceContent({
 
   const handleHeroImport = () => {
     setShowImport(true);
-    setIsHeroHidden(true);
   };
 
   return (
