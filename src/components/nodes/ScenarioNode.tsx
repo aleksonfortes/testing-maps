@@ -1,7 +1,7 @@
 "use client";
 
 import React, { memo, useState, useRef, useEffect, useCallback } from "react";
-import { Handle, Position } from "@xyflow/react";
+import { Handle, Position, NodeResizer } from "@xyflow/react";
 import {
   CheckCircle2,
   Circle,
@@ -126,11 +126,19 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
 
   return (
     <div
-      className="group relative"
+      className="group relative h-full w-full"
       data-testid="scenario-node"
-      style={{ width: NODE_WIDTH, minHeight: NODE_MIN_HEIGHT, boxSizing: "border-box" }}
+      style={{ minWidth: 250, minHeight: 100 }}
       onMouseLeave={() => { setShowMenu(false); resetDelete(); }}
     >
+      <NodeResizer
+        color="var(--primary)"
+        isVisible={selected}
+        minWidth={250}
+        minHeight={100}
+        handleClassName="!h-3.5 !w-3.5 !bg-background !border-2 !border-primary !shadow-lg !rounded-full transition-transform hover:scale-125"
+        lineClassName="!border-primary/20 !border-2"
+      />
       {/* Handles — invisible but required for ReactFlow edge connections.
            Inline styles override ReactFlow's min-width/min-height/background defaults. */}
       <Handle
@@ -159,7 +167,7 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
       {/* Content */}
       <div
         className={cn(
-          "relative rounded-2xl border-2 transition-all p-6",
+          "relative rounded-2xl border-2 transition-all p-6 min-h-[inherit] w-full h-full",
           "bg-card/80 backdrop-blur-xl shadow-xl flex flex-col items-stretch",
           isDropTarget
             ? "border-blue-500 ring-4 ring-blue-500/20 scale-[1.02]"

@@ -6,9 +6,9 @@ const MAX_PAYLOAD_SIZE = 5 * 1024 * 1024; // 5MB limit
 
 /** Strip runtime-only properties before persisting */
 export function sanitizeForStorage(nodes: Node[], edges: Edge[]) {
-  const cleanNodes = nodes.map(({ id, type, data, position }) => {
+  const cleanNodes = nodes.map(({ id, type, data, position, width, height }) => {
     const { isDropTarget: _, ...cleanData } = data as Record<string, unknown>;
-    return { id, type, data: cleanData, position };
+    return { id, type, data: cleanData, position, width, height };
   });
   const cleanEdges = edges.map(({ id, source, target, sourceHandle, targetHandle, type, animated }) => ({
     id,
