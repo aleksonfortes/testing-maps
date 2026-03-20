@@ -205,7 +205,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
       setNodes(lNodes);
       setEdges(styledEdges);
       pushSnapshot(lNodes, styledEdges);
-      setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS }), FIT_VIEW_DELAY_MS);
+      setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS, padding: 0.2 }), FIT_VIEW_DELAY_MS);
     },
     [getNodes, getEdges, setNodes, setEdges, pushSnapshot, fitView]
   );
@@ -356,7 +356,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
       setEdges(allEdges.map((e) => styledMap.get(e.id) ?? e));
 
       requestAnimationFrame(() => {
-        setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS }), FIT_VIEW_DELAY_MS);
+        setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS, padding: 0.2 }), FIT_VIEW_DELAY_MS);
       });
     },
     [getNodes, getEdges, setNodes, setEdges, fitView]
@@ -430,7 +430,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
       setEdges(mergedEdges);
       pushSnapshot(mergedNodes, mergedEdges);
 
-      setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS }), FIT_VIEW_DELAY_MS);
+      setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS, padding: 0.2 }), FIT_VIEW_DELAY_MS);
     },
     [getNodes, getEdges, setNodes, setEdges, fitView, pushSnapshot, collapsed]
   );
@@ -641,6 +641,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
               selectionMode={SelectionMode.Partial}
               multiSelectionKeyCode="Shift"
               fitView
+              fitViewOptions={{ padding: { top: 0.2, bottom: 0.3, left: 0.1, right: 0.1 } }}
               className="bg-background"
             >
               <Background

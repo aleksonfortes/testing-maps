@@ -5,8 +5,8 @@ export const DEFAULT_NODE_HEIGHT = 200;
 
 // Layout
 export const LAYOUT_DELAY = 50;
-export const LAYOUT_NODE_SEP = 300;
-export const LAYOUT_RANK_SEP = 400;
+export const LAYOUT_NODE_SEP = 150;
+export const LAYOUT_RANK_SEP = 180;
 export const CHILD_VERTICAL_SPACING = 150;
 export const NEW_NODE_HORIZONTAL_OFFSET = 380;
 
