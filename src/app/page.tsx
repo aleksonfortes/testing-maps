@@ -5,7 +5,7 @@ import { BetaBadge, OnboardingGuidance } from "@/components/BetaBadge";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-background text-foreground">
+    <main className="flex min-h-screen flex-col items-center justify-center pt-32 pb-12 px-6 bg-background text-foreground">
       {/* Background decoration */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
