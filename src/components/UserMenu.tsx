@@ -12,8 +12,6 @@ export function UserMenu() {
   const { theme, setTheme } = useTheme();
   const isOpen = openDropdown === "user";
 
-  const initials = "LW";
-
   return (
     <DropdownMenu.Root
       open={isOpen}
@@ -25,7 +23,7 @@ export function UserMenu() {
             "flex items-center gap-1.5 p-1 rounded-full hover:bg-white/5 transition-all outline-none group",
             isOpen && "bg-white/10"
           )}
-          aria-label="App settings"
+          aria-label="User menu and appearance settings"
         >
           <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-black shadow-sm group-hover:bg-white/90 transition-all border border-black/5">
             <Settings className="w-4 h-4" />
