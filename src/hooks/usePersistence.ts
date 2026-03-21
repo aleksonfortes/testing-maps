@@ -24,7 +24,7 @@ export function usePersistence({
   setEdges,
   pushSnapshot,
 }: UsePersistenceOptions) {
-  const [loadedFromCloud, setLoadedFromCloud] = useState(false);
+  const [loadedFromStorage, setLoadedFromStorage] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const hasPendingSaveRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -38,12 +38,12 @@ export function usePersistence({
 
   const retryLoad = useCallback(() => {
     setLoadError(null);
-    setLoadedFromCloud(false);
+    setLoadedFromStorage(false);
   }, []);
 
-  // Load from Supabase by mapId
+  // Load from IndexedDB by mapId
   useEffect(() => {
-    if (loadedFromCloud) return;
+    if (loadedFromStorage) return;
     let cancelled = false;
 
     const loadData = async () => {
@@ -61,14 +61,14 @@ export function usePersistence({
         }
 
         setTimeout(() => {
-          if (!cancelled) setLoadedFromCloud(true);
+          if (!cancelled) setLoadedFromStorage(true);
         }, LOAD_SETTLE_MS);
       } catch (err) {
         if (!cancelled) {
-          setLoadError("Failed to load map. Check your connection and try again.");
+          setLoadError("Failed to load map. Check your local storage.");
         }
         if (process.env.NODE_ENV === "development") {
-          console.error("Cloud load error:", err);
+          console.error("Local load error:", err);
         }
       }
     };
@@ -77,11 +77,11 @@ export function usePersistence({
     return () => {
       cancelled = true;
     };
-  }, [mapId, setNodes, setEdges, loadedFromCloud]);
+  }, [mapId, setNodes, setEdges, loadedFromStorage]);
 
-  // Persist to Supabase (debounced)
+  // Persist to IndexedDB (debounced)
   useEffect(() => {
-    if (!loadedFromCloud) return;
+    if (!loadedFromStorage) return;
 
     hasPendingSaveRef.current = true;
 
@@ -102,7 +102,7 @@ export function usePersistence({
       clearTimeout(timer);
       saveTimerRef.current = null;
     };
-  }, [nodes, edges, loadedFromCloud, mapId]);
+  }, [nodes, edges, loadedFromStorage, mapId]);
 
   // Warn on unload if there are pending changes
   useEffect(() => {
@@ -117,7 +117,7 @@ export function usePersistence({
 
   // Flush save on tab hide
   useEffect(() => {
-    if (!loadedFromCloud) return;
+    if (!loadedFromStorage) return;
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden" && hasPendingSaveRef.current) {
@@ -132,7 +132,7 @@ export function usePersistence({
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [mapId, loadedFromCloud, getNodes, getEdges]);
+  }, [mapId, loadedFromStorage, getNodes, getEdges]);
 
-  return { loadedFromCloud, loadError, retryLoad };
+  return { loadedFromStorage, loadError, retryLoad };
 }

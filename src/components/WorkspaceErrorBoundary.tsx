@@ -30,9 +30,10 @@ export class WorkspaceErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      const isConnectionError =
-        this.state.error?.message?.includes("Supabase") ||
-        this.state.error?.message?.includes("network") ||
+      const isStorageError =
+        this.state.error?.message?.includes("IndexedDB") ||
+        this.state.error?.message?.includes("storage") ||
+        this.state.error?.message?.includes("quota") ||
         this.state.error?.message?.includes("fetch");
 
       return (
@@ -42,8 +43,8 @@ export class WorkspaceErrorBoundary extends Component<Props, State> {
           </div>
           <h2 className="text-2xl font-bold tracking-tight">Something went wrong</h2>
           <p className="text-muted-foreground max-w-md mx-auto">
-            {isConnectionError
-              ? "We couldn't connect to the cloud service. Please check your network connection."
+            {isStorageError
+              ? "We encountered an issue accessing your local storage. Please check if your browser has enough space."
               : "An unexpected error occurred in the canvas."}
           </p>
           <div className="flex gap-4">
@@ -54,11 +55,11 @@ export class WorkspaceErrorBoundary extends Component<Props, State> {
               <RefreshCcw className="w-4 h-4" />
               Reload Page
             </button>
-            {isConnectionError && (
+            {isStorageError && (
               <button
                 onClick={() => this.setState({ hasError: false })}
                 className="px-6 py-2 rounded-full border border-border font-semibold hover:bg-secondary transition-colors"
-                title="Continue in offline mode"
+                title="Continue in restricted mode"
               >
                 Continue Anyway
               </button>

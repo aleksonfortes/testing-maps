@@ -132,7 +132,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   const { pushSnapshot, undo, redo, finishRestore, canUndo, canRedo } = useUndoRedo();
 
   // Persistence (load/save)
-  const { loadedFromCloud, loadError, retryLoad } = usePersistence({
+  const { loadedFromStorage, loadError, retryLoad } = usePersistence({
     mapId,
     nodes,
     edges,
@@ -439,13 +439,13 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   const lastFiltersRef = useRef<string>("");
 
   useEffect(() => {
-    if (!loadedFromCloud) return;
+    if (!loadedFromStorage) return;
     const filtersKey = [...activeFilters].sort().join(",");
     if (filtersKey !== lastFiltersRef.current) {
       lastFiltersRef.current = filtersKey;
       setTimeout(() => onLayout("LR"), LAYOUT_DELAY);
     }
-  }, [activeFilters, onLayout, loadedFromCloud]);
+  }, [activeFilters, onLayout, loadedFromStorage]);
 
   // -----------------------------------------------------------------------
   // Undo/Redo actions
@@ -602,7 +602,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     );
   }
 
-  if (!loadedFromCloud) {
+  if (!loadedFromStorage) {
     return (
       <div className="h-full w-full flex items-center justify-center bg-background">
         <div className="glass island-shadow rounded-2xl px-8 py-6 border border-white/5 flex items-center gap-4">
@@ -673,7 +673,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
             {selectedCount < 2 && <FilterHUD />}
 
             {/* Empty map guidance */}
-            {nodes.length === 0 && loadedFromCloud && (
+            {nodes.length === 0 && loadedFromStorage && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                 <div className="pointer-events-auto glass island-shadow rounded-2xl px-8 py-8 border border-white/5 flex flex-col items-center gap-4 max-w-xs text-center">
                   <p className="text-sm font-medium text-muted-foreground">This map is empty</p>
