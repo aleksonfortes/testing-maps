@@ -31,7 +31,7 @@ export function BetaWarning({ className }: BetaBadgeProps) {
         <span>Beta Version</span>
       </div>
       <p className="max-w-[280px] text-center leading-relaxed font-medium">
-        Testing Maps is currently in early development. While we strive for stability, your maps and data may be subject to changes or resets.
+        Testing Maps is currently in early development. Any feedback is welcome.
       </p>
     </div>
   );

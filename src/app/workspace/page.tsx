@@ -151,7 +151,15 @@ function WorkspaceContent({
                   </span>
                 </div>
 
-                <BetaWarning />
+                <div className="flex flex-col items-center gap-4 animate-in fade-in slide-in-from-top-2 duration-700 delay-300">
+                  <div className="px-5 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 max-w-[340px] text-center mb-4">
+                    <p className="text-[11px] font-bold text-amber-500 mb-0.5 uppercase tracking-tight">Local-First Storage</p>
+                    <p className="text-[10px] text-amber-500/70 leading-relaxed font-medium">
+                      Your work is saved locally in this browser. Export your maps as markdown files to keep them safe.
+                    </p>
+                  </div>
+                  <BetaWarning />
+                </div>
               </div>
             </div>
           ) : null}
