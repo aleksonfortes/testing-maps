@@ -12,6 +12,8 @@ concurrency:
 
 env:
   NEXT_PUBLIC_TEST_MODE: "true"
+  NEXT_PUBLIC_SUPABASE_URL: "https://mockmockmockmock.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: "mock-anon-key-that-satisfies-the-client-initialization"
 
 jobs:
   build:

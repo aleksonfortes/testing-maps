@@ -8,20 +8,32 @@ import { cookies } from "next/headers";
 
 export default async function Home() {
   const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-      },
-    }
-  );
+  const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === "true";
+  const hasSupabase =
+    !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const { data: { session } } = await supabase.auth.getSession();
-  const isLoggedIn = !!session;
+  let isLoggedIn = false;
+
+  if (!isTestMode && hasSupabase) {
+    try {
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll() {
+              return cookieStore.getAll();
+            },
+          },
+        }
+      );
+      const { data: { session } } = await supabase.auth.getSession();
+      isLoggedIn = !!session;
+    } catch (e) {
+      console.error("Supabase init failed on home page:", e);
+    }
+  }
 
 
 
