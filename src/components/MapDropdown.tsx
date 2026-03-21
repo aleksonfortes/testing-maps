@@ -214,10 +214,10 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
           <Popover.Trigger asChild>
             <button
               data-testid="map-selection-toggle"
-              className={cn(
-                "flex items-center gap-2 px-1.5 h-8 rounded-lg transition-all group/identity relative",
-                isOpen ? "bg-white/5" : "hover:bg-white/5"
-              )}
+                className={cn(
+                  "flex items-center gap-2 px-1.5 h-8 rounded-lg transition-all group/identity relative",
+                  isOpen ? "bg-secondary" : "hover:bg-secondary"
+                )}
             >
               <span className="text-[13px] font-semibold text-foreground/90 transition-colors tracking-tight truncate max-w-[200px] select-none">
                 {activeMap ? activeMap.name : "Select a Map"}
@@ -248,7 +248,7 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                     className="w-80 glass z-[100] overflow-hidden rounded-2xl island-shadow border border-white/5 shadow-2xl"
                   >
                     {/* Search */}
-                    <div className="p-4 border-b border-white/5 bg-white/[0.02]">
+                    <div className="p-4 border-b border-border bg-secondary/20">
                       <div className="relative group/search">
                         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30 group-focus-within/search:text-primary transition-all duration-300" />
                         <input
@@ -257,7 +257,7 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                           placeholder="Find your map..."
                           value={search}
                           onChange={(e) => setSearch(e.target.value)}
-                          className="w-full bg-black/20 border border-white/5 rounded-xl py-2.5 pl-10 pr-4 text-[13px] text-foreground/90 placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all font-medium"
+                          className="w-full bg-background border border-border rounded-xl py-2.5 pl-10 pr-4 text-[13px] text-foreground/90 placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                         />
                       </div>
                     </div>
@@ -282,8 +282,8 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                             className={cn(
                               "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all mb-0.5 group/item cursor-pointer",
                               activeMapId === map.id
-                                ? "bg-white text-black font-bold"
-                                : "hover:bg-white/5 text-foreground/70 hover:text-foreground"
+                                ? "bg-primary text-primary-foreground font-bold"
+                                : "hover:bg-secondary text-foreground/70 hover:text-foreground"
                             )}
                             onClick={() => {
                               onSelectMap(map.id);
@@ -295,8 +295,8 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                                 className={cn(
                                   "w-1.5 h-1.5 rounded-full transition-all",
                                   activeMapId === map.id
-                                    ? "bg-black"
-                                    : "bg-white/20"
+                                    ? "bg-primary-foreground"
+                                    : "bg-muted-foreground/30"
                                 )}
                               />
                               <span className="text-sm font-medium truncate">
@@ -309,12 +309,12 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                               )}
                               <button
                                 onClick={(e) => startEditing(e, map.id)}
-                                className={cn(
-                                  "p-1.5 rounded-lg transition-all opacity-0 group-hover/item:opacity-100",
-                                  activeMapId === map.id
-                                    ? "hover:bg-black/10 text-black/50 hover:text-black"
-                                    : "hover:bg-white/10 text-foreground/30 hover:text-foreground"
-                                )}
+                                  className={cn(
+                                    "p-1.5 rounded-lg transition-all opacity-0 group-hover/item:opacity-100",
+                                    activeMapId === map.id
+                                      ? "hover:bg-primary-foreground/10 text-primary-foreground/70 hover:text-primary-foreground"
+                                      : "hover:bg-secondary text-foreground/30 hover:text-foreground"
+                                  )}
                                 title="Rename map"
                                 data-testid="rename-map-button"
                               >
@@ -323,12 +323,12 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                               <button
                                 onClick={(e) => handleDuplicate(e, map.id)}
                                 disabled={isDuplicating}
-                                className={cn(
-                                  "p-1.5 rounded-lg transition-all opacity-0 group-hover/item:opacity-100",
-                                  activeMapId === map.id
-                                    ? "hover:bg-black/10 text-black/50 hover:text-black"
-                                    : "hover:bg-white/10 text-foreground/30 hover:text-foreground"
-                                )}
+                                  className={cn(
+                                    "p-1.5 rounded-lg transition-all opacity-0 group-hover/item:opacity-100",
+                                    activeMapId === map.id
+                                      ? "hover:bg-primary-foreground/10 text-primary-foreground/70 hover:text-primary-foreground"
+                                      : "hover:bg-secondary text-foreground/30 hover:text-foreground"
+                                  )}
                                 title="Duplicate map"
                                 data-testid="duplicate-map-button"
                               >
@@ -359,10 +359,10 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                     </div>
 
                     {/* Actions */}
-                    <div className="p-3 bg-white/[0.02] border-t border-white/5 grid grid-cols-2 gap-3">
+                    <div className="p-3 bg-secondary/20 border-t border-border grid grid-cols-2 gap-3">
                       <button
                         onClick={handleCreate}
-                        className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white text-black rounded-xl text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 transition-all active:scale-[0.98] group/btn"
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 bg-primary text-primary-foreground rounded-xl text-[11px] font-bold uppercase tracking-wider hover:opacity-90 transition-all active:scale-[0.98] group/btn shadow-lg shadow-primary/10"
                         data-testid="new-map-button"
                       >
                         <Plus className="w-4 h-4 transition-transform group-hover/btn:rotate-90" />
@@ -371,7 +371,7 @@ export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownPro
                       <button
                         onClick={handleOpenImport}
                         disabled={isImporting}
-                        className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white/5 text-foreground/70 border border-white/10 rounded-xl text-[11px] font-bold uppercase tracking-wider hover:bg-white/10 hover:text-foreground transition-all active:scale-[0.98] disabled:opacity-50"
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 bg-secondary text-foreground/70 border border-border rounded-xl text-[11px] font-bold uppercase tracking-wider hover:bg-secondary/80 hover:text-foreground transition-all active:scale-[0.98] disabled:opacity-50"
                         data-testid="import-button"
                       >
                         {isImporting ? (

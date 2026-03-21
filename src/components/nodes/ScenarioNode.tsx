@@ -168,12 +168,12 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
       <div
         className={cn(
           "relative rounded-2xl border-2 transition-all p-6 min-h-[inherit] w-full h-full",
-          "bg-card/80 backdrop-blur-xl shadow-xl flex flex-col items-stretch",
+          "bg-card/80 dark:bg-gradient-to-b dark:from-card dark:to-card/50 backdrop-blur-xl shadow-xl flex flex-col items-stretch",
           isDropTarget
             ? "border-blue-500 ring-4 ring-blue-500/20 scale-[1.02]"
             : selected
             ? "border-primary ring-4 ring-primary/10"
-            : "border-border hover:border-border/80"
+            : "border-border hover:border-border/80 shadow-md hover:shadow-xl dark:shadow-none transition-shadow"
         )}
       >
         <div className="flex flex-col gap-4">
