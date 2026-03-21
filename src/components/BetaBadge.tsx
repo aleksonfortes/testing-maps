@@ -28,18 +28,16 @@ export function OnboardingGuidance({ className }: BetaBadgeProps) {
       )}
     >
       <div className="flex flex-col items-center gap-1">
-        <div className="flex items-center gap-1.5 font-bold uppercase tracking-widest text-[9px] text-amber-500/60">
-          <span>Onboarding & Beta Info</span>
-        </div>
-        <h4 className="text-sm font-bold text-amber-500 mt-1">
-          Zero-Friction, Local-First
+        <h4 className="text-sm font-black uppercase tracking-widest text-amber-500">
+          Beta Version
         </h4>
       </div>
       
-      <p className="max-w-[340px] text-center text-xs leading-relaxed font-medium text-amber-500/80">
-        Testing Maps is in beta and designed for privacy. Your work is saved <span className="text-amber-500 font-bold underline underline-offset-2">locally in your browser</span>. 
-        To keep your maps safe, we recommend exporting them as markdown files regularly.
-        <span className="block mt-2 opacity-60 italic">Any feedback is welcome!</span>
+      <p className="max-w-[360px] text-center text-xs leading-relaxed font-medium text-amber-500/80">
+        Testing Maps is a free, <span className="text-amber-500 font-bold">open-source</span> tool with no central database. 
+        Your work is saved locally in your browser for privacy. 
+        While we provide local persistence, please <strong>export your maps</strong> as files to ensure your data is always safe.
+        <span className="block mt-2 text-amber-500/60 font-semibold italic">Any feedback is welcome!</span>
       </p>
     </div>
   );
