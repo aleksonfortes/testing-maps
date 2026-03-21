@@ -1,7 +1,7 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { ChevronDown, Sun, Moon, Settings } from "lucide-react";
+import { ChevronDown, Sun, Moon, Settings, Download } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useUI } from "@/context/UIContext";
@@ -82,8 +82,8 @@ export function UserMenu() {
                     download="testing-scenarios.md"
                     className="flex items-center gap-3 px-3 py-2 text-[13px] font-medium text-muted-foreground/80 hover:bg-white/5 rounded-xl transition-colors"
                   >
-                    <Settings className="w-4 h-4" />
-                    Download Example MD
+                    <Download className="w-4 h-4" />
+                    Download MD file example
                   </a>
                 </div>
               </motion.div>
