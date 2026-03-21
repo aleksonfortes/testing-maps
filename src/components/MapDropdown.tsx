@@ -214,8 +214,8 @@ export function MapDropdown({ activeMapId, onSelectMap }: MapDropdownProps) {
             <button
               data-testid="map-selection-toggle"
                 className={cn(
-                  "flex items-center gap-2 px-1.5 h-8 rounded-lg transition-all group/identity relative",
-                  isOpen ? "bg-secondary" : "hover:bg-secondary"
+                  "flex items-center gap-2.5 px-3 py-1.5 h-9 rounded-2xl transition-all group/identity relative",
+                  isOpen ? "bg-secondary" : "hover:bg-secondary/80"
                 )}
             >
               <span className="text-[13px] font-semibold text-foreground/90 transition-colors tracking-tight truncate max-w-[200px] select-none">
@@ -223,7 +223,7 @@ export function MapDropdown({ activeMapId, onSelectMap }: MapDropdownProps) {
               </span>
               <ChevronDown
                 className={cn(
-                  "w-3 h-3 text-muted-foreground/30 transition-transform duration-300",
+                  "w-3.5 h-3.5 text-muted-foreground/50 transition-transform duration-300",
                   isOpen && "rotate-180"
                 )}
               />
@@ -244,7 +244,7 @@ export function MapDropdown({ activeMapId, onSelectMap }: MapDropdownProps) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.95 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="w-80 glass z-[100] overflow-hidden rounded-2xl island-shadow border border-white/5 shadow-2xl"
+                    className="w-84 glass z-[100] overflow-hidden rounded-3xl island-shadow border border-white/10 shadow-2xl"
                   >
                     {/* Search */}
                     <div className="p-4 border-b border-border bg-secondary/20">
@@ -256,7 +256,7 @@ export function MapDropdown({ activeMapId, onSelectMap }: MapDropdownProps) {
                           placeholder="Find your map..."
                           value={search}
                           onChange={(e) => setSearch(e.target.value)}
-                          className="w-full bg-background border border-border rounded-xl py-2.5 pl-10 pr-4 text-[13px] text-foreground/90 placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                          className="w-full bg-background border border-border rounded-xl py-2.5 pl-10 pr-4 text-[13px] text-foreground/90 placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                         />
                       </div>
                     </div>
@@ -271,7 +271,7 @@ export function MapDropdown({ activeMapId, onSelectMap }: MapDropdownProps) {
                           </span>
                         </div>
                       ) : filteredMaps.length === 0 ? (
-                        <div className="py-8 text-center text-muted-foreground text-xs italic">
+                        <div className="py-12 text-center text-muted-foreground/50 text-sm italic font-medium">
                           No maps found
                         </div>
                       ) : (
