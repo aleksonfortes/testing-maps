@@ -50,7 +50,7 @@ import {
   CHILD_VERTICAL_SPACING,
 } from "@/lib/constants";
 import { AnimatePresence } from "framer-motion";
-import { Loader2, AlertTriangle, Plus, Copy } from "lucide-react";
+import { Loader2, AlertTriangle, Plus } from "lucide-react";
 import { toast } from "sonner";
 import type { ScenarioData } from "@/lib/types";
 
@@ -562,7 +562,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
         toast.error("Failed to parse markdown. Fix the format and try again.");
       }
     },
-    [setNodes, setEdges, pushSnapshot, fitView, setCollapsed]
+    [setNodes, setEdges, pushSnapshot, fitView, setCollapsed, setIsMarkdownView]
   );
 
   const handleMarkdownCancel = useCallback(() => {

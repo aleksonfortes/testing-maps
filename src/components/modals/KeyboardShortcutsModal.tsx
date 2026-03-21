@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { motion } from "framer-motion";
 import { X, Keyboard } from "lucide-react";

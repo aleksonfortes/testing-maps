@@ -11,7 +11,8 @@ interface Snapshot {
 function cleanNodes(nodes: Node[]): Node[] {
   return nodes.map(({ id, type, data, position, selected }) => {
     // Strip runtime-only flags like isDropTarget
-    const { isDropTarget: _, ...cleanData } = data as Record<string, unknown>;
+    const { isDropTarget, ...cleanData } = data as Record<string, unknown>;
+    void isDropTarget; // Satisfy no-unused-vars
     return {
       id,
       type,
@@ -38,9 +39,16 @@ export function useUndoRedo() {
   const historyRef = useRef<Snapshot[]>([]);
   const pointerRef = useRef(-1);
   const isRestoringRef = useRef(false);
-  // Counter to force re-render so canUndo/canRedo update in the UI
-  const [, setVersion] = useState(0);
-  const bump = useCallback(() => setVersion((v) => v + 1), []);
+  
+  // Track history state for rendering (satisfies react-hooks/refs)
+  const [historyState, setHistoryState] = useState({ 
+    pointer: -1, 
+    length: 0 
+  });
+
+  const bump = useCallback((pointer: number, length: number) => {
+    setHistoryState({ pointer, length });
+  }, []);
 
   /** Push a new snapshot onto the history stack. Clears any redo history. */
   const pushSnapshot = useCallback(
@@ -61,7 +69,7 @@ export function useUndoRedo() {
 
       historyRef.current = newHistory;
       pointerRef.current = newHistory.length - 1;
-      bump();
+      bump(pointerRef.current, historyRef.current.length);
     },
     [bump]
   );
@@ -72,7 +80,7 @@ export function useUndoRedo() {
     pointerRef.current -= 1;
     isRestoringRef.current = true;
     const snapshot = historyRef.current[pointerRef.current];
-    bump();
+    bump(pointerRef.current, historyRef.current.length);
     return {
       nodes: cleanNodes(snapshot.nodes),
       edges: cleanEdges(snapshot.edges),
@@ -85,7 +93,7 @@ export function useUndoRedo() {
     pointerRef.current += 1;
     isRestoringRef.current = true;
     const snapshot = historyRef.current[pointerRef.current];
-    bump();
+    bump(pointerRef.current, historyRef.current.length);
     return {
       nodes: cleanNodes(snapshot.nodes),
       edges: cleanEdges(snapshot.edges),
@@ -97,8 +105,8 @@ export function useUndoRedo() {
     isRestoringRef.current = false;
   }, []);
 
-  const canUndo = pointerRef.current > 0;
-  const canRedo = pointerRef.current < historyRef.current.length - 1;
+  const canUndo = historyState.pointer > 0;
+  const canRedo = historyState.pointer < historyState.length - 1;
 
   return { pushSnapshot, undo, redo, finishRestore, canUndo, canRedo };
 }

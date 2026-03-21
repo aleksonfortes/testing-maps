@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { UIProvider, useUI } from "@/context/UIContext";
 import { MapCanvas } from "@/components/MapCanvas";
 import { MapDropdown } from "@/components/MapDropdown";
-import { Layers, Loader2, Plus, FileUp } from "lucide-react";
+import { Loader2, Plus, FileUp } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";

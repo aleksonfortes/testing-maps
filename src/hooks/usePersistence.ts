@@ -32,7 +32,9 @@ export function usePersistence({
   // Stable ref for pushSnapshot to safely include it in the load effect
   // without causing re-runs when the callback identity changes.
   const pushSnapshotRef = useRef(pushSnapshot);
-  pushSnapshotRef.current = pushSnapshot;
+  useEffect(() => {
+    pushSnapshotRef.current = pushSnapshot;
+  }, [pushSnapshot]);
 
   const retryLoad = useCallback(() => {
     setLoadError(null);

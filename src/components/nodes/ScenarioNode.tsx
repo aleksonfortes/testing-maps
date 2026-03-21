@@ -16,8 +16,6 @@ import {
   FileText,
   Target,
   ChevronRight,
-  Check,
-  X,
   Copy,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { useUI } from "@/context/UIContext";
 import { useMapActions } from "@/components/MapCanvas";
 import { useConfirmAction } from "@/hooks/useConfirmAction";
-import { NODE_WIDTH, NODE_MIN_HEIGHT, MAX_LABEL_LENGTH } from "@/lib/constants";
+import { MAX_LABEL_LENGTH } from "@/lib/constants";
 import type { ScenarioData } from "@/lib/types";
 
 interface ScenarioNodeProps {
@@ -50,7 +48,7 @@ const typeConfig = {
 };
 
 export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePosition }: ScenarioNodeProps) => {
-  const { setEditingNodeId, activeFilters } = useUI();
+  const { activeFilters } = useUI();
   const actionsRef = useMapActions();
   const [showMenu, setShowMenu] = useState(false);
   const [isEditingLabel, setIsEditingLabel] = useState(false);
@@ -74,8 +72,11 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
   const finalSourcePos = sourcePosition || Position.Right;
 
   const isDropTarget = !!data.isDropTarget;
+  // eslint-disable-next-line react-hooks/refs
   const isCollapsed = actionsRef.current.isCollapsed(id);
+  // eslint-disable-next-line react-hooks/refs
   const childCount = actionsRef.current.getChildCount(id);
+  // eslint-disable-next-line react-hooks/refs
   const hiddenChildCount = actionsRef.current.getHiddenChildCount(id);
 
   const showExpectations = activeFilters.includes("expectedResults");
