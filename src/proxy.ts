@@ -10,6 +10,13 @@ export async function proxy(request: NextRequest) {
 
   // If Supabase isn't configured, allow all access (dev/demo mode)
   if (!supabase) {
+    console.log("PROXY: No Supabase, skipping auth");
+    return response;
+  }
+
+  // Bypass auth checks for E2E tests
+  if (process.env.NEXT_PUBLIC_TEST_MODE === "true") {
+    console.log("PROXY IS RUNNING: TEST MODE ACTIVE - Bypassing auth checks");
     return response;
   }
 
