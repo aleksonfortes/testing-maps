@@ -23,28 +23,26 @@
   --radius: 0.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #000000;
-    --foreground: #ffffff;
-    --card: #111111;
-    --card-foreground: #ffffff;
-    --popover: #111111;
-    --popover-foreground: #ffffff;
-    --primary: #ffffff;
-    --primary-foreground: #000000;
-    --secondary: #1a1a1a;
-    --secondary-foreground: #ffffff;
-    --muted: #1a1a1a;
-    --muted-foreground: #888888;
-    --accent: #222222;
-    --accent-foreground: #ffffff;
-    --destructive: #ff3333;
-    --destructive-foreground: #ffffff;
-    --border: #1a1a1a;
-    --input: #1a1a1a;
-    --ring: #ffffff;
-  }
+.dark {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #111111;
+  --card-foreground: #ffffff;
+  --popover: #111111;
+  --popover-foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #888888;
+  --accent: #222222;
+  --accent-foreground: #ffffff;
+  --destructive: #ff3333;
+  --destructive-foreground: #ffffff;
+  --border: #1a1a1a;
+  --input: #1a1a1a;
+  --ring: #ffffff;
 }
 
 @theme inline {
@@ -98,10 +96,8 @@
               0 4px 8px -2px rgba(0, 0, 0, 0.2);
 }
 
-@media (prefers-color-scheme: dark) {
-  .glass {
-    @apply bg-black/40 border border-white/5 shadow-2xl;
-  }
+.dark .glass {
+  @apply bg-black/40 border border-white/5 shadow-2xl;
 }
 
 /* Premium Gradients */

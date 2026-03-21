@@ -1,10 +1,11 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { LogOut, ChevronDown } from "lucide-react";
+import { LogOut, ChevronDown, Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useUI } from "@/context/UIContext";
+import { useTheme } from "next-themes";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface UserMenuProps {
@@ -14,6 +15,7 @@ interface UserMenuProps {
 
 export function UserMenu({ user, onSignOut }: UserMenuProps) {
   const { openDropdown, setOpenDropdown } = useUI();
+  const { theme, setTheme } = useTheme();
   const isOpen = openDropdown === "user";
 
   const initials = user.email ? user.email.substring(0, 2).toUpperCase() : "U";
@@ -67,7 +69,27 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
                   </p>
                 </DropdownMenu.Label>
 
-                <div className="p-2">
+                <div className="p-2 space-y-1">
+                  <div className="flex items-center justify-between px-3 py-2 text-[13px] font-medium text-muted-foreground/80">
+                    <div className="flex items-center gap-3">
+                      {theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                      Theme
+                    </div>
+                    <button
+                      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                      className="relative inline-flex h-6 w-11 items-center rounded-full bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    >
+                      <span
+                        className={cn(
+                          "inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform",
+                          theme === "dark" ? "translate-x-6" : "translate-x-1"
+                        )}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="h-px bg-white/5 my-1" />
+
                   <DropdownMenu.Item
                     onSelect={onSignOut}
                     className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-red-400/80 hover:bg-red-400/10 rounded-xl transition-all group/logout cursor-pointer outline-none data-[highlighted]:bg-red-400/10"
