@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { BetaBadge, BetaWarning } from "@/components/BetaBadge";
+import { BetaBadge, OnboardingGuidance } from "@/components/BetaBadge";
 
 export default function Home() {
   return (
@@ -41,17 +41,8 @@ export default function Home() {
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
 
-          <div className="flex flex-col items-center gap-4 mt-8 animate-in fade-in slide-in-from-top-4 duration-1000 delay-500">
-            <div className="px-6 py-4 rounded-3xl bg-amber-500/10 border border-amber-500/20 max-w-lg text-center">
-              <p className="text-sm font-semibold text-amber-500 mb-1 flex items-center justify-center gap-2">
-                <span>Local-First Storage</span>
-              </p>
-              <p className="text-xs text-amber-500/70 leading-relaxed font-medium">
-                Testing Maps saves all your work locally in your browser. Since we don&apos;t use a central database, 
-                be sure to <strong>export your maps</strong> to avoid losing work if you clear your browser data.
-              </p>
-            </div>
-            <BetaWarning />
+          <div className="mt-8">
+            <OnboardingGuidance />
           </div>
         </div>
       </section>
