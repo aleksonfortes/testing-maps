@@ -58,8 +58,8 @@ export function UserMenu() {
                   </p>
                 </DropdownMenu.Label>
 
-                <div className="p-2">
-                  <div className="flex items-center justify-between px-3 py-2 text-[13px] font-medium text-muted-foreground/80 hover:bg-white/5 rounded-xl transition-colors">
+                <div className="p-2 space-y-1">
+                  <div className="flex items-center justify-between px-3 py-2 text-[13px] font-medium text-muted-foreground/80 hover:bg-white/5 rounded-xl transition-colors group/item">
                     <div className="flex items-center gap-3">
                       {theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                       Appearance
@@ -76,6 +76,15 @@ export function UserMenu() {
                       />
                     </button>
                   </div>
+
+                  <a
+                    href="/testing-scenarios-example.md"
+                    download="testing-scenarios.md"
+                    className="flex items-center gap-3 px-3 py-2 text-[13px] font-medium text-muted-foreground/80 hover:bg-white/5 rounded-xl transition-colors"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Download Example MD
+                  </a>
                 </div>
               </motion.div>
             </DropdownMenu.Content>
