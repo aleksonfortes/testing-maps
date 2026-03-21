@@ -6,7 +6,7 @@ import type { Node, Edge } from "@xyflow/react";
 
 const isDev = process.env.NODE_ENV === "development";
 
-export function useMaps(userId: string | undefined) {
+export function useMaps() {
   const [maps, setMaps] = useState<TestingMapListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -18,30 +18,28 @@ export function useMaps(userId: string | undefined) {
   const [error, setError] = useState<string | null>(null);
 
   const loadMaps = useCallback(async () => {
-    if (!userId) return;
     setLoading(true);
     try {
-      const list = await testingMapRepository.listMaps(userId);
+      const list = await testingMapRepository.listMaps("local-user");
       setMaps(list);
       setError(null);
     } catch (err) {
       setError("Failed to load maps");
-      toast.error("Failed to load maps. Check your connection.");
+      toast.error("Failed to load maps.");
       if (isDev) console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, []);
 
   useEffect(() => {
     loadMaps();
   }, [loadMaps]);
 
   const createMap = useCallback(async (name: string = "Untitled Map") => {
-    if (!userId) return null;
     setIsCreating(true);
     try {
-      const newId = await testingMapRepository.createMap(userId, name);
+      const newId = await testingMapRepository.createMap("local-user", name);
       await loadMaps();
       return newId;
     } catch (err) {
@@ -50,13 +48,12 @@ export function useMaps(userId: string | undefined) {
     } finally {
       setIsCreating(false);
     }
-  }, [userId, loadMaps]);
+  }, [loadMaps]);
 
   const importMap = useCallback(async (name: string, nodes: Node<ScenarioData>[], edges: Edge[]) => {
-    if (!userId) return null;
     setIsImporting(true);
     try {
-      const newId = await testingMapRepository.createMapWithData(userId, name, nodes, edges);
+      const newId = await testingMapRepository.createMapWithData("local-user", name, nodes, edges);
       await loadMaps();
       return newId;
     } catch (err) {
@@ -65,7 +62,7 @@ export function useMaps(userId: string | undefined) {
     } finally {
       setIsImporting(false);
     }
-  }, [userId, loadMaps]);
+  }, [loadMaps]);
 
   const deleteMap = useCallback(async (mapId: string) => {
     setIsDeleting(true);
@@ -82,13 +79,12 @@ export function useMaps(userId: string | undefined) {
   }, [loadMaps]);
 
   const duplicateMap = useCallback(async (mapId: string) => {
-    if (!userId) return null;
     setIsDuplicating(true);
     try {
       const source = await testingMapRepository.loadMap(mapId);
       if (!source) throw new Error("Source map not found");
       const newId = await testingMapRepository.createMapWithData(
-        userId,
+        "local-user",
         source.name + " (Copy)",
         source.nodes,
         source.edges
@@ -101,7 +97,7 @@ export function useMaps(userId: string | undefined) {
     } finally {
       setIsDuplicating(false);
     }
-  }, [userId, loadMaps]);
+  }, [loadMaps]);
 
   const renameMap = useCallback(async (mapId: string, newName: string) => {
     setIsRenaming(true);

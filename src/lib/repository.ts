@@ -1,8 +1,23 @@
-import { supabase, isSupabaseConfigured } from "./supabase";
+import { get, set } from "idb-keyval";
 import type { Node, Edge } from "@xyflow/react";
 import type { TestingMap, TestingMapListItem } from "./types";
 
-const MAX_PAYLOAD_SIZE = 5 * 1024 * 1024; // 5MB limit
+const MAX_PAYLOAD_SIZE = 50 * 1024 * 1024; // Expanded to 50MB for local storage
+
+const DB_KEY = "testing_maps_local_db";
+
+type LocalDB = Record<string, TestingMap>;
+
+/** Retrieve the entire database object from IndexedDB */
+async function getDB(): Promise<LocalDB> {
+  const db = await get<LocalDB>(DB_KEY);
+  return db || {};
+}
+
+/** Save the entire database object to IndexedDB */
+async function saveDB(db: LocalDB): Promise<void> {
+  await set(DB_KEY, db);
+}
 
 /** Strip runtime-only properties before persisting */
 export function sanitizeForStorage(nodes: Node[], edges: Edge[]) {
@@ -24,47 +39,36 @@ export function sanitizeForStorage(nodes: Node[], edges: Edge[]) {
 }
 
 export const testingMapRepository = {
-  /** List all maps for a user, ordered by most recently updated */
+  /** List all local maps, ordered by most recently updated */
   async listMaps(userId: string): Promise<TestingMapListItem[]> {
-    if (!isSupabaseConfigured) return [];
+    const db = await getDB();
+    const maps = Object.values(db).map((map) => ({
+      id: map.id,
+      name: map.name,
+      updated_at: map.updated_at || new Date().toISOString(),
+    }));
 
-    const { data, error } = await supabase
-      .from("testing_maps")
-      .select("id, name, updated_at")
-      .eq("user_id", userId)
-      .order("updated_at", { ascending: false });
-
-    // In test mode with the magic UUID, don't throw if Supabase returns 400
-    if (error && userId === "00000000-0000-0000-0000-000000000000") {
-      return [];
-    }
-
-    if (error) throw error;
-    return data ?? [];
+    return maps.sort(
+      (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    );
   },
 
-  /** Create a new map and return its id */
+  /** Create a new map locally and return its id */
   async createMap(userId: string, name: string): Promise<string> {
-    if (!isSupabaseConfigured) {
-      throw new Error("Supabase is not configured. Cannot create map.");
-    }
+    const db = await getDB();
+    const newId = crypto.randomUUID();
+    
+    db[newId] = {
+      id: newId,
+      user_id: "local-user",
+      name,
+      nodes: [],
+      edges: [],
+      updated_at: new Date().toISOString(),
+    };
 
-    const { data, error } = await supabase
-      .from("testing_maps")
-      .insert({
-        user_id: userId,
-        name,
-        nodes: [],
-        edges: [],
-      })
-      .select("id")
-      .single();
-
-    if (error) {
-      if (userId === "00000000-0000-0000-0000-000000000000") return crypto.randomUUID();
-      throw error;
-    }
-    return data.id;
+    await saveDB(db);
+    return newId;
   },
 
   /** Create a new map with initial nodes and edges */
@@ -74,34 +78,29 @@ export const testingMapRepository = {
     nodes: Node[],
     edges: Edge[]
   ): Promise<string> {
-    if (!isSupabaseConfigured) {
-      throw new Error("Supabase is not configured. Cannot create map.");
-    }
-
+    const db = await getDB();
+    const newId = crypto.randomUUID();
     const { cleanNodes, cleanEdges } = sanitizeForStorage(nodes, edges);
 
-    const { data, error } = await supabase
-      .from("testing_maps")
-      .insert({
-        user_id: userId,
-        name,
-        nodes: cleanNodes,
-        edges: cleanEdges,
-      })
-      .select("id")
-      .single();
+    db[newId] = {
+      id: newId,
+      user_id: "local-user",
+      name,
+      nodes: cleanNodes as any,
+      edges: cleanEdges as any,
+      updated_at: new Date().toISOString(),
+    };
 
-    if (error) {
-      if (userId === "00000000-0000-0000-0000-000000000000") return crypto.randomUUID();
-      throw error;
-    }
-    return data.id;
+    await saveDB(db);
+    return newId;
   },
 
-  /** Save nodes/edges to a specific map */
+  /** Save nodes/edges to a specific local map */
   async saveMap(mapId: string, nodes: Node[], edges: Edge[]): Promise<void> {
-    if (!isSupabaseConfigured) {
-      throw new Error("Supabase is not configured. Cannot save.");
+    const db = await getDB();
+    
+    if (!db[mapId]) {
+      throw new Error("Map not found in local storage.");
     }
 
     const { cleanNodes, cleanEdges } = sanitizeForStorage(nodes, edges);
@@ -109,66 +108,43 @@ export const testingMapRepository = {
     // Validate payload size
     const payload = JSON.stringify({ nodes: cleanNodes, edges: cleanEdges });
     if (payload.length > MAX_PAYLOAD_SIZE) {
-      throw new Error("Map data exceeds maximum size limit (5MB).");
+      throw new Error("Map data exceeds maximum size limit (50MB).");
     }
 
-    const { error } = await supabase
-      .from("testing_maps")
-      .update({
-        nodes: cleanNodes,
-        edges: cleanEdges,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", mapId);
+    db[mapId] = {
+      ...db[mapId],
+      nodes: cleanNodes as any,
+      edges: cleanEdges as any,
+      updated_at: new Date().toISOString(),
+    };
 
-    if (error) {
-      // In test mode, mask save errors
-      if (mapId.includes("-") && mapId.length > 30) return;
-      throw error;
-    }
+    await saveDB(db);
   },
 
-  /** Load a specific map by id */
+  /** Load a specific map by id from IndexedDB */
   async loadMap(mapId: string): Promise<TestingMap | null> {
-    if (!isSupabaseConfigured) return null;
-
-    const { data, error } = await supabase
-      .from("testing_maps")
-      .select("id, user_id, name, nodes, edges, updated_at")
-      .eq("id", mapId)
-      .single();
-
-    if (error && error.code !== "PGRST116") {
-      throw error;
-    }
-    return data;
+    const db = await getDB();
+    return db[mapId] || null;
   },
 
   /** Delete a map by id */
   async deleteMap(mapId: string): Promise<void> {
-    if (!isSupabaseConfigured) {
-      throw new Error("Supabase is not configured. Cannot delete.");
+    const db = await getDB();
+    if (db[mapId]) {
+      delete db[mapId];
+      await saveDB(db);
     }
-
-    const { error } = await supabase
-      .from("testing_maps")
-      .delete()
-      .eq("id", mapId);
-
-    if (error) throw error;
   },
 
-  /** Rename a map */
+  /** Rename a local map */
   async renameMap(mapId: string, name: string): Promise<void> {
-    if (!isSupabaseConfigured) {
-      throw new Error("Supabase is not configured. Cannot rename.");
+    const db = await getDB();
+    if (db[mapId]) {
+      db[mapId].name = name;
+      db[mapId].updated_at = new Date().toISOString();
+      await saveDB(db);
+    } else {
+      throw new Error("Cannot rename: Map not found in local storage.");
     }
-
-    const { error } = await supabase
-      .from("testing_maps")
-      .update({ name })
-      .eq("id", mapId);
-
-    if (error) throw error;
   },
 };

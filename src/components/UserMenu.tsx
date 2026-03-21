@@ -1,24 +1,18 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { LogOut, ChevronDown, Sun, Moon } from "lucide-react";
+import { ChevronDown, Sun, Moon, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useUI } from "@/context/UIContext";
 import { useTheme } from "next-themes";
-import type { User as SupabaseUser } from "@supabase/supabase-js";
 
-interface UserMenuProps {
-  user: SupabaseUser;
-  onSignOut: () => void;
-}
-
-export function UserMenu({ user, onSignOut }: UserMenuProps) {
+export function UserMenu() {
   const { openDropdown, setOpenDropdown } = useUI();
   const { theme, setTheme } = useTheme();
   const isOpen = openDropdown === "user";
 
-  const initials = user.email ? user.email.substring(0, 2).toUpperCase() : "U";
+  const initials = "LW";
 
   return (
     <DropdownMenu.Root
@@ -31,7 +25,7 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
             "flex items-center gap-1.5 p-1 rounded-full hover:bg-white/5 transition-all outline-none group",
             isOpen && "bg-white/10"
           )}
-          aria-label="User menu"
+          aria-label="App settings"
         >
           <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[11px] font-bold text-black shadow-sm group-hover:bg-white/90 transition-all border border-black/5">
             {initials}
@@ -62,10 +56,10 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
               >
                 <DropdownMenu.Label className="p-4 border-b border-white/5 bg-white/[0.02]">
                   <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-widest mb-1">
-                    Account
+                    Environment
                   </p>
                   <p className="text-sm font-semibold text-foreground truncate">
-                    {user.email}
+                    Local Workspace
                   </p>
                 </DropdownMenu.Label>
 
@@ -73,7 +67,7 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
                   <div className="flex items-center justify-between px-3 py-2 text-[13px] font-medium text-muted-foreground/80">
                     <div className="flex items-center gap-3">
                       {theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-                      Theme
+                      Appearance
                     </div>
                     <button
                       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -91,11 +85,11 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
                   <div className="h-px bg-white/5 my-1" />
 
                   <DropdownMenu.Item
-                    onSelect={onSignOut}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-red-400/80 hover:bg-red-400/10 rounded-xl transition-all group/logout cursor-pointer outline-none data-[highlighted]:bg-red-400/10"
+                    disabled
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-muted-foreground/40 rounded-xl transition-all cursor-default outline-none"
                   >
-                    <LogOut className="w-4 h-4 text-red-400/60 group-hover/logout:text-red-400 transition-colors" />
-                    Sign Out
+                    <Settings className="w-4 h-4" />
+                    Advanced Settings
                   </DropdownMenu.Item>
                 </div>
               </motion.div>

@@ -24,13 +24,12 @@ import type { Node } from "@xyflow/react";
 import type { ScenarioData } from "@/lib/types";
 
 interface MapDropdownProps {
-  userId: string;
   activeMapId: string | null;
   onSelectMap: (mapId: string) => void;
 }
 
-export function MapDropdown({ userId, activeMapId, onSelectMap }: MapDropdownProps) {
-  const { maps, loading, isImporting, isDuplicating, isRenaming, deleteMap, duplicateMap, renameMap, importMap, saveMapData } = useMaps(userId);
+export function MapDropdown({ activeMapId, onSelectMap }: MapDropdownProps) {
+  const { maps, loading, isImporting, isDuplicating, isRenaming, deleteMap, duplicateMap, renameMap, importMap, saveMapData } = useMaps();
   const { openDropdown, setOpenDropdown, setIsHeroHidden, showImport, setShowImport, showNewMapModal, setShowNewMapModal } = useUI();
   const isOpen = openDropdown === "map";
 

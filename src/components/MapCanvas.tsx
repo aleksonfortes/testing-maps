@@ -86,14 +86,12 @@ const nodeTypes = { scenario: ScenarioNode };
 // ---------------------------------------------------------------------------
 interface MapCanvasProps {
   mapId: string;
-  userId: string;
-  onSignOut: () => void;
 }
 
-export function MapCanvas({ mapId, userId, onSignOut }: MapCanvasProps) {
+export function MapCanvas({ mapId }: MapCanvasProps) {
   return (
     <ReactFlowProvider>
-      <MapCanvasInner key={mapId} mapId={mapId} userId={userId} onSignOut={onSignOut} />
+      <MapCanvasInner key={mapId} mapId={mapId} />
     </ReactFlowProvider>
   );
 }

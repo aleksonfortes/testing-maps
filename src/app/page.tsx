@@ -3,40 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { BetaBadge, BetaWarning } from "@/components/BetaBadge";
 
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-
-export default async function Home() {
-  const cookieStore = await cookies();
-  const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === "true";
-  const hasSupabase =
-    !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  let isLoggedIn = false;
-
-  if (!isTestMode && hasSupabase) {
-    try {
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          cookies: {
-            getAll() {
-              return cookieStore.getAll();
-            },
-          },
-        }
-      );
-      const { data: { session } } = await supabase.auth.getSession();
-      isLoggedIn = !!session;
-    } catch (e) {
-      console.error("Supabase init failed on home page:", e);
-    }
-  }
-
-
-
+export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-background text-foreground">
       {/* Background decoration */}
@@ -50,8 +17,8 @@ export default async function Home() {
           <span>Testing Maps</span>
           <BetaBadge className="absolute -top-1 -right-10" />
         </div>
-        <Link href={isLoggedIn ? "/workspace" : "/auth"} className="text-sm font-medium hover:text-primary transition-colors">
-          {isLoggedIn ? "Go to Workspace" : "Sign In"}
+        <Link href="/workspace" className="text-sm font-medium hover:text-primary transition-colors">
+          Go to Workspace
         </Link>
       </nav>
 
@@ -67,10 +34,10 @@ export default async function Home() {
 
         <div className="flex flex-col items-center gap-6 pt-8">
           <Link
-            href={isLoggedIn ? "/workspace" : "/auth"}
+            href="/workspace"
             className="flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition-all group"
           >
-            {isLoggedIn ? "Go to Workspace" : "Get Started"}
+            Get Started
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           
