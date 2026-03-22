@@ -9,7 +9,7 @@ test.describe("Workspace UI Spec", () => {
     await workspace.goto();
   });
 
-  test("should show empty state initially", async ({ page }) => {
+  test("should show empty state initially", async () => {
     await workspace.expectHeroVisible();
     await expect(workspace.mapDropdown).toContainText(/select a map/i);
   });

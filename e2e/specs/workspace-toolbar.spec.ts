@@ -38,7 +38,7 @@ test.describe("Export Modal", () => {
     await workspace.goto();
   });
 
-  test("export modal should have copy and download buttons", async ({ page }) => {
+  test("export modal should have copy and download buttons", async () => {
     // We can verify the modal structure by checking the import modal since
     // export requires an active map. Verify import modal structure instead.
     await workspace.openMapDropdown();

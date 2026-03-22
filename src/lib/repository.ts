@@ -1,6 +1,6 @@
 import { get, set } from "idb-keyval";
 import type { Node, Edge } from "@xyflow/react";
-import type { TestingMap, TestingMapListItem, ScenarioData, ScenarioNode, ScenarioEdge } from "./types";
+import type { TestingMap, TestingMapListItem, ScenarioNode, ScenarioEdge } from "./types";
 import { TestingMapSchema } from "./types";
 
 const MAX_PAYLOAD_SIZE = 50 * 1024 * 1024; // Expanded to 50MB for local storage
@@ -41,7 +41,8 @@ export function sanitizeForStorage(nodes: Node[], edges: Edge[]) {
 
 export const testingMapRepository = {
   /** List all local maps, ordered by most recently updated */
-  async listMaps(userId: string): Promise<TestingMapListItem[]> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async listMaps(_userId: string): Promise<TestingMapListItem[]> {
     const db = await getDB();
     const maps = Object.values(db).map((map) => {
       // Validate map structure to avoid showing corrupted maps

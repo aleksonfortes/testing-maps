@@ -34,6 +34,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem("tm:activeFilters");
       if (stored) {
+        // eslint-disable-next-line
         setActiveFilters(JSON.parse(stored) as DisplayFilter[]);
       }
     } catch { /* ignore */ }
