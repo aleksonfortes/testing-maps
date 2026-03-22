@@ -109,12 +109,18 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [markdownSnapshot, setMarkdownSnapshot] = useState("");
 
-  const [collapsed, setCollapsed] = useState<Set<string>>(() => {
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [isCollapsedHydrated, setIsCollapsedHydrated] = useState(false);
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem(`collapsed:${mapId}`);
-      return stored ? new Set(JSON.parse(stored) as string[]) : new Set();
-    } catch { return new Set(); }
-  });
+      if (stored) {
+        setCollapsed(new Set(JSON.parse(stored) as string[]));
+      }
+    } catch { /* ignore */ }
+    setIsCollapsedHydrated(true);
+  }, [mapId]);
   const nodesRef = useRef(nodes);
   nodesRef.current = nodes;
   const actionsRef = useRef<MapActions>({
@@ -222,10 +228,11 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
 
   // Persist collapse state to localStorage
   useEffect(() => {
+    if (!isCollapsedHydrated) return;
     try {
       localStorage.setItem(`collapsed:${mapId}`, JSON.stringify([...collapsed]));
     } catch { /* localStorage full or unavailable */ }
-  }, [collapsed, mapId]);
+  }, [collapsed, mapId, isCollapsedHydrated]);
 
   const collapseAll = useCallback(() => {
     const parentIds = new Set(edges.map((e) => e.source));

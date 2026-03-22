@@ -27,12 +27,18 @@ interface UIContextType {
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export function UIProvider({ children }: { children: ReactNode }) {
-  const [activeFilters, setActiveFilters] = useState<DisplayFilter[]>(() => {
+  const [activeFilters, setActiveFilters] = useState<DisplayFilter[]>(["testType"]);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem("tm:activeFilters");
-      return stored ? (JSON.parse(stored) as DisplayFilter[]) : ["testType"];
-    } catch { return ["testType"]; }
-  });
+      if (stored) {
+        setActiveFilters(JSON.parse(stored) as DisplayFilter[]);
+      }
+    } catch { /* ignore */ }
+    setIsHydrated(true);
+  }, []);
   const viewMode = "mindmap" as const;
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"canvas" | "details">("canvas");
@@ -50,9 +56,10 @@ export function UIProvider({ children }: { children: ReactNode }) {
 
   // Persist filter preferences
   useEffect(() => {
+    if (!isHydrated) return;
     try { localStorage.setItem("tm:activeFilters", JSON.stringify(activeFilters)); }
     catch { /* localStorage unavailable */ }
-  }, [activeFilters]);
+  }, [activeFilters, isHydrated]);
 
   return (
     <UIContext.Provider

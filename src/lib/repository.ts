@@ -1,6 +1,7 @@
 import { get, set } from "idb-keyval";
 import type { Node, Edge } from "@xyflow/react";
-import type { TestingMap, TestingMapListItem } from "./types";
+import type { TestingMap, TestingMapListItem, ScenarioData, ScenarioNode, ScenarioEdge } from "./types";
+import { TestingMapSchema } from "./types";
 
 const MAX_PAYLOAD_SIZE = 50 * 1024 * 1024; // Expanded to 50MB for local storage
 
@@ -42,11 +43,21 @@ export const testingMapRepository = {
   /** List all local maps, ordered by most recently updated */
   async listMaps(userId: string): Promise<TestingMapListItem[]> {
     const db = await getDB();
-    const maps = Object.values(db).map((map) => ({
-      id: map.id,
-      name: map.name,
-      updated_at: map.updated_at || new Date().toISOString(),
-    }));
+    const maps = Object.values(db).map((map) => {
+      // Validate map structure to avoid showing corrupted maps
+      const parsed = TestingMapSchema.safeParse(map);
+      if (!parsed.success) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(`Map data corrupted for ID: ${map.id}`, parsed.error);
+        }
+        return null;
+      }
+      return {
+        id: map.id,
+        name: map.name,
+        updated_at: map.updated_at || new Date().toISOString(),
+      };
+    }).filter(Boolean) as TestingMapListItem[];
 
     return maps.sort(
       (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
@@ -86,8 +97,8 @@ export const testingMapRepository = {
       id: newId,
       user_id: "local-user",
       name,
-      nodes: cleanNodes as any,
-      edges: cleanEdges as any,
+      nodes: cleanNodes as ScenarioNode[],
+      edges: cleanEdges as ScenarioEdge[],
       updated_at: new Date().toISOString(),
     };
 
@@ -113,8 +124,8 @@ export const testingMapRepository = {
 
     db[mapId] = {
       ...db[mapId],
-      nodes: cleanNodes as any,
-      edges: cleanEdges as any,
+      nodes: cleanNodes as ScenarioNode[],
+      edges: cleanEdges as ScenarioEdge[],
       updated_at: new Date().toISOString(),
     };
 
@@ -124,7 +135,16 @@ export const testingMapRepository = {
   /** Load a specific map by id from IndexedDB */
   async loadMap(mapId: string): Promise<TestingMap | null> {
     const db = await getDB();
-    return db[mapId] || null;
+    const map = db[mapId];
+    if (!map) return null;
+
+    const parsed = TestingMapSchema.safeParse(map);
+    if (!parsed.success) {
+      console.error("Failed to parse map from local storage:", parsed.error);
+      throw new Error("Map data is corrupted.");
+    }
+
+    return parsed.data as TestingMap;
   },
 
   /** Delete a map by id */
