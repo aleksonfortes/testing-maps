@@ -63,7 +63,7 @@ npm run test:e2e:ui
 
 ### Testing Map
 For a complete overview of all testing scenarios, instructions, and codebase links, see:
-[**Testing Scenarios Map**](testing-scenarios.md)
+[**Testing Scenarios Map Example**](public/testing-scenarios-example.md)
 
 ---
 
