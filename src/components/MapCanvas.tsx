@@ -646,6 +646,8 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
               selectionMode={SelectionMode.Partial}
               multiSelectionKeyCode="Shift"
               fitView
+              minZoom={0.05}
+              maxZoom={2}
               fitViewOptions={{ padding: { top: 0.4, bottom: 0.4, left: 0.1, right: 0.1 } }}
               className="bg-background"
             >
