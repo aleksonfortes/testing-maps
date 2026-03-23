@@ -113,7 +113,11 @@ export function useDragReparent({
       const target = findDropTarget(draggedNode, allNodes, allEdges);
 
       if (!target) {
-        // No reparent — don't push a snapshot (avoids duplicates on simple clicks)
+        // No reparent — but we still want to save the new position!
+        // ReactFlow already updated positions in the local 'nodes' state via onNodesChange,
+        // but we should push a snapshot to mark the end of the action for Undo/Redo
+        // and to guarantee a persistence save.
+        pushSnapshot(allNodes, allEdges);
         return;
       }
 
@@ -121,13 +125,15 @@ export function useDragReparent({
         (e) => e.target === draggedNode.id && e.source === target.id
       );
       if (existingParentEdge) {
-        // Already a child of this target — no-op, don't push snapshot
+        // Already a child of this target — just save position
+        pushSnapshot(allNodes, allEdges);
         return;
       }
 
       // Prevent circular dependency: reject if target is a descendant of dragged node
       const descendants = getDescendants(draggedNode.id, allEdges);
       if (descendants.has(target.id)) {
+        pushSnapshot(allNodes, allEdges);
         return;
       }
 
@@ -143,12 +149,10 @@ export function useDragReparent({
       };
       newEdges.push(newEdge);
 
-      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(allNodes, newEdges, "LR");
-      const styledEdges = lEdges.map((e) => ({ ...e, type: "smoothstep", animated: true }));
-
-      setNodes(lNodes);
-      setEdges(styledEdges);
-      pushSnapshot(lNodes, styledEdges);
+      // NO automatic layout here! We keep the manual positions.
+      // We just update the state and push a snapshot.
+      setEdges(newEdges);
+      pushSnapshot(allNodes, newEdges);
 
       const draggedLabel = (draggedNode.data as ScenarioData).label ?? "Node";
       const targetLabel = (target.data as ScenarioData).label ?? "Node";

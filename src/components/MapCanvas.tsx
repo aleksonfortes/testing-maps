@@ -203,12 +203,9 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
       const updatedNodes = [...currentNodes.map((n) => ({ ...n, selected: false })), newNode];
       const updatedEdges = newEdge ? [...currentEdges, newEdge] : currentEdges;
 
-      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(updatedNodes, updatedEdges, "LR");
-      const styledEdges = lEdges.map((e) => ({ ...e, type: "smoothstep", animated: true }));
-
-      setNodes(lNodes);
-      setEdges(styledEdges);
-      pushSnapshot(lNodes, styledEdges);
+      setNodes(updatedNodes);
+      setEdges(updatedEdges);
+      pushSnapshot(updatedNodes, updatedEdges);
       setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS, padding: 0.4 }), FIT_VIEW_DELAY_MS);
     },
     [getNodes, getEdges, setNodes, setEdges, pushSnapshot, fitView]
@@ -417,19 +414,11 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
           }
         : null;
 
-      // Separate visible and hidden nodes for layout
+      // Separate visible and hidden nodes
       const visibleUpdated: Node[] = [...currentNodes.filter((n) => !n.hidden).map((n) => ({ ...n, selected: false })), newNode];
       const hiddenNodes = currentNodes.filter((n) => n.hidden);
-      const visibleEdgesForLayout = currentEdges.filter((e) => !e.hidden);
-      const updatedEdges: Edge[] = newEdge ? [...visibleEdgesForLayout, newEdge] : visibleEdgesForLayout;
-      const hiddenEdges = currentEdges.filter((e) => e.hidden);
-
-      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(visibleUpdated, updatedEdges, "LR");
-      const styledEdges = lEdges.map((e) => ({ ...e, type: "smoothstep", animated: true }));
-
-      // Merge back: laid-out visible + unchanged hidden
-      const mergedNodes = [...lNodes, ...hiddenNodes.map((n) => ({ ...n, selected: false }))];
-      const mergedEdges = [...styledEdges, ...hiddenEdges];
+      const mergedNodes = [...visibleUpdated, ...hiddenNodes.map((n) => ({ ...n, selected: false }))];
+      const mergedEdges = newEdge ? [...currentEdges, newEdge] : currentEdges;
 
       setNodes(mergedNodes);
       setEdges(mergedEdges);

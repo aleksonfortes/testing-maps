@@ -98,11 +98,18 @@ export function usePersistence({
 
     const timer = setTimeout(saveData, SAVE_DEBOUNCE_MS);
     saveTimerRef.current = timer;
+
     return () => {
       clearTimeout(timer);
       saveTimerRef.current = null;
+      
+      // Flush pending changes on unmount (e.g. page refresh)
+      if (hasPendingSaveRef.current) {
+        testingMapRepository.saveMap(mapId, getNodes(), getEdges()).catch(() => {});
+        hasPendingSaveRef.current = false;
+      }
     };
-  }, [nodes, edges, loadedFromStorage, mapId]);
+  }, [nodes, edges, loadedFromStorage, mapId, getNodes, getEdges]);
 
   // Warn on unload if there are pending changes
   useEffect(() => {
