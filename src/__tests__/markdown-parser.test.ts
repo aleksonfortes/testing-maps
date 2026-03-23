@@ -233,11 +233,15 @@ describe("parseMarkdown — indentation", () => {
 // Heading Handling
 // ===========================================================================
 describe("parseMarkdown — headings", () => {
-  it("skips the default title line '# Testing Map...'", () => {
+  it("parses '# Testing Map...' heading as root node", () => {
     const md = "# Testing Map Export\n\n- **Node** [VERIFIED] (e2e)";
-    const { nodes } = parseMarkdown(md);
-    expect(nodes).toHaveLength(1);
-    expect(nodes[0].data.label).toBe("Node");
+    const { nodes, edges } = parseMarkdown(md);
+    expect(nodes).toHaveLength(2);
+    expect(nodes[0].data.label).toBe("Testing Map Export");
+    expect(nodes[1].data.label).toBe("Node");
+    expect(edges).toHaveLength(1);
+    expect(edges[0].source).toBe(nodes[0].id);
+    expect(edges[0].target).toBe(nodes[1].id);
   });
 
   it("treats custom headings as root nodes", () => {
@@ -343,11 +347,11 @@ describe("parseMarkdown — edge properties", () => {
     const md = "- **A** [VERIFIED] (e2e)\n  - **B** [UNTESTED] (manual)";
     const { edges } = parseMarkdown(md);
     expect(edges[0]).toMatchObject({
-      sourceHandle: "source",
-      targetHandle: "target",
       animated: true,
-      type: "smoothstep",
+      type: "floating",
     });
+    expect(edges[0]).not.toHaveProperty("sourceHandle");
+    expect(edges[0]).not.toHaveProperty("targetHandle");
   });
 
   it("edge IDs are unique", () => {

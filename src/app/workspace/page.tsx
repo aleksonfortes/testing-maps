@@ -146,7 +146,7 @@ function WorkspaceContent({
                     <span>Edit details</span>
                   </span>
                   <span className="flex items-center gap-2">
-                    <kbd className="inline-flex items-center gap-0.5 justify-center min-w-[2rem] px-1.5 py-0.5 bg-white/5 rounded-md font-mono text-[11px] border border-white/10">{modKey}Z</kbd>
+                    <kbd suppressHydrationWarning className="inline-flex items-center gap-0.5 justify-center min-w-[2rem] px-1.5 py-0.5 bg-white/5 rounded-md font-mono text-[11px] border border-white/10">{modKey}Z</kbd>
                     <span>Undo / Redo</span>
                   </span>
                 </div>

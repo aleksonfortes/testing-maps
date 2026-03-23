@@ -27,13 +27,11 @@ export function sanitizeForStorage(nodes: Node[], edges: Edge[]) {
     void isDropTarget; // Satisfy no-unused-vars
     return { id, type, data: cleanData, position, width, height };
   });
-  const cleanEdges = edges.map(({ id, source, target, sourceHandle, targetHandle, type, animated }) => ({
+  const cleanEdges = edges.map(({ id, source, target, animated }) => ({
     id,
     source,
     target,
-    sourceHandle,
-    targetHandle,
-    type,
+    type: "floating" as const,
     animated,
   }));
   return { cleanNodes, cleanEdges };
@@ -145,7 +143,18 @@ export const testingMapRepository = {
       throw new Error("Map data is corrupted.");
     }
 
-    return parsed.data as TestingMap;
+    const result = parsed.data as TestingMap;
+
+    // Migrate edges: ensure "floating" type and clear handle IDs
+    // (FloatingEdge calculates positions dynamically via useInternalNode)
+    result.edges = result.edges.map((e) => ({
+      ...e,
+      type: "floating",
+      sourceHandle: undefined,
+      targetHandle: undefined,
+    }));
+
+    return result;
   },
 
   /** Delete a map by id */

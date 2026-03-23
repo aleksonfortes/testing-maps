@@ -80,14 +80,14 @@ describe("sanitizeForStorage", () => {
       id: "e-1-2",
       source: "1",
       target: "2",
-      sourceHandle: "source",
-      targetHandle: "target",
-      type: "smoothstep",
+      type: "floating",
       animated: true,
     });
-    // Should NOT have selected or hidden
+    // Should NOT have selected, hidden, or handle IDs
     expect(cleanEdges[0]).not.toHaveProperty("selected");
     expect(cleanEdges[0]).not.toHaveProperty("hidden");
+    expect(cleanEdges[0]).not.toHaveProperty("sourceHandle");
+    expect(cleanEdges[0]).not.toHaveProperty("targetHandle");
   });
 
   it("only keeps id, type, data, position from nodes", () => {

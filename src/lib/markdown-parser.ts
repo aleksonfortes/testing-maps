@@ -77,9 +77,8 @@ export function parseMarkdown(markdown: string): { nodes: Node<ScenarioData>[]; 
   let currentNode: ParsedNode | null = null;
 
   for (const line of lines) {
-    // Skip empty lines and the title
+    // Skip empty lines
     if (!line.trim()) continue;
-    if (/^#\s+Testing Map/.test(line)) continue;
 
     // Match heading as root node
     const headingMatch = line.match(/^(#{1,6})\s+(.+)/);
@@ -211,10 +210,8 @@ export function parseMarkdown(markdown: string): { nodes: Node<ScenarioData>[]; 
       id: `e-${crypto.randomUUID()}`,
       source: pn.parentId!,
       target: pn.id,
-      sourceHandle: "source",
-      targetHandle: "target",
       animated: true,
-      type: "smoothstep",
+      type: "floating",
     }));
 
   return { nodes, edges };

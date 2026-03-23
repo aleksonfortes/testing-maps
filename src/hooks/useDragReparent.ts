@@ -142,8 +142,6 @@ export function useDragReparent({
         id: `e-${crypto.randomUUID()}`,
         source: target.id,
         target: draggedNode.id,
-        sourceHandle: "source",
-        targetHandle: "target",
         animated: true,
         type: "floating",
       };

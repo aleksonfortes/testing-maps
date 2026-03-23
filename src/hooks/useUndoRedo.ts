@@ -24,12 +24,10 @@ function cleanNodes(nodes: Node[]): Node[] {
 }
 
 function cleanEdges(edges: Edge[]): Edge[] {
-  return edges.map(({ id, source, target, sourceHandle, targetHandle, type, animated }) => ({
+  return edges.map(({ id, source, target, type, animated }) => ({
     id,
     source,
     target,
-    sourceHandle,
-    targetHandle,
     type,
     animated,
   }));

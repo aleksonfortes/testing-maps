@@ -199,7 +199,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
       // Find parent edge and create one for the duplicate too
       const parentEdge = currentEdges.find((e) => e.target === id);
       const newEdge: Edge | null = parentEdge
-        ? { id: `e-${crypto.randomUUID()}`, source: parentEdge.source, target: newId, sourceHandle: "source", targetHandle: "target", animated: true, type: "floating" }
+        ? { id: `e-${crypto.randomUUID()}`, source: parentEdge.source, target: newId, animated: true, type: "floating" }
         : null;
 
       const updatedNodes = [...currentNodes.map((n) => ({ ...n, selected: false })), newNode];
@@ -308,8 +308,6 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
         ...params,
         id: `e-${crypto.randomUUID()}`,
         animated: true,
-        sourceHandle: "source",
-        targetHandle: "target",
         type: "floating",
       };
       setEdges((eds) => {
@@ -409,8 +407,6 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
             id: `e-${crypto.randomUUID()}`,
             source: selectedNode.id,
             target: id,
-            sourceHandle: "source",
-            targetHandle: "target",
             animated: true,
             type: "floating",
           }

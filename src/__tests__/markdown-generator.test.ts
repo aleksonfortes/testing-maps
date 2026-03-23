@@ -128,18 +128,19 @@ describe("generateMarkdown — sub-fields", () => {
 // Nested Tree
 // ===========================================================================
 describe("generateMarkdown — nested tree", () => {
-  it("indents children by 2 spaces", () => {
+  it("single root becomes heading, children at level 0", () => {
     const nodes = [
       makeNode("1", { label: "Root" }),
       makeNode("2", { label: "Child" }),
     ];
     const edges = [makeEdge("1", "2")];
     const result = generateMarkdown(nodes, edges);
-    expect(result).toContain("- **Root**");
-    expect(result).toContain("  - **Child**");
+    expect(result).toContain("# Root");
+    expect(result).not.toContain("- **Root**");
+    expect(result).toContain("- **Child**");
   });
 
-  it("indents grandchildren by 4 spaces", () => {
+  it("indents grandchildren by 2 spaces under heading root", () => {
     const nodes = [
       makeNode("1", { label: "Root" }),
       makeNode("2", { label: "Child" }),
@@ -147,7 +148,9 @@ describe("generateMarkdown — nested tree", () => {
     ];
     const edges = [makeEdge("1", "2"), makeEdge("2", "3")];
     const result = generateMarkdown(nodes, edges);
-    expect(result).toContain("    - **Grandchild**");
+    expect(result).toContain("# Root");
+    expect(result).toContain("- **Child**");
+    expect(result).toContain("  - **Grandchild**");
   });
 
   it("handles multiple root nodes", () => {
