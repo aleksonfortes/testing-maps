@@ -68,9 +68,6 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
   const Icon = status.icon;
   const TypeIcon = type.icon;
 
-  const finalTargetPos = targetPosition || Position.Left;
-  const finalSourcePos = sourcePosition || Position.Right;
-
   const isDropTarget = !!data.isDropTarget;
   // eslint-disable-next-line react-hooks/refs
   const isCollapsed = actionsRef.current.isCollapsed(id);
@@ -83,14 +80,6 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
   const showInstructions = activeFilters.includes("instructions");
   const showTestType = activeFilters.includes("testType");
   const showCodeRef = activeFilters.includes("codeReference");
-
-  const handlePositionStyle = (pos: Position) => ({
-    position: "absolute" as const,
-    top: pos === Position.Top ? 0 : pos === Position.Bottom ? "100%" : "50%",
-    left: pos === Position.Left ? 0 : pos === Position.Right ? "100%" : "50%",
-    transform: "translate(-50%, -50%)",
-    zIndex: 100,
-  });
 
   // Auto-focus first menu item when context menu opens
   useEffect(() => {
@@ -142,28 +131,15 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
       />
       {/* Handles — invisible but required for ReactFlow edge connections.
            Inline styles override ReactFlow's min-width/min-height/background defaults. */}
-      <Handle
-        id="target"
-        type="target"
-        position={finalTargetPos}
-        style={{
-          ...handlePositionStyle(finalTargetPos),
-          width: 0, height: 0, minWidth: 0, minHeight: 0,
-          background: "transparent", border: "none", padding: 0,
-          opacity: 0, visibility: "hidden" as const, overflow: "hidden",
-        }}
-      />
-      <Handle
-        id="source"
-        type="source"
-        position={finalSourcePos}
-        style={{
-          ...handlePositionStyle(finalSourcePos),
-          width: 0, height: 0, minWidth: 0, minHeight: 0,
-          background: "transparent", border: "none", padding: 0,
-          opacity: 0, visibility: "hidden" as const, overflow: "hidden",
-        }}
-      />
+      <Handle type="target" position={Position.Top} id="t" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Right} id="r" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Bottom} id="b" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Left} id="l" style={{ opacity: 0 }} />
+
+      <Handle type="source" position={Position.Top} id="s-t" style={{ opacity: 0 }} />
+      <Handle type="source" position={Position.Right} id="s-r" style={{ opacity: 0 }} />
+      <Handle type="source" position={Position.Bottom} id="s-b" style={{ opacity: 0 }} />
+      <Handle type="source" position={Position.Left} id="s-l" style={{ opacity: 0 }} />
 
       {/* Content */}
       <div

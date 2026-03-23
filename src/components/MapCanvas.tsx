@@ -27,6 +27,7 @@ import "@xyflow/react/dist/style.css";
 import { useUI } from "@/context/UIContext";
 import { getLayoutedElements } from "@/lib/layout";
 import { ScenarioNode } from "./nodes/ScenarioNode";
+import { FloatingEdge } from "./edges/FloatingEdge";
 import { ScenarioModal } from "./modals/ScenarioModal";
 import { MarkdownExport } from "./modals/MarkdownExport";
 import { KeyboardShortcutsModal } from "./modals/KeyboardShortcutsModal";
@@ -80,6 +81,7 @@ export function useMapActions() {
 // Node type registration (stable reference)
 // ---------------------------------------------------------------------------
 const nodeTypes = { scenario: ScenarioNode };
+const edgeTypes = { floating: FloatingEdge };
 
 // ---------------------------------------------------------------------------
 // Public wrapper
@@ -197,7 +199,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
       // Find parent edge and create one for the duplicate too
       const parentEdge = currentEdges.find((e) => e.target === id);
       const newEdge: Edge | null = parentEdge
-        ? { id: `e-${crypto.randomUUID()}`, source: parentEdge.source, target: newId, sourceHandle: "source", targetHandle: "target", animated: true, type: "smoothstep" }
+        ? { id: `e-${crypto.randomUUID()}`, source: parentEdge.source, target: newId, sourceHandle: "source", targetHandle: "target", animated: true, type: "floating" }
         : null;
 
       const updatedNodes = [...currentNodes.map((n) => ({ ...n, selected: false })), newNode];
@@ -308,7 +310,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
         animated: true,
         sourceHandle: "source",
         targetHandle: "target",
-        type: "smoothstep",
+        type: "floating",
       };
       setEdges((eds) => {
         const updated = addEdge(edge, eds);
@@ -349,7 +351,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
       const visible = allNodes.filter((n) => !n.hidden);
       const visibleEdges = allEdges.filter((e) => !e.hidden);
       const { nodes: lNodes, edges: lEdges } = getLayoutedElements(visible, visibleEdges, direction);
-      const styledEdges = lEdges.map((e) => ({ ...e, type: "smoothstep", animated: true }));
+      const styledEdges = lEdges.map((e) => ({ ...e, type: "floating", animated: true }));
 
       // Merge: laid-out visible nodes + unchanged hidden nodes
       const laidMap = new Map(lNodes.map((n) => [n.id, n]));
@@ -410,7 +412,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
             sourceHandle: "source",
             targetHandle: "target",
             animated: true,
-            type: "smoothstep",
+            type: "floating",
           }
         : null;
 
@@ -532,7 +534,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
         );
         const styledEdges = lEdges.map((e) => ({
           ...e,
-          type: "smoothstep",
+          type: "floating",
           animated: true,
         }));
 
@@ -622,6 +624,8 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
               nodes={displayNodes}
               edges={displayEdges}
               nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              defaultEdgeOptions={{ type: "floating" }}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}

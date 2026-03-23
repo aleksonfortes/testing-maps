@@ -145,7 +145,7 @@ export function useDragReparent({
         sourceHandle: "source",
         targetHandle: "target",
         animated: true,
-        type: "smoothstep",
+        type: "floating",
       };
       newEdges.push(newEdge);
 
