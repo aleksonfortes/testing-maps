@@ -434,15 +434,13 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
   // -----------------------------------------------------------------------
   const lastFiltersRef = useRef<string>("");
 
-  useEffect(() => {
-    if (!loadedFromStorage) return;
-    const filtersKey = [...activeFilters].sort().join(",");
-    if (filtersKey !== lastFiltersRef.current) {
-      lastFiltersRef.current = filtersKey;
-      setTimeout(() => onLayout("LR"), LAYOUT_DELAY);
-    }
-  }, [activeFilters, onLayout, loadedFromStorage]);
-
+  // -----------------------------------------------------------------------
+  // Layout Management (Manual only)
+  // -----------------------------------------------------------------------
+  // We no longer trigger auto-layout on filter changes to respect 
+  // manual node positions set by the user. 
+  // Users can click the LR/TB toggle in the toolbar to re-layout.
+  
   // -----------------------------------------------------------------------
   // Undo/Redo actions
   // -----------------------------------------------------------------------

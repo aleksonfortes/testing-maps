@@ -11,7 +11,7 @@ export const CHILD_VERTICAL_SPACING = 150;
 export const NEW_NODE_HORIZONTAL_OFFSET = 380;
 
 // Timing
-export const SAVE_DEBOUNCE_MS = 2000;
+export const SAVE_DEBOUNCE_MS = 500;
 export const LOAD_SETTLE_MS = 300;
 export const FIT_VIEW_DELAY_MS = 50;
 export const FIT_VIEW_DURATION_MS = 800;
