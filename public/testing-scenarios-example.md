@@ -2,118 +2,146 @@
 
 - **Workspace & Map Lifecycle** [UNTESTED] (manual)
   - *Instructions:* End-to-end lifecycle of testing maps within the local-first environment.
-  - **Create New Map** [VERIFIED] (e2e)
-    - *Instructions:* Open the map dropdown or use the Hero "New Map" button, enter a name, and submit.
-    - *Expected:* A new map ID is generated, entry appears in the list, and the canvas loads it.
-    - *Code:* `e2e/specs/workspace-features.spec.ts`
-  - **Switch Active Map** [VERIFIED] (e2e)
-    - *Instructions:* Select a different map from the dropdown list.
-    - *Expected:* The URL updates (if applicable) and the canvas reflects the new nodes/edges instantly.
-    - *Code:* `e2e/specs/workspace-features.spec.ts`
-  - **Rename Map** [UNTESTED] (manual)
-    - *Instructions:* Click the "Rename" icon in the map dropdown for an entry.
-    - *Expected:* The name updates in the IndexedDB and the UI reflects the change immediately.
-  - **Duplicate Map** [UNTESTED] (manual)
-    - *Instructions:* Click "Duplicate" in the map dropdown menu.
-    - *Expected:* A full clone of the map is created with a "(Copy)" suffix. All nodes/edges are preserved.
-  - **Delete Active Map** [UNTESTED] (manual)
-    - *Instructions:* Delete the map you are currently viewing.
-    - *Expected:* The map is removed from storage, and the UI redirects to the "Select a Map" empty state.
-  - **Empty Workspace Hero** [VERIFIED] (e2e)
-    - *Instructions:* Visit `/workspace` with no active map.
-    - *Expected:* The "Testing in the Age of AI" hero island is visible with CTA buttons.
-    - *Code:* `e2e/specs/workspace-ui.spec.ts`
+  - **Map CRUD** [UNTESTED] (manual)
+    - *Instructions:* Create, read, update, and delete operations on maps.
+    - **Create New Map** [VERIFIED] (e2e)
+      - *Instructions:* Open the map dropdown or use the Hero "New Map" button, enter a name, and submit.
+      - *Expected:* A new map ID is generated, entry appears in the list, and the canvas loads it.
+      - *Code:* `e2e/specs/workspace-features.spec.ts`
+    - **Rename Map** [UNTESTED] (manual)
+      - *Instructions:* Click the "Rename" icon in the map dropdown for an entry.
+      - *Expected:* The name updates in the IndexedDB and the UI reflects the change immediately.
+    - **Duplicate Map** [UNTESTED] (manual)
+      - *Instructions:* Click "Duplicate" in the map dropdown menu.
+      - *Expected:* A full clone of the map is created with a "(Copy)" suffix. All nodes/edges are preserved.
+    - **Delete Active Map** [UNTESTED] (manual)
+      - *Instructions:* Delete the map you are currently viewing.
+      - *Expected:* The map is removed from storage, and the UI redirects to the "Select a Map" empty state.
+  - **Map Navigation** [UNTESTED] (manual)
+    - *Instructions:* Switching between maps and workspace states.
+    - **Switch Active Map** [VERIFIED] (e2e)
+      - *Instructions:* Select a different map from the dropdown list.
+      - *Expected:* The URL updates (if applicable) and the canvas reflects the new nodes/edges instantly.
+      - *Code:* `e2e/specs/workspace-features.spec.ts`
+    - **Empty Workspace Hero** [VERIFIED] (e2e)
+      - *Instructions:* Visit `/workspace` with no active map.
+      - *Expected:* The "Testing in the Age of AI" hero island is visible with CTA buttons.
+      - *Code:* `e2e/specs/workspace-ui.spec.ts`
 
 - **Advanced Markdown Engine** [UNTESTED] (manual)
   - *Instructions:* Scenarios for the parser/generator logic and data exchange.
-  - **Valid Import (Standard)** [VERIFIED] (e2e)
-    - *Instructions:* Paste a standard `- **Scenario** [STATUS] (type)` markdown structure.
-    - *Expected:* Hierarchical graph is built with correct statuses and test types.
-    - *Code:* `e2e/specs/workspace-import.spec.ts`
-  - **Deep Nesting (>5 levels)** [VERIFIED] (e2e)
-    - *Instructions:* Import markdown with extreme indentation levels.
-    - *Expected:* The graph remains navigable; edges correctly connect deeply nested children.
-    - *Code:* `e2e/specs/workspace-import-edge-cases.spec.ts`
-  - **Tab vs Space Indentation** [VERIFIED] (unit)
-    - *Instructions:* Test markdown files using `\t` vs `  ` (2 spaces) vs `    ` (4 spaces).
-    - *Expected:* `detectIndentUnit` accurately identifies the pattern and preserves hierarchy.
-    - *Code:* `src/__tests__/markdown-parser.test.ts`
-  - **Import Mode: Replace** [VERIFIED] (e2e)
-    - *Instructions:* Use "Replace Current Map" toggle in the Import Modal.
-    - *Expected:* The active map's content is overwritten completely. Undo history is preserved.
-    - *Code:* `e2e/specs/workspace-import.spec.ts`
-  - **Import Mode: Create** [VERIFIED] (e2e)
-    - *Instructions:* Use "Create New Map" toggle (default) in the Import Modal.
-    - *Expected:* A brand new map entry is created in the database.
-    - *Code:* `e2e/specs/workspace-import.spec.ts`
-  - **Export to Markdown** [VERIFIED] (e2e)
-    - *Instructions:* Open Export Dialog and click "Copy" or "Download".
-    - *Expected:* Generated markdown perfectly matches the canvas structure and metadata.
-    - *Code:* `e2e/specs/workspace-toolbar.spec.ts`
+  - **Import** [UNTESTED] (manual)
+    - *Instructions:* Importing markdown into the app.
+    - **Valid Import (Standard)** [VERIFIED] (e2e)
+      - *Instructions:* Paste a standard `- **Scenario** [STATUS] (type)` markdown structure.
+      - *Expected:* Hierarchical graph is built with correct statuses and test types.
+      - *Code:* `e2e/specs/workspace-import.spec.ts`
+    - **Deep Nesting (>5 levels)** [VERIFIED] (e2e)
+      - *Instructions:* Import markdown with extreme indentation levels.
+      - *Expected:* The graph remains navigable; edges correctly connect deeply nested children.
+      - *Code:* `e2e/specs/workspace-import-edge-cases.spec.ts`
+    - **Tab vs Space Indentation** [VERIFIED] (unit)
+      - *Instructions:* Test markdown files using `\t` vs `  ` (2 spaces) vs `    ` (4 spaces).
+      - *Expected:* `detectIndentUnit` accurately identifies the pattern and preserves hierarchy.
+      - *Code:* `src/__tests__/markdown-parser.test.ts`
+  - **Import Modes** [UNTESTED] (manual)
+    - *Instructions:* Different ways to bring markdown into the workspace.
+    - **Import Mode: Replace** [VERIFIED] (e2e)
+      - *Instructions:* Use "Replace Current Map" toggle in the Import Modal.
+      - *Expected:* The active map's content is overwritten completely. Undo history is preserved.
+      - *Code:* `e2e/specs/workspace-import.spec.ts`
+    - **Import Mode: Create** [VERIFIED] (e2e)
+      - *Instructions:* Use "Create New Map" toggle (default) in the Import Modal.
+      - *Expected:* A brand new map entry is created in the database.
+      - *Code:* `e2e/specs/workspace-import.spec.ts`
+  - **Export** [UNTESTED] (manual)
+    - *Instructions:* Exporting map data to markdown.
+    - **Export to Markdown** [VERIFIED] (e2e)
+      - *Instructions:* Open Export Dialog and click "Copy" or "Download".
+      - *Expected:* Generated markdown perfectly matches the canvas structure and metadata.
+      - *Code:* `e2e/specs/workspace-toolbar.spec.ts`
 
 - **Canvas & Node Interactions** [UNTESTED] (manual)
   - *Instructions:* Core graph manipulation and UX interactions.
-  - **Add Child (Tab Shortcut)** [VERIFIED] (e2e)
-    - *Instructions:* Select a node and press `Tab`.
-    - *Expected:* A new child node is appended to the selected parent.
-    - *Code:* `e2e/specs/workspace-keyboard.spec.ts`
-  - **Delete Node (Backspace)** [VERIFIED] (e2e)
-    - *Instructions:* Select one or more nodes and press `Backspace` or `Delete`.
-    - *Expected:* Nodes and their incoming/outgoing edges are removed.
-    - *Code:* `e2e/specs/workspace-keyboard.spec.ts`
-  - **Drag & Drop Reparenting** [UNTESTED] (manual)
-    - *Instructions:* Drag Node A and drop it over Node B (indicated by blue highlight).
-    - *Expected:* Node A becomes a child of Node B. The layout re-calculates.
-  - **Double-Click Rename** [UNTESTED] (manual)
-    - *Instructions:* Double-click a node label on the canvas.
-    - *Expected:* An inline input appears allowing instant renaming.
-  - **Auto-Layout Toggle (LR/TB)** [VERIFIED] (e2e)
-    - *Instructions:* Toggle the Horizontal/Vertical layout button in the toolbar.
-    - *Expected:* Node positions are recalculated using the D3-hierarchy algorithm.
-    - *Code:* `e2e/specs/workspace-toolbar.spec.ts`
+  - **Keyboard Actions** [UNTESTED] (manual)
+    - *Instructions:* Keyboard-driven node operations.
+    - **Add Child (Tab Shortcut)** [VERIFIED] (e2e)
+      - *Instructions:* Select a node and press `Tab`.
+      - *Expected:* A new child node is appended to the selected parent.
+      - *Code:* `e2e/specs/workspace-keyboard.spec.ts`
+    - **Delete Node (Backspace)** [VERIFIED] (e2e)
+      - *Instructions:* Select one or more nodes and press `Backspace` or `Delete`.
+      - *Expected:* Nodes and their incoming/outgoing edges are removed.
+      - *Code:* `e2e/specs/workspace-keyboard.spec.ts`
+  - **Mouse Actions** [UNTESTED] (manual)
+    - *Instructions:* Mouse-driven node operations.
+    - **Drag & Drop Reparenting** [UNTESTED] (manual)
+      - *Instructions:* Drag Node A and drop it over Node B (indicated by blue highlight).
+      - *Expected:* Node A becomes a child of Node B. The layout re-calculates.
+    - **Double-Click Rename** [UNTESTED] (manual)
+      - *Instructions:* Double-click a node label on the canvas.
+      - *Expected:* An inline input appears allowing instant renaming.
+  - **Layout & View** [UNTESTED] (manual)
+    - *Instructions:* Canvas layout and viewport controls.
+    - **Auto-Layout Toggle (LR/TB)** [VERIFIED] (e2e)
+      - *Instructions:* Toggle the Horizontal/Vertical layout button in the toolbar.
+      - *Expected:* Node positions are recalculated using the D3-hierarchy algorithm.
+      - *Code:* `e2e/specs/workspace-toolbar.spec.ts`
+    - **Bulk Actions Bar** [UNTESTED] (manual)
+      - *Instructions:* Select multiple nodes using Shift+Click.
+      - *Expected:* A bottom toolbar appears allowing bulk status updates.
 
 - **Node Details & Metadata** [UNTESTED] (manual)
   - *Instructions:* Managing specific test details in the sidebar.
-  - **Status Change Coverage** [VERIFIED] (e2e)
-    - *Instructions:* Change a node status to 'Verified' or 'Failed'.
-    - *Expected:* Coverage Summary HUD updates; node color changes.
-    - *Code:* `e2e/specs/workspace-features.spec.ts`
-  - **Instructions & Results** [UNTESTED] (manual)
-    - *Instructions:* Fill in 'Instructions' and 'Expected Results' in the sidebar.
-    - *Expected:* Data is saved to IndexedDB; visible in Markdown exports.
-  - **Automation Code Links** [UNTESTED] (manual)
-    - *Instructions:* Paste a file path or URL into the 'Code Ref' field.
-    - *Expected:* A clickable link icon appears on the node and in the sidebar.
+  - **Status & Coverage** [UNTESTED] (manual)
+    - *Instructions:* Node status tracking and coverage metrics.
+    - **Status Change Coverage** [VERIFIED] (e2e)
+      - *Instructions:* Change a node status to 'Verified' or 'Failed'.
+      - *Expected:* Coverage Summary HUD updates; node color changes.
+      - *Code:* `e2e/specs/workspace-features.spec.ts`
+  - **Rich Metadata** [UNTESTED] (manual)
+    - *Instructions:* Additional data fields on nodes.
+    - **Instructions & Results** [UNTESTED] (manual)
+      - *Instructions:* Fill in 'Instructions' and 'Expected Results' in the sidebar.
+      - *Expected:* Data is saved to IndexedDB; visible in Markdown exports.
+    - **Automation Code Links** [UNTESTED] (manual)
+      - *Instructions:* Paste a file path or URL into the 'Code Ref' field.
+      - *Expected:* A clickable link icon appears on the node and in the sidebar.
 
 - **System & Resilience** [UNTESTED] (manual)
   - *Instructions:* Persistence, history, and technical constraints.
-  - **Undo/Redo History** [VERIFIED] (unit)
-    - *Instructions:* Perform a series of adds/deletes/renames and Undo.
-    - *Expected:* Map state returns to previous snapshot.
-    - *Code:* `src/hooks/useUndoRedo.ts`
-  - **Undo History Limit** [VERIFIED] (unit)
-    - *Instructions:* Perform more than 50 actions.
-    - *Expected:* The oldest snapshots are dropped to save memory.
-  - **Data Validation (Zod)** [VERIFIED] (unit)
-    - *Instructions:* Manually corrupt a record in IndexedDB (invalid type).
-    - *Expected:* `repository.ts` catches the error during load; prevents UI crash.
-    - *Code:* `src/__tests__/repository.test.ts`
-  - **Large Map Performance** [UNTESTED] (manual)
-    - *Instructions:* Import a map with 500+ nodes.
-    - *Expected:* React Flow maintains 60fps; viewport remains responsive.
-  - **Next.js Hydration** [UNTESTED] (manual)
-    - *Instructions:* Hard refresh the page with filters active.
-    - *Expected:* No console warnings about mismatched localStorage state.
+  - **Undo/Redo** [UNTESTED] (manual)
+    - *Instructions:* History management and state snapshots.
+    - **Undo/Redo History** [VERIFIED] (unit)
+      - *Instructions:* Perform a series of adds/deletes/renames and Undo.
+      - *Expected:* Map state returns to previous snapshot.
+      - *Code:* `src/hooks/useUndoRedo.ts`
+    - **Undo History Limit** [VERIFIED] (unit)
+      - *Instructions:* Perform more than 50 actions.
+      - *Expected:* The oldest snapshots are dropped to save memory.
+  - **Data Integrity** [UNTESTED] (manual)
+    - *Instructions:* Storage validation and error handling.
+    - **Data Validation (Zod)** [VERIFIED] (unit)
+      - *Instructions:* Manually corrupt a record in IndexedDB (invalid type).
+      - *Expected:* `repository.ts` catches the error during load; prevents UI crash.
+      - *Code:* `src/__tests__/repository.test.ts`
+    - **Large Map Performance** [UNTESTED] (manual)
+      - *Instructions:* Import a map with 500+ nodes.
+      - *Expected:* React Flow maintains 60fps; viewport remains responsive.
+    - **Next.js Hydration** [UNTESTED] (manual)
+      - *Instructions:* Hard refresh the page with filters active.
+      - *Expected:* No console warnings about mismatched localStorage state.
 
 - **UI & Aesthetics** [UNTESTED] (manual)
   - *Instructions:* Visual presentation and accessibility.
-  - **Premium Dark Mode** [UNTESTED] (manual)
-    - *Instructions:* Toggle theme in User Menu.
-    - *Expected:* High-end glassmorphism effect is preserved; contrast levels meet AA standards.
-  - **Keyboard Shortcuts Modal** [VERIFIED] (e2e)
-    - *Instructions:* Press `?` key.
-    - *Expected:* Modal appears displaying all available shortcuts.
-    - *Code:* `e2e/specs/workspace-keyboard.spec.ts`
-  - **Bulk Actions Bar** [UNTESTED] (manual)
-    - *Instructions:* Select multiple nodes using Shift+Click.
-    - *Expected:* A bottom toolbar appears allowing bulk status updates.
+  - **Theming** [UNTESTED] (manual)
+    - *Instructions:* Theme switching and visual fidelity.
+    - **Premium Dark Mode** [UNTESTED] (manual)
+      - *Instructions:* Toggle theme in User Menu.
+      - *Expected:* High-end glassmorphism effect is preserved; contrast levels meet AA standards.
+  - **Discoverability** [UNTESTED] (manual)
+    - *Instructions:* Feature discoverability and help.
+    - **Keyboard Shortcuts Modal** [VERIFIED] (e2e)
+      - *Instructions:* Press `?` key.
+      - *Expected:* Modal appears displaying all available shortcuts.
+      - *Code:* `e2e/specs/workspace-keyboard.spec.ts`
