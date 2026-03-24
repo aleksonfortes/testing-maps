@@ -17,9 +17,14 @@ export default function Home() {
           <span>Testing Maps</span>
           <BetaBadge className="absolute -top-1 -right-10" />
         </div>
-        <Link href="/workspace" className="text-sm font-medium hover:text-primary transition-colors">
-          Go to Workspace
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link href="/guide" className="text-sm font-medium hover:text-primary transition-colors">
+            Guide
+          </Link>
+          <Link href="/workspace" className="text-sm font-medium hover:text-primary transition-colors">
+            Go to Workspace
+          </Link>
+        </div>
       </nav>
 
       <section className="max-w-4xl text-center space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
