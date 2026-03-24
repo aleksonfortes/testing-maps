@@ -177,7 +177,7 @@ export default function GuidePage() {
             <MockNode label="New Scenario" status="untested" type="manual" />
           </div>
 
-          <p>Build your hierarchy as deep as you need: categories → sub-categories → test cases.</p>
+          <p>Each node is a <strong>test scenario</strong> — a single thing to verify. Group related scenarios under parent nodes to keep your map organized.</p>
           <p>To <strong>reparent</strong> a node, drag it onto another node (it highlights blue). To <strong>delete</strong>, select and press <KeyboardKey>Backspace</KeyboardKey>.</p>
         </Step>
 
