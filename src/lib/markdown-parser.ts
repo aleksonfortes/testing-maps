@@ -9,6 +9,8 @@ interface ParsedNode {
   instructions: string;
   expectedResults: string;
   codeRef: string;
+  priority: string;
+  risk: string;
   level: number;
   parentId: string | null;
 }
@@ -24,6 +26,19 @@ const TEST_TYPE_MAP: Record<string, ScenarioData["testType"]> = {
   unit: "unit",
   integration: "integration",
   e2e: "e2e",
+};
+
+const PRIORITY_MAP: Record<string, ScenarioData["priority"]> = {
+  low: "low",
+  medium: "medium",
+  high: "high",
+  critical: "critical",
+};
+
+const RISK_MAP: Record<string, ScenarioData["risk"]> = {
+  low: "low",
+  medium: "medium",
+  high: "high",
 };
 
 /**
@@ -95,6 +110,8 @@ export function parseMarkdown(markdown: string): { nodes: Node<ScenarioData>[]; 
         instructions: "",
         expectedResults: "",
         codeRef: "",
+        priority: "",
+        risk: "",
         level,
         parentId: null,
       };
@@ -114,6 +131,12 @@ export function parseMarkdown(markdown: string): { nodes: Node<ScenarioData>[]; 
         currentNode.expectedResults = fieldValue;
       } else if (fieldName === "code") {
         currentNode.codeRef = fieldValue.replace(/^`|`$/g, "");
+      } else if (fieldName === "priority") {
+        const val = fieldValue.toLowerCase();
+        currentNode.priority = val;
+      } else if (fieldName === "risk") {
+        const val = fieldValue.toLowerCase();
+        currentNode.risk = val;
       }
       continue;
     }
@@ -147,6 +170,8 @@ export function parseMarkdown(markdown: string): { nodes: Node<ScenarioData>[]; 
         instructions: "",
         expectedResults: "",
         codeRef: "",
+        priority: "",
+        risk: "",
         level,
         parentId,
       };
@@ -178,6 +203,8 @@ export function parseMarkdown(markdown: string): { nodes: Node<ScenarioData>[]; 
         instructions: "",
         expectedResults: "",
         codeRef: "",
+        priority: "",
+        risk: "",
         level,
         parentId,
       };
@@ -200,6 +227,8 @@ export function parseMarkdown(markdown: string): { nodes: Node<ScenarioData>[]; 
       instructions: pn.instructions,
       expectedResults: pn.expectedResults,
       codeRef: pn.codeRef,
+      ...(pn.priority && PRIORITY_MAP[pn.priority] ? { priority: PRIORITY_MAP[pn.priority] } : {}),
+      ...(pn.risk && RISK_MAP[pn.risk] ? { risk: RISK_MAP[pn.risk] } : {}),
     },
     position: { x: pn.level * 400, y: i * 200 },
   }));

@@ -2,146 +2,306 @@
 
 - **Workspace & Map Lifecycle** [UNTESTED] (manual)
   - *Instructions:* End-to-end lifecycle of testing maps within the local-first environment.
+  - *Priority:* high
+  - *Risk:* high
   - **Map CRUD** [UNTESTED] (manual)
     - *Instructions:* Create, read, update, and delete operations on maps.
+    - *Priority:* critical
+    - *Risk:* high
     - **Create New Map** [VERIFIED] (e2e)
       - *Instructions:* Open the map dropdown or use the Hero "New Map" button, enter a name, and submit.
       - *Expected:* A new map ID is generated, entry appears in the list, and the canvas loads it.
       - *Code:* `e2e/specs/workspace-features.spec.ts`
+      - *Priority:* critical
+      - *Risk:* high
     - **Rename Map** [UNTESTED] (manual)
       - *Instructions:* Click the "Rename" icon in the map dropdown for an entry.
       - *Expected:* The name updates in the IndexedDB and the UI reflects the change immediately.
+      - *Priority:* medium
+      - *Risk:* low
     - **Duplicate Map** [UNTESTED] (manual)
       - *Instructions:* Click "Duplicate" in the map dropdown menu.
       - *Expected:* A full clone of the map is created with a "(Copy)" suffix. All nodes/edges are preserved.
+      - *Priority:* medium
+      - *Risk:* medium
     - **Delete Active Map** [UNTESTED] (manual)
       - *Instructions:* Delete the map you are currently viewing.
       - *Expected:* The map is removed from storage, and the UI redirects to the "Select a Map" empty state.
+      - *Priority:* high
+      - *Risk:* high
   - **Map Navigation** [UNTESTED] (manual)
     - *Instructions:* Switching between maps and workspace states.
+    - *Priority:* high
+    - *Risk:* medium
     - **Switch Active Map** [VERIFIED] (e2e)
       - *Instructions:* Select a different map from the dropdown list.
       - *Expected:* The URL updates (if applicable) and the canvas reflects the new nodes/edges instantly.
       - *Code:* `e2e/specs/workspace-features.spec.ts`
+      - *Priority:* high
+      - *Risk:* medium
     - **Empty Workspace Hero** [VERIFIED] (e2e)
       - *Instructions:* Visit `/workspace` with no active map.
       - *Expected:* The "Testing in the Age of AI" hero island is visible with CTA buttons.
       - *Code:* `e2e/specs/workspace-ui.spec.ts`
+      - *Priority:* medium
+      - *Risk:* low
 
 - **Advanced Markdown Engine** [UNTESTED] (manual)
   - *Instructions:* Scenarios for the parser/generator logic and data exchange.
+  - *Priority:* critical
+  - *Risk:* high
   - **Import** [UNTESTED] (manual)
     - *Instructions:* Importing markdown into the app.
+    - *Priority:* critical
+    - *Risk:* high
     - **Valid Import (Standard)** [VERIFIED] (e2e)
       - *Instructions:* Paste a standard `- **Scenario** [STATUS] (type)` markdown structure.
       - *Expected:* Hierarchical graph is built with correct statuses and test types.
       - *Code:* `e2e/specs/workspace-import.spec.ts`
+      - *Priority:* critical
+      - *Risk:* high
     - **Deep Nesting (>5 levels)** [VERIFIED] (e2e)
       - *Instructions:* Import markdown with extreme indentation levels.
       - *Expected:* The graph remains navigable; edges correctly connect deeply nested children.
       - *Code:* `e2e/specs/workspace-import-edge-cases.spec.ts`
+      - *Priority:* medium
+      - *Risk:* medium
     - **Tab vs Space Indentation** [VERIFIED] (unit)
       - *Instructions:* Test markdown files using `\t` vs `  ` (2 spaces) vs `    ` (4 spaces).
       - *Expected:* `detectIndentUnit` accurately identifies the pattern and preserves hierarchy.
       - *Code:* `src/__tests__/markdown-parser.test.ts`
+      - *Priority:* medium
+      - *Risk:* medium
+    - **Priority & Risk Parsing** [VERIFIED] (unit)
+      - *Instructions:* Import markdown containing `*Priority:*` and `*Risk:*` sub-fields.
+      - *Expected:* Priority (low/medium/high/critical) and risk (low/medium/high) are parsed and stored on node data. Unknown values are ignored.
+      - *Code:* `src/__tests__/markdown-parser.test.ts`
+      - *Priority:* high
+      - *Risk:* medium
   - **Import Modes** [UNTESTED] (manual)
     - *Instructions:* Different ways to bring markdown into the workspace.
+    - *Priority:* high
+    - *Risk:* medium
     - **Import Mode: Replace** [VERIFIED] (e2e)
       - *Instructions:* Use "Replace Current Map" toggle in the Import Modal.
       - *Expected:* The active map's content is overwritten completely. Undo history is preserved.
       - *Code:* `e2e/specs/workspace-import.spec.ts`
+      - *Priority:* high
+      - *Risk:* high
     - **Import Mode: Create** [VERIFIED] (e2e)
       - *Instructions:* Use "Create New Map" toggle (default) in the Import Modal.
       - *Expected:* A brand new map entry is created in the database.
       - *Code:* `e2e/specs/workspace-import.spec.ts`
+      - *Priority:* high
+      - *Risk:* medium
   - **Export** [UNTESTED] (manual)
     - *Instructions:* Exporting map data to markdown.
+    - *Priority:* high
+    - *Risk:* medium
     - **Export to Markdown** [VERIFIED] (e2e)
       - *Instructions:* Open Export Dialog and click "Copy" or "Download".
       - *Expected:* Generated markdown perfectly matches the canvas structure and metadata.
       - *Code:* `e2e/specs/workspace-toolbar.spec.ts`
+      - *Priority:* high
+      - *Risk:* medium
+    - **Export Priority & Risk** [VERIFIED] (unit)
+      - *Instructions:* Export a map containing nodes with priority and risk values.
+      - *Expected:* Generated markdown includes `*Priority:*` and `*Risk:*` sub-fields for nodes that have them.
+      - *Code:* `src/__tests__/markdown-generator.test.ts`
+      - *Priority:* medium
+      - *Risk:* low
 
 - **Canvas & Node Interactions** [UNTESTED] (manual)
   - *Instructions:* Core graph manipulation and UX interactions.
+  - *Priority:* critical
+  - *Risk:* high
   - **Keyboard Actions** [UNTESTED] (manual)
     - *Instructions:* Keyboard-driven node operations.
+    - *Priority:* high
+    - *Risk:* medium
     - **Add Child (Tab Shortcut)** [VERIFIED] (e2e)
       - *Instructions:* Select a node and press `Tab`.
       - *Expected:* A new child node is appended to the selected parent.
       - *Code:* `e2e/specs/workspace-keyboard.spec.ts`
+      - *Priority:* high
+      - *Risk:* medium
     - **Delete Node (Backspace)** [VERIFIED] (e2e)
       - *Instructions:* Select one or more nodes and press `Backspace` or `Delete`.
       - *Expected:* Nodes and their incoming/outgoing edges are removed.
       - *Code:* `e2e/specs/workspace-keyboard.spec.ts`
+      - *Priority:* high
+      - *Risk:* high
   - **Mouse Actions** [UNTESTED] (manual)
     - *Instructions:* Mouse-driven node operations.
+    - *Priority:* high
+    - *Risk:* medium
     - **Drag & Drop Reparenting** [UNTESTED] (manual)
       - *Instructions:* Drag Node A and drop it over Node B (indicated by blue highlight).
       - *Expected:* Node A becomes a child of Node B. The layout re-calculates.
+      - *Priority:* medium
+      - *Risk:* high
     - **Double-Click Rename** [UNTESTED] (manual)
       - *Instructions:* Double-click a node label on the canvas.
       - *Expected:* An inline input appears allowing instant renaming.
+      - *Priority:* medium
+      - *Risk:* low
   - **Layout & View** [UNTESTED] (manual)
     - *Instructions:* Canvas layout and viewport controls.
+    - *Priority:* high
+    - *Risk:* medium
     - **Auto-Layout Toggle (LR/TB)** [VERIFIED] (e2e)
       - *Instructions:* Toggle the Horizontal/Vertical layout button in the toolbar.
       - *Expected:* Node positions are recalculated using the D3-hierarchy algorithm.
       - *Code:* `e2e/specs/workspace-toolbar.spec.ts`
+      - *Priority:* high
+      - *Risk:* medium
     - **Bulk Actions Bar** [UNTESTED] (manual)
       - *Instructions:* Select multiple nodes using Shift+Click.
       - *Expected:* A bottom toolbar appears allowing bulk status updates.
+      - *Priority:* low
+      - *Risk:* low
+  - **Floating Edges** [VERIFIED] (unit)
+    - *Instructions:* Edge rendering between nodes using dynamic geometry.
+    - *Priority:* critical
+    - *Risk:* high
+    - **Edge Intersection Calculation** [VERIFIED] (unit)
+      - *Instructions:* Validate edge connection points are calculated correctly for all node position combinations (left, right, above, below).
+      - *Expected:* Edges connect at the closest border points of source and target nodes. Zero-distance edge case returns fallback position.
+      - *Code:* `src/__tests__/geometry.test.ts`
+      - *Priority:* high
+      - *Risk:* high
+    - **Missing Node Fallback** [VERIFIED] (unit)
+      - *Instructions:* Remove a node that is referenced by an edge and verify FloatingEdge handles it gracefully.
+      - *Expected:* FloatingEdge returns null (no crash) and logs a dev-mode warning.
+      - *Priority:* medium
+      - *Risk:* medium
 
 - **Node Details & Metadata** [UNTESTED] (manual)
   - *Instructions:* Managing specific test details in the sidebar.
+  - *Priority:* high
+  - *Risk:* medium
   - **Status & Coverage** [UNTESTED] (manual)
     - *Instructions:* Node status tracking and coverage metrics.
+    - *Priority:* critical
+    - *Risk:* medium
     - **Status Change Coverage** [VERIFIED] (e2e)
       - *Instructions:* Change a node status to 'Verified' or 'Failed'.
       - *Expected:* Coverage Summary HUD updates; node color changes.
       - *Code:* `e2e/specs/workspace-features.spec.ts`
+      - *Priority:* critical
+      - *Risk:* medium
   - **Rich Metadata** [UNTESTED] (manual)
     - *Instructions:* Additional data fields on nodes.
+    - *Priority:* high
+    - *Risk:* medium
     - **Instructions & Results** [UNTESTED] (manual)
       - *Instructions:* Fill in 'Instructions' and 'Expected Results' in the sidebar.
       - *Expected:* Data is saved to IndexedDB; visible in Markdown exports.
+      - *Priority:* high
+      - *Risk:* medium
     - **Automation Code Links** [UNTESTED] (manual)
       - *Instructions:* Paste a file path or URL into the 'Code Ref' field.
       - *Expected:* A clickable link icon appears on the node and in the sidebar.
+      - *Priority:* medium
+      - *Risk:* low
+    - **Priority & Risk Fields** [VERIFIED] (unit)
+      - *Instructions:* Set priority (low/medium/high/critical) and risk (low/medium/high) on a node via the Edit Modal.
+      - *Expected:* Values persist in IndexedDB, display as color-coded badges on the node, and survive export/import round-trips.
+      - *Code:* `src/__tests__/markdown-parser.test.ts`
+      - *Priority:* high
+      - *Risk:* medium
 
 - **System & Resilience** [UNTESTED] (manual)
   - *Instructions:* Persistence, history, and technical constraints.
+  - *Priority:* critical
+  - *Risk:* high
   - **Undo/Redo** [UNTESTED] (manual)
     - *Instructions:* History management and state snapshots.
+    - *Priority:* high
+    - *Risk:* high
     - **Undo/Redo History** [VERIFIED] (unit)
       - *Instructions:* Perform a series of adds/deletes/renames and Undo.
       - *Expected:* Map state returns to previous snapshot.
       - *Code:* `src/hooks/useUndoRedo.ts`
+      - *Priority:* high
+      - *Risk:* high
     - **Undo History Limit** [VERIFIED] (unit)
       - *Instructions:* Perform more than 50 actions.
       - *Expected:* The oldest snapshots are dropped to save memory.
+      - *Priority:* medium
+      - *Risk:* medium
+    - **Restore Safety Timeout** [VERIFIED] (unit)
+      - *Instructions:* Trigger an undo and verify finishRestore has a 2-second safety timeout.
+      - *Expected:* If finishRestore is never called, the isRestoring lock auto-releases after 2 seconds to prevent permanent undo lock.
+      - *Priority:* high
+      - *Risk:* high
   - **Data Integrity** [UNTESTED] (manual)
     - *Instructions:* Storage validation and error handling.
+    - *Priority:* critical
+    - *Risk:* high
     - **Data Validation (Zod)** [VERIFIED] (unit)
       - *Instructions:* Manually corrupt a record in IndexedDB (invalid type).
       - *Expected:* `repository.ts` catches the error during load; prevents UI crash.
       - *Code:* `src/__tests__/repository.test.ts`
+      - *Priority:* critical
+      - *Risk:* high
+    - **Edge Migration on Load** [VERIFIED] (unit)
+      - *Instructions:* Load a map saved before floating edges were introduced (edges have type "smoothstep" with sourceHandle/targetHandle).
+      - *Expected:* Edges are automatically migrated to type "floating" with handles removed. No data loss.
+      - *Code:* `src/__tests__/repository.test.ts`
+      - *Priority:* high
+      - *Risk:* high
+    - **Schema Stripping** [VERIFIED] (unit)
+      - *Instructions:* Save a node with extra unknown fields not in the ScenarioData schema.
+      - *Expected:* Unknown fields are stripped by Zod `.strip()` instead of silently passing through.
+      - *Code:* `src/__tests__/repository.test.ts`
+      - *Priority:* medium
+      - *Risk:* medium
     - **Large Map Performance** [UNTESTED] (manual)
       - *Instructions:* Import a map with 500+ nodes.
       - *Expected:* React Flow maintains 60fps; viewport remains responsive.
+      - *Priority:* medium
+      - *Risk:* medium
     - **Next.js Hydration** [UNTESTED] (manual)
       - *Instructions:* Hard refresh the page with filters active.
       - *Expected:* No console warnings about mismatched localStorage state.
+      - *Priority:* high
+      - *Risk:* medium
 
 - **UI & Aesthetics** [UNTESTED] (manual)
   - *Instructions:* Visual presentation and accessibility.
+  - *Priority:* medium
+  - *Risk:* low
   - **Theming** [UNTESTED] (manual)
     - *Instructions:* Theme switching and visual fidelity.
+    - *Priority:* medium
+    - *Risk:* low
     - **Premium Dark Mode** [UNTESTED] (manual)
       - *Instructions:* Toggle theme in User Menu.
       - *Expected:* High-end glassmorphism effect is preserved; contrast levels meet AA standards.
+      - *Priority:* medium
+      - *Risk:* low
   - **Discoverability** [UNTESTED] (manual)
     - *Instructions:* Feature discoverability and help.
+    - *Priority:* medium
+    - *Risk:* low
     - **Keyboard Shortcuts Modal** [VERIFIED] (e2e)
       - *Instructions:* Press `?` key.
       - *Expected:* Modal appears displaying all available shortcuts.
       - *Code:* `e2e/specs/workspace-keyboard.spec.ts`
+      - *Priority:* low
+      - *Risk:* low
+  - **Filter HUD** [UNTESTED] (manual)
+    - *Instructions:* Toggle metadata filters in the bottom HUD bar.
+    - *Priority:* high
+    - *Risk:* medium
+    - **Priority & Risk Filters** [UNTESTED] (manual)
+      - *Instructions:* Toggle the Priority and Risk filter buttons in the bottom HUD.
+      - *Expected:* Priority badges (color-coded: critical=red, high=orange, medium=yellow, low=gray) and Risk badges appear/disappear on nodes.
+      - *Priority:* medium
+      - *Risk:* low
+    - **Filter State Persistence** [UNTESTED] (manual)
+      - *Instructions:* Toggle filters, refresh the page.
+      - *Expected:* Active filter state is preserved across page reloads.
+      - *Priority:* medium
+      - *Risk:* medium

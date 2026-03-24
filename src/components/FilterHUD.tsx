@@ -3,7 +3,7 @@
 import React from "react";
 import * as Toggle from "@radix-ui/react-toggle";
 import { useUI, DisplayFilter } from "@/context/UIContext";
-import { ClipboardList, Info, Code2, Network } from "lucide-react";
+import { ClipboardList, Info, Code2, Network, Flag, ShieldAlert } from "lucide-react";
 
 export function FilterHUD() {
   const { activeFilters, toggleFilter } = useUI();
@@ -13,6 +13,8 @@ export function FilterHUD() {
     { id: "instructions", label: "Instructions", icon: <Info className="w-3.5 h-3.5" /> },
     { id: "testType", label: "Test Types", icon: <Network className="w-3.5 h-3.5" /> },
     { id: "codeReference", label: "Code Links", icon: <Code2 className="w-3.5 h-3.5" /> },
+    { id: "priority", label: "Priority", icon: <Flag className="w-3.5 h-3.5" /> },
+    { id: "risk", label: "Risk", icon: <ShieldAlert className="w-3.5 h-3.5" /> },
   ];
 
   return (

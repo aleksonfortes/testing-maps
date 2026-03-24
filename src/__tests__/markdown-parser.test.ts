@@ -477,3 +477,72 @@ describe("parseMarkdown — round-trip with generator", () => {
     expect(statuses2).toEqual(statuses1);
   });
 });
+
+// ===========================================================================
+// Priority & Risk Fields
+// ===========================================================================
+describe("parseMarkdown — priority and risk", () => {
+  it("captures priority field", () => {
+    const md = "- **Test** [VERIFIED] (e2e)\n  - *Priority:* high";
+    const { nodes } = parseMarkdown(md);
+    expect(nodes[0].data.priority).toBe("high");
+  });
+
+  it("captures risk field", () => {
+    const md = "- **Test** [VERIFIED] (e2e)\n  - *Risk:* medium";
+    const { nodes } = parseMarkdown(md);
+    expect(nodes[0].data.risk).toBe("medium");
+  });
+
+  it("captures all priority levels", () => {
+    for (const level of ["low", "medium", "high", "critical"]) {
+      const md = `- **Test** [VERIFIED] (e2e)\n  - *Priority:* ${level}`;
+      const { nodes } = parseMarkdown(md);
+      expect(nodes[0].data.priority).toBe(level);
+    }
+  });
+
+  it("captures all risk levels", () => {
+    for (const level of ["low", "medium", "high"]) {
+      const md = `- **Test** [VERIFIED] (e2e)\n  - *Risk:* ${level}`;
+      const { nodes } = parseMarkdown(md);
+      expect(nodes[0].data.risk).toBe(level);
+    }
+  });
+
+  it("handles priority and risk together with other fields", () => {
+    const md = [
+      "- **Test** [VERIFIED] (e2e)",
+      "  - *Instructions:* Do something",
+      "  - *Expected:* It works",
+      "  - *Code:* `test.ts`",
+      "  - *Priority:* critical",
+      "  - *Risk:* high",
+    ].join("\n");
+    const { nodes } = parseMarkdown(md);
+    expect(nodes[0].data.priority).toBe("critical");
+    expect(nodes[0].data.risk).toBe("high");
+    expect(nodes[0].data.instructions).toBe("Do something");
+    expect(nodes[0].data.expectedResults).toBe("It works");
+    expect(nodes[0].data.codeRef).toBe("test.ts");
+  });
+
+  it("ignores unknown priority values", () => {
+    const md = "- **Test** [VERIFIED] (e2e)\n  - *Priority:* urgent";
+    const { nodes } = parseMarkdown(md);
+    expect(nodes[0].data.priority).toBeUndefined();
+  });
+
+  it("ignores unknown risk values", () => {
+    const md = "- **Test** [VERIFIED] (e2e)\n  - *Risk:* extreme";
+    const { nodes } = parseMarkdown(md);
+    expect(nodes[0].data.risk).toBeUndefined();
+  });
+
+  it("nodes without priority/risk have undefined values", () => {
+    const md = "- **Test** [VERIFIED] (e2e)";
+    const { nodes } = parseMarkdown(md);
+    expect(nodes[0].data.priority).toBeUndefined();
+    expect(nodes[0].data.risk).toBeUndefined();
+  });
+});

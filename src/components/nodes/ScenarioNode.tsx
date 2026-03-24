@@ -17,6 +17,8 @@ import {
   Target,
   ChevronRight,
   Copy,
+  Flag,
+  ShieldAlert,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -80,6 +82,8 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
   const showInstructions = activeFilters.includes("instructions");
   const showTestType = activeFilters.includes("testType");
   const showCodeRef = activeFilters.includes("codeReference");
+  const showPriority = activeFilters.includes("priority");
+  const showRisk = activeFilters.includes("risk");
 
   // Auto-focus first menu item when context menu opens
   useEffect(() => {
@@ -287,7 +291,7 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
           </div>
 
           {/* Metadata Section (Below the "Score Line") */}
-          {(showTestType || showInstructions || showExpectations || showCodeRef) && (
+          {(showTestType || showPriority || showRisk || showInstructions || showExpectations || showCodeRef) && (
             <div className="space-y-3 pt-4 border-t border-border/50 animate-in fade-in slide-in-from-top-2 duration-300">
               {showTestType && (
                 <div className="flex items-center gap-2">
@@ -295,6 +299,39 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
                     <TypeIcon className="w-3.5 h-3.5 text-muted-foreground" />
                     <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                       {type.label}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {showPriority && data.priority && (
+                <div className="flex items-center gap-2">
+                  <div className={cn(
+                    "flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border/50",
+                    data.priority === "critical" ? "bg-red-500/10 text-red-600 dark:text-red-400" :
+                    data.priority === "high" ? "bg-orange-500/10 text-orange-600 dark:text-orange-400" :
+                    data.priority === "medium" ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" :
+                    "bg-secondary/50 text-muted-foreground"
+                  )}>
+                    <Flag className="w-3.5 h-3.5" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider">
+                      {data.priority}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {showRisk && data.risk && (
+                <div className="flex items-center gap-2">
+                  <div className={cn(
+                    "flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border/50",
+                    data.risk === "high" ? "bg-red-500/10 text-red-600 dark:text-red-400" :
+                    data.risk === "medium" ? "bg-orange-500/10 text-orange-600 dark:text-orange-400" :
+                    "bg-secondary/50 text-muted-foreground"
+                  )}>
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider">
+                      Risk: {data.risk}
                     </span>
                   </div>
                 </div>

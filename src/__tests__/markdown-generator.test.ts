@@ -189,3 +189,34 @@ describe("generateMarkdown — cycle protection", () => {
     expect(result).toBe("# Testing Map Export\n\n");
   });
 });
+
+// ===========================================================================
+// Priority & Risk Fields
+// ===========================================================================
+describe("generateMarkdown — priority and risk fields", () => {
+  it("includes priority in output", () => {
+    const nodes = [makeNode("1", { label: "Test", priority: "high" })];
+    const md = generateMarkdown(nodes, []);
+    expect(md).toContain("*Priority:* high");
+  });
+
+  it("includes risk in output", () => {
+    const nodes = [makeNode("1", { label: "Test", risk: "medium" })];
+    const md = generateMarkdown(nodes, []);
+    expect(md).toContain("*Risk:* medium");
+  });
+
+  it("includes both priority and risk", () => {
+    const nodes = [makeNode("1", { label: "Test", priority: "critical", risk: "high" })];
+    const md = generateMarkdown(nodes, []);
+    expect(md).toContain("*Priority:* critical");
+    expect(md).toContain("*Risk:* high");
+  });
+
+  it("omits priority/risk when not set", () => {
+    const nodes = [makeNode("1", { label: "Test" })];
+    const md = generateMarkdown(nodes, []);
+    expect(md).not.toContain("Priority");
+    expect(md).not.toContain("Risk");
+  });
+});

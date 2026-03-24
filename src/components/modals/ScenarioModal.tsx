@@ -37,7 +37,9 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
       formData.testType !== initialData.testType ||
       (formData.instructions ?? "") !== (initialData.instructions ?? "") ||
       (formData.expectedResults ?? "") !== (initialData.expectedResults ?? "") ||
-      (formData.codeRef ?? "") !== (initialData.codeRef ?? "")
+      (formData.codeRef ?? "") !== (initialData.codeRef ?? "") ||
+      (formData.priority ?? "") !== (initialData.priority ?? "") ||
+      (formData.risk ?? "") !== (initialData.risk ?? "")
     );
   }, [formData, initialData]);
 
@@ -152,6 +154,44 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
                       <option value="unit">Unit</option>
                       <option value="integration">Integration</option>
                       <option value="e2e">E2E</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <label htmlFor="scenario-priority" className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 flex items-center gap-2">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      Priority
+                    </label>
+                    <select
+                      id="scenario-priority"
+                      value={formData.priority ?? ""}
+                      onChange={(e) => setFormData({ ...formData, priority: (e.target.value || undefined) as ScenarioData["priority"] })}
+                      className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 text-sm outline-none focus:ring-2 ring-white/10 font-medium appearance-none"
+                    >
+                      <option value="">Not Set</option>
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                      <option value="critical">Critical</option>
+                    </select>
+                  </div>
+                  <div className="space-y-3">
+                    <label htmlFor="scenario-risk" className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 flex items-center gap-2">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      Risk
+                    </label>
+                    <select
+                      id="scenario-risk"
+                      value={formData.risk ?? ""}
+                      onChange={(e) => setFormData({ ...formData, risk: (e.target.value || undefined) as ScenarioData["risk"] })}
+                      className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 text-sm outline-none focus:ring-2 ring-white/10 font-medium appearance-none"
+                    >
+                      <option value="">Not Set</option>
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
                     </select>
                   </div>
                 </div>

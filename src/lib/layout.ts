@@ -14,6 +14,8 @@ function estimateNodeHeight(node: Node): number {
   if (data.instructions) height += 60;
   if (data.expectedResults) height += 60;
   if (data.codeRef) height += 55;
+  if (data.priority) height += 40;
+  if (data.risk) height += 40;
   return height;
 }
 

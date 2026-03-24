@@ -32,6 +32,10 @@ export function generateMarkdown(
       result += `${"  ".repeat(level)}  - *Expected:* ${data.expectedResults}\n`;
     if (data.codeRef)
       result += `${"  ".repeat(level)}  - *Code:* \`${data.codeRef}\`\n`;
+    if (data.priority)
+      result += `${"  ".repeat(level)}  - *Priority:* ${data.priority}\n`;
+    if (data.risk)
+      result += `${"  ".repeat(level)}  - *Risk:* ${data.risk}\n`;
 
     const children = nodes.filter((n) =>
       edges.some((e) => e.source === node.id && e.target === n.id)

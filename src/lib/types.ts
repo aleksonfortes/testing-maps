@@ -8,6 +8,8 @@ export const ScenarioDataSchema = z.object({
   instructions: z.string().optional(),
   expectedResults: z.string().optional(),
   codeRef: z.string().optional(),
+  priority: z.enum(["low", "medium", "high", "critical"]).optional(),
+  risk: z.enum(["low", "medium", "high"]).optional(),
   isDropTarget: z.boolean().optional(),
 }).strip();
 
@@ -44,6 +46,8 @@ export interface ScenarioData extends Record<string, unknown> {
   instructions?: string;
   expectedResults?: string;
   codeRef?: string;
+  priority?: "low" | "medium" | "high" | "critical";
+  risk?: "low" | "medium" | "high";
   /** Runtime-only: set during drag-to-reparent to highlight the drop target */
   isDropTarget?: boolean;
 }
