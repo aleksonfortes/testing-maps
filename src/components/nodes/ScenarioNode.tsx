@@ -72,11 +72,12 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
 
   const isDropTarget = !!data.isDropTarget;
   // eslint-disable-next-line react-hooks/refs
-  const isCollapsed = actionsRef.current.isCollapsed(id);
-  // eslint-disable-next-line react-hooks/refs
-  const childCount = actionsRef.current.getChildCount(id);
-  // eslint-disable-next-line react-hooks/refs
-  const hiddenChildCount = actionsRef.current.getHiddenChildCount(id);
+  // Read collapse state from data props (injected by MapCanvas displayNodes)
+  // so React Flow re-renders this node when collapse state changes.
+  const dataAny = data as Record<string, unknown>;
+  const isCollapsed = !!dataAny._collapsed;
+  const childCount = (dataAny._childCount as number) || 0;
+  const hiddenChildCount = (dataAny._hiddenChildCount as number) || 0;
 
   const showExpectations = activeFilters.includes("expectedResults");
   const showInstructions = activeFilters.includes("instructions");

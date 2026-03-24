@@ -40,7 +40,7 @@ import { useDragReparent } from "@/hooks/useDragReparent";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { CanvasToolbar } from "./CanvasToolbar";
 import { MarkdownEditor } from "./MarkdownEditor";
-import { getHiddenNodeIds } from "@/lib/tree-utils";
+import { getDescendantIds, getHiddenNodeIds } from "@/lib/tree-utils";
 import { generateMarkdown } from "@/lib/markdown-generator";
 import { parseMarkdown } from "@/lib/markdown-parser";
 import {
@@ -247,19 +247,6 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     [collapsed, edges]
   );
 
-  // Use ReactFlow's built-in `hidden` property instead of filtering.
-  // This keeps all nodes/edges in the store so getNodes()/getEdges() return
-  // the full set — preventing data loss in layout, addNode, and snapshots.
-  const displayNodes = useMemo(
-    () => nodes.map((n) => ({ ...n, hidden: hiddenIds.has(n.id) })),
-    [nodes, hiddenIds]
-  );
-
-  const displayEdges = useMemo(
-    () => edges.map((e) => ({ ...e, hidden: hiddenIds.has(e.source) || hiddenIds.has(e.target) })),
-    [edges, hiddenIds]
-  );
-
   const childCountMap = useMemo(() => {
     const map = new Map<string, number>();
     for (const edge of edges) {
@@ -267,6 +254,36 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     }
     return map;
   }, [edges]);
+
+  // Use ReactFlow's built-in `hidden` property instead of filtering.
+  // This keeps all nodes/edges in the store so getNodes()/getEdges() return
+  // the full set — preventing data loss in layout, addNode, and snapshots.
+  // Also inject _collapsed/_hiddenChildCount into data so ScenarioNode re-renders
+  // when collapse state changes (refs alone don't trigger re-renders).
+  const displayNodes = useMemo(
+    () => nodes.map((n) => {
+      const isNodeCollapsed = collapsed.has(n.id);
+      const directChildren = childCountMap.get(n.id) || 0;
+      return {
+        ...n,
+        hidden: hiddenIds.has(n.id),
+        data: {
+          ...n.data,
+          _collapsed: isNodeCollapsed,
+          _childCount: directChildren,
+          _hiddenChildCount: isNodeCollapsed
+            ? getDescendantIds(n.id, edges).size
+            : 0,
+        },
+      };
+    }),
+    [nodes, hiddenIds, collapsed, edges, childCountMap]
+  );
+
+  const displayEdges = useMemo(
+    () => edges.map((e) => ({ ...e, hidden: hiddenIds.has(e.source) || hiddenIds.has(e.target) })),
+    [edges, hiddenIds]
+  );
 
   const onUpdateNode = useCallback(
     (id: string, newData: Partial<ScenarioData>) => {
