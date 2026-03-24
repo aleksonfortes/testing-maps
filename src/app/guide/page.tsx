@@ -157,21 +157,21 @@ export default function GuidePage() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* Nav */}
-      <nav className="fixed top-0 w-full p-6 flex justify-between items-center glass z-50 h-20">
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight relative">
-          <Logo size={28} className="rounded-lg" />
+      <nav className="sticky top-0 w-full px-6 py-4 flex justify-between items-center glass z-50 border-b border-border/50">
+        <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight relative">
+          <Logo size={24} className="rounded-lg" />
           <span>Testing Maps</span>
           <BetaBadge className="absolute -top-1 -right-10" />
         </Link>
-        <div className="flex items-center gap-6">
-          <Link href="/guide" className="text-sm font-medium text-primary transition-colors">Guide</Link>
-          <Link href="/workspace" className="text-sm font-medium hover:text-primary transition-colors">
-            Go to Workspace
+        <div className="flex items-center gap-5">
+          <Link href="/guide" className="text-sm font-semibold text-primary">Guide</Link>
+          <Link href="/workspace" className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-all">
+            Open Workspace <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-6 pt-28 pb-16 space-y-20">
+      <div className="max-w-2xl mx-auto px-6 py-16 space-y-20">
         {/* ---- Header --------------------------------------------------- */}
         <header className="space-y-4">
           <h1 className="text-3xl font-black tracking-tight">How to use Testing Maps</h1>
