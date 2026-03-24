@@ -304,6 +304,8 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
       // Prevent self-loop edges
       if (params.source === params.target) return;
 
+      // Capture nodes before entering setEdges updater to avoid stale closure
+      const currentNodes = getNodes();
       const edge: Edge = {
         ...params,
         id: `e-${crypto.randomUUID()}`,
@@ -312,7 +314,7 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
       };
       setEdges((eds) => {
         const updated = addEdge(edge, eds);
-        pushSnapshot(getNodes(), updated);
+        pushSnapshot(currentNodes, updated);
         return updated;
       });
     },
@@ -426,11 +428,6 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
     },
     [getNodes, getEdges, setNodes, setEdges, fitView, pushSnapshot, collapsed]
   );
-
-  // -----------------------------------------------------------------------
-  // Filter layout effect
-  // -----------------------------------------------------------------------
-  const lastFiltersRef = useRef<string>("");
 
   // -----------------------------------------------------------------------
   // Layout Management (Manual only)

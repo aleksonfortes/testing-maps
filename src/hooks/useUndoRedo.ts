@@ -72,34 +72,46 @@ export function useUndoRedo() {
     [bump]
   );
 
+  const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /** Mark restoring state with a safety timeout to prevent permanent lock */
+  const startRestore = useCallback(() => {
+    isRestoringRef.current = true;
+    if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+    safetyTimerRef.current = setTimeout(() => {
+      isRestoringRef.current = false;
+    }, 500);
+  }, []);
+
   /** Undo: restore the previous snapshot. Returns null if nothing to undo. */
   const undo = useCallback((): Snapshot | null => {
     if (pointerRef.current <= 0) return null;
     pointerRef.current -= 1;
-    isRestoringRef.current = true;
+    startRestore();
     const snapshot = historyRef.current[pointerRef.current];
     bump(pointerRef.current, historyRef.current.length);
     return {
       nodes: cleanNodes(snapshot.nodes),
       edges: cleanEdges(snapshot.edges),
     };
-  }, [bump]);
+  }, [bump, startRestore]);
 
   /** Redo: restore the next snapshot. Returns null if nothing to redo. */
   const redo = useCallback((): Snapshot | null => {
     if (pointerRef.current >= historyRef.current.length - 1) return null;
     pointerRef.current += 1;
-    isRestoringRef.current = true;
+    startRestore();
     const snapshot = historyRef.current[pointerRef.current];
     bump(pointerRef.current, historyRef.current.length);
     return {
       nodes: cleanNodes(snapshot.nodes),
       edges: cleanEdges(snapshot.edges),
     };
-  }, [bump]);
+  }, [bump, startRestore]);
 
   /** Call this after undo/redo state has been applied to allow future snapshots */
   const finishRestore = useCallback(() => {
+    if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
     isRestoringRef.current = false;
   }, []);
 

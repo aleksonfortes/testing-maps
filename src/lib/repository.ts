@@ -67,10 +67,10 @@ export const testingMapRepository = {
   async createMap(userId: string, name: string): Promise<string> {
     const db = await getDB();
     const newId = crypto.randomUUID();
-    
+
     db[newId] = {
       id: newId,
-      user_id: "local-user",
+      user_id: userId,
       name,
       nodes: [],
       edges: [],
@@ -94,7 +94,7 @@ export const testingMapRepository = {
 
     db[newId] = {
       id: newId,
-      user_id: "local-user",
+      user_id: userId,
       name,
       nodes: cleanNodes as ScenarioNode[],
       edges: cleanEdges as ScenarioEdge[],

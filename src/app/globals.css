@@ -100,24 +100,6 @@
   @apply bg-black/20 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-2xl;
 }
 
-/* Premium Gradients */
-.gradient-primary {
-  background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
-}
-
-.gradient-dark {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
-}
-
-/* Scrollbar hide utility */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
 /* Hide ReactFlow handle dots — edges connect at the invisible anchor points.
    Triple selector for maximum specificity to beat ReactFlow's built-in styles. */
 .react-flow__handle,

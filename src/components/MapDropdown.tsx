@@ -22,6 +22,7 @@ import { NewMapModal } from "./modals/NewMapModal";
 import { toast } from "sonner";
 import type { Node } from "@xyflow/react";
 import type { ScenarioData } from "@/lib/types";
+import { getLayoutedElements } from "@/lib/layout";
 
 interface MapDropdownProps {
   activeMapId: string | null;
@@ -401,11 +402,16 @@ export function MapDropdown({ activeMapId, onSelectMap }: MapDropdownProps) {
       <AnimatePresence>
         {showImport && (
           <MarkdownImport
-            onImport={async (nodes, edges, mode) => {
+            onImport={async (rawNodes, rawEdges, mode) => {
               if (mode === "replace" && !activeMapId) {
                 toast.error("No map selected to replace. Creating a new one instead.");
                 mode = "create";
               }
+
+              // Apply tree layout so nodes are properly spaced in columns
+              const { nodes: laidNodes, edges: laidEdges } = getLayoutedElements(rawNodes, rawEdges, "LR");
+              const nodes = laidNodes as Node<ScenarioData>[];
+              const edges = laidEdges.map((e) => ({ ...e, type: "floating" as const, animated: true }));
 
               const promise =
                 mode === "create"

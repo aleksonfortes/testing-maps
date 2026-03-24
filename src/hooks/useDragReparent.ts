@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from "react";
 import type { Node, Edge } from "@xyflow/react";
-import { getLayoutedElements } from "@/lib/layout";
 import { toast } from "sonner";
 import {
   REPARENT_DISTANCE_THRESHOLD,
@@ -9,6 +8,7 @@ import {
   FIT_VIEW_DELAY_MS,
   FIT_VIEW_DURATION_MS,
 } from "@/lib/constants";
+import { getDescendantIds } from "@/lib/tree-utils";
 import type { ScenarioData } from "@/lib/types";
 
 interface UseDragReparentOptions {
@@ -30,27 +30,9 @@ export function useDragReparent({
 }: UseDragReparentOptions) {
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
 
-  const getDescendants = useCallback(
-    (nodeId: string, edgeList: Edge[]): Set<string> => {
-      const descendants = new Set<string>();
-      const queue = [nodeId];
-      while (queue.length > 0) {
-        const current = queue.pop()!;
-        for (const e of edgeList) {
-          if (e.source === current && !descendants.has(e.target)) {
-            descendants.add(e.target);
-            queue.push(e.target);
-          }
-        }
-      }
-      return descendants;
-    },
-    []
-  );
-
   const findDropTarget = useCallback(
     (draggedNode: Node, allNodes: Node[], allEdges: Edge[]): Node | null => {
-      const descendants = getDescendants(draggedNode.id, allEdges);
+      const descendants = getDescendantIds(draggedNode.id, allEdges);
       const cx = draggedNode.position.x + NODE_WIDTH / 2;
       const cy = draggedNode.position.y + NODE_MIN_HEIGHT / 2;
 
@@ -72,7 +54,7 @@ export function useDragReparent({
       }
       return closest;
     },
-    [getDescendants]
+    []
   );
 
   const onNodeDrag = useCallback(
@@ -131,7 +113,7 @@ export function useDragReparent({
       }
 
       // Prevent circular dependency: reject if target is a descendant of dragged node
-      const descendants = getDescendants(draggedNode.id, allEdges);
+      const descendants = getDescendantIds(draggedNode.id, allEdges);
       if (descendants.has(target.id)) {
         pushSnapshot(allNodes, allEdges);
         return;
@@ -158,7 +140,7 @@ export function useDragReparent({
 
       setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS }), FIT_VIEW_DELAY_MS);
     },
-    [getNodes, getEdges, findDropTarget, getDescendants, setNodes, setEdges, pushSnapshot, fitView]
+    [getNodes, getEdges, findDropTarget, setNodes, setEdges, pushSnapshot, fitView]
   );
 
   return { onNodeDrag, onNodeDragStop };

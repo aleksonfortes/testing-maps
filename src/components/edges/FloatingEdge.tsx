@@ -6,6 +6,9 @@ export function FloatingEdge({ id, source, target, markerEnd, style }: EdgeProps
   const targetNode = useInternalNode(target);
 
   if (!sourceNode || !targetNode) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn(`FloatingEdge ${id}: missing ${!sourceNode ? "source" : "target"} node`);
+    }
     return null;
   }
 

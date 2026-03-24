@@ -9,13 +9,15 @@ export const ScenarioDataSchema = z.object({
   expectedResults: z.string().optional(),
   codeRef: z.string().optional(),
   isDropTarget: z.boolean().optional(),
-}).passthrough();
+}).strip();
 
 export const ScenarioNodeSchema = z.object({
   id: z.string(),
   type: z.string().optional(),
-  position: z.object({ x: z.number(), y: z.number() }).passthrough(),
+  position: z.object({ x: z.number(), y: z.number() }),
   data: ScenarioDataSchema,
+  width: z.number().optional(),
+  height: z.number().optional(),
 }).passthrough();
 
 export const ScenarioEdgeSchema = z.object({
