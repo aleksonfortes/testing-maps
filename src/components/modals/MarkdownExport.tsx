@@ -2,10 +2,10 @@
 
 import React, { useMemo, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Copy, X, FileJson, Download, Check } from "lucide-react";
+import { Copy, X, FileJson, Download, Check, GitBranch } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Node, Edge } from "@xyflow/react";
-import { generateMarkdown } from "@/lib/markdown-generator";
+import { generateMarkdown, TESTING_MAP_HEADER } from "@/lib/markdown-generator";
 import { CLIPBOARD_SUCCESS_TIMEOUT_MS } from "@/lib/constants";
 
 interface MarkdownExportProps {
@@ -34,14 +34,29 @@ export function MarkdownExport({ nodes, edges, mapName, onClose }: MarkdownExpor
     }
   };
 
+  const slugify = (name: string) =>
+    name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
   const downloadMarkdown = () => {
     const blob = new Blob([markdown], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    const slug = (mapName || "testing-map").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    const slug = slugify(mapName || "testing-map");
     const date = new Date().toISOString().slice(0, 10);
     a.download = `${slug}-${date}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const saveToProject = () => {
+    const withHeader = TESTING_MAP_HEADER + markdown;
+    const blob = new Blob([withHeader], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const slug = slugify(mapName || "testing-map");
+    a.download = `${slug}.testing-map.md`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -93,6 +108,14 @@ export function MarkdownExport({ nodes, edges, mapName, onClose }: MarkdownExpor
               </div>
 
               <footer className="p-8 border-t border-white/5 flex justify-end gap-3 bg-white/[0.02]">
+                <button
+                  onClick={saveToProject}
+                  className="flex items-center gap-2 px-8 py-3 bg-white/5 text-foreground/70 border border-white/5 rounded-2xl font-bold text-[13px] uppercase tracking-wider hover:bg-white/10 hover:text-foreground transition-all"
+                  title="Download as .testing-map.md for git tracking"
+                >
+                  <GitBranch className="w-4 h-4" />
+                  Save to Project
+                </button>
                 <button
                   onClick={downloadMarkdown}
                   className="flex items-center gap-2 px-8 py-3 bg-white/5 text-foreground/70 border border-white/5 rounded-2xl font-bold text-[13px] uppercase tracking-wider hover:bg-white/10 hover:text-foreground transition-all"

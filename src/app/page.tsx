@@ -5,18 +5,18 @@ import { BetaBadge, OnboardingGuidance } from "@/components/BetaBadge";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center pt-8 pb-12 px-6 bg-background text-foreground">
+    <main className="min-h-screen bg-background text-foreground">
       {/* Background decoration */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
       </div>
 
       <nav className="sticky top-0 w-full px-6 py-4 flex justify-between items-center glass z-50 border-b border-border/50">
-        <div className="flex items-center gap-2 font-bold text-lg tracking-tight relative">
+        <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight relative">
           <Logo size={24} className="rounded-lg" />
           <span>Testing Maps</span>
           <BetaBadge className="absolute -top-1 -right-10" />
-        </div>
+        </Link>
         <div className="flex items-center gap-5">
           <Link href="/guide" className="text-sm font-semibold hover:text-primary transition-colors">Guide</Link>
           <Link href="/workspace" className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-all">
@@ -25,7 +25,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <section className="flex-1 flex flex-col justify-center max-w-4xl text-center space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+      <section className="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto text-center space-y-8 px-6 pb-12 pt-24 animate-in fade-in slide-in-from-bottom-8 duration-1000">
         <h1 className="text-6xl md:text-8xl font-bold tracking-tighter">
           Testing in the <br />
           <span className="text-muted-foreground">age of AI.</span>

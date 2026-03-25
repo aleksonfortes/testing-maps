@@ -67,6 +67,29 @@ For a complete overview of all testing scenarios, instructions, and codebase lin
 
 ---
 
+## Git-Based Testing Map Workflow
+
+Testing Maps bridges visual mind maps with your codebase through markdown files. The workflow:
+
+1. **Create** your testing map visually in the workspace
+2. **Export** using "Save to Project" — downloads a `*.testing-map.md` file with a standardized format
+3. **Commit** the `.testing-map.md` file alongside your code
+4. **AI tools** (like Claude Code) read the map via `CLAUDE.md` to understand testing context
+5. **Teammates** import the file back into Testing Maps to visualize and update
+
+### AI Integration
+
+This repo includes a `CLAUDE.md` that references the testing map. AI coding assistants that support it will automatically:
+- Check relevant test scenarios before making changes
+- Update scenario statuses after fixing bugs
+- Add new scenarios when implementing features
+
+### File Convention
+
+Files ending in `.testing-map.md` are recognized as testing map exports. They include a format header comment and can be re-imported into any Testing Maps workspace.
+
+---
+
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get started.
