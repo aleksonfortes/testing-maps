@@ -44,7 +44,6 @@ import { getDescendantIds, getHiddenNodeIds } from "@/lib/tree-utils";
 import { generateMarkdown } from "@/lib/markdown-generator";
 import { parseMarkdown } from "@/lib/markdown-parser";
 import {
-  LAYOUT_DELAY,
   FIT_VIEW_DELAY_MS,
   FIT_VIEW_DURATION_MS,
   NEW_NODE_HORIZONTAL_OFFSET,
@@ -102,7 +101,7 @@ export function MapCanvas({ mapId }: MapCanvasProps) {
 // Inner component
 // ---------------------------------------------------------------------------
 function MapCanvasInner({ mapId }: MapCanvasProps) {
-  const { editingNodeId, setEditingNodeId, activeFilters, isMarkdownView, setIsMarkdownView } = useUI();
+  const { editingNodeId, setEditingNodeId, isMarkdownView, setIsMarkdownView } = useUI();
   const { fitView, getNodes, getEdges } = useReactFlow();
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -355,32 +354,6 @@ function MapCanvasInner({ mapId }: MapCanvasProps) {
       toast.success(`${count} scenario${count !== 1 ? "s" : ""} set to ${status}`, { duration: 2000 });
     },
     [setNodes, pushSnapshot, getEdges]
-  );
-
-  // -----------------------------------------------------------------------
-  // Layout
-  // -----------------------------------------------------------------------
-  const onLayout = useCallback(
-    (direction: string) => {
-      const allNodes = getNodes();
-      const allEdges = getEdges();
-      // Only layout visible nodes; hidden nodes keep their positions
-      const visible = allNodes.filter((n) => !n.hidden);
-      const visibleEdges = allEdges.filter((e) => !e.hidden);
-      const { nodes: lNodes, edges: lEdges } = getLayoutedElements(visible, visibleEdges, direction);
-      const styledEdges = lEdges.map((e) => ({ ...e, type: "floating", animated: true }));
-
-      // Merge: laid-out visible nodes + unchanged hidden nodes
-      const laidMap = new Map(lNodes.map((n) => [n.id, n]));
-      const styledMap = new Map(styledEdges.map((e) => [e.id, e]));
-      setNodes(allNodes.map((n) => laidMap.get(n.id) ?? n));
-      setEdges(allEdges.map((e) => styledMap.get(e.id) ?? e));
-
-      requestAnimationFrame(() => {
-        setTimeout(() => fitView({ duration: FIT_VIEW_DURATION_MS, padding: 0.4 }), FIT_VIEW_DELAY_MS);
-      });
-    },
-    [getNodes, getEdges, setNodes, setEdges, fitView]
   );
 
   const addNode = useCallback(

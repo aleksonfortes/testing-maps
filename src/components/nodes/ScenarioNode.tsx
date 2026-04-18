@@ -96,6 +96,7 @@ export const ScenarioNode = memo(({ id, data, selected, targetPosition, sourcePo
 
   // Sync editLabel when data changes externally (e.g. undo)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!isEditingLabel) setEditLabel(data.label);
   }, [data.label, isEditingLabel]);
 
