@@ -132,7 +132,7 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
                       id="scenario-status"
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value as ScenarioData["status"] })}
-                      className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 text-sm outline-none focus:ring-2 ring-white/10 font-medium appearance-none"
+                      className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 text-sm text-foreground outline-none focus:ring-2 ring-white/10 font-medium appearance-none"
                     >
                       <option value="untested">Untested</option>
                       <option value="verified">Verified</option>
@@ -148,7 +148,7 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
                       id="scenario-test-type"
                       value={formData.testType}
                       onChange={(e) => setFormData({ ...formData, testType: e.target.value as ScenarioData["testType"] })}
-                      className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 text-sm outline-none focus:ring-2 ring-white/10 font-medium appearance-none"
+                      className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 text-sm text-foreground outline-none focus:ring-2 ring-white/10 font-medium appearance-none"
                     >
                       <option value="manual">Manual</option>
                       <option value="unit">Unit</option>
@@ -168,7 +168,7 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
                       id="scenario-priority"
                       value={formData.priority ?? ""}
                       onChange={(e) => setFormData({ ...formData, priority: (e.target.value || undefined) as ScenarioData["priority"] })}
-                      className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 text-sm outline-none focus:ring-2 ring-white/10 font-medium appearance-none"
+                      className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 text-sm text-foreground outline-none focus:ring-2 ring-white/10 font-medium appearance-none"
                     >
                       <option value="">Not Set</option>
                       <option value="low">Low</option>
@@ -186,7 +186,7 @@ export function ScenarioModal({ nodeId, initialData, onUpdate, onDelete }: Scena
                       id="scenario-risk"
                       value={formData.risk ?? ""}
                       onChange={(e) => setFormData({ ...formData, risk: (e.target.value || undefined) as ScenarioData["risk"] })}
-                      className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 text-sm outline-none focus:ring-2 ring-white/10 font-medium appearance-none"
+                      className="w-full bg-black/5 dark:bg-white/5 border border-white/5 rounded-2xl px-4 py-3.5 text-sm text-foreground outline-none focus:ring-2 ring-white/10 font-medium appearance-none"
                     >
                       <option value="">Not Set</option>
                       <option value="low">Low</option>

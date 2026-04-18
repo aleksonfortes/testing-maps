@@ -117,3 +117,9 @@
   visibility: hidden !important;
   overflow: hidden !important;
 }
+
+/* Native <option> elements ignore Tailwind dark mode classes — force colors explicitly */
+.dark select option {
+  background-color: #27272a;
+  color: #fafafa;
+}
